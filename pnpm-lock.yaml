@@ -44,6 +44,12 @@ importers:
 
   web:
     dependencies:
+      '@portabletext/react':
+        specifier: ^6.0.2
+        version: 6.0.2(react@19.2.3)
+      '@vercel/analytics':
+        specifier: ^1.6.1
+        version: 1.6.1(next@16.1.6(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react@19.2.3)
       next:
         specifier: 16.1.6
         version: 16.1.6(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -53,6 +59,9 @@ importers:
       react-dom:
         specifier: 19.2.3
         version: 19.2.3(react@19.2.3)
+      react-icons:
+        specifier: ^5.5.0
+        version: 5.5.0(react@19.2.3)
     devDependencies:
       '@tailwindcss/postcss':
         specifier: ^4
@@ -72,6 +81,9 @@ importers:
       eslint-config-next:
         specifier: 16.1.6
         version: 16.1.6(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
+      playwright:
+        specifier: ^1.58.2
+        version: 1.58.2
       tailwindcss:
         specifier: ^4
         version: 4.1.18
@@ -2557,6 +2569,32 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@vercel/analytics@1.6.1':
+    resolution: {integrity: sha512-oH9He/bEM+6oKlv3chWuOOcp8Y6fo6/PSro8hEkgCW3pu9/OiCXiUpRUogDh3Fs3LH2sosDrx8CxeOLBEE+afg==}
+    peerDependencies:
+      '@remix-run/react': ^2
+      '@sveltejs/kit': ^1 || ^2
+      next: '>= 13'
+      react: ^18 || ^19 || ^19.0.0-rc
+      svelte: '>= 4'
+      vue: ^3
+      vue-router: ^4
+    peerDependenciesMeta:
+      '@remix-run/react':
+        optional: true
+      '@sveltejs/kit':
+        optional: true
+      next:
+        optional: true
+      react:
+        optional: true
+      svelte:
+        optional: true
+      vue:
+        optional: true
+      vue-router:
+        optional: true
+
   '@vercel/edge@1.2.2':
     resolution: {integrity: sha512-1+y+f6rk0Yc9ss9bRDgz/gdpLimwoRteKHhrcgHvEpjbP1nyT3ByqEMWm2BTcpIO5UtDmIFXc8zdq4LR190PDA==}
 
@@ -3663,6 +3701,11 @@ packages:
 
   fs-constants@1.0.0:
     resolution: {integrity: sha512-y6OAwoSIf7FyjMIv94u+b5rdheZEjzR63GTyZJm5qh4Bi+2YgwLCcI/fPFZkL5PSixOt6ZNKm+w+Hfp/Bciwow==}
+
+  fsevents@2.3.2:
+    resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
+    engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
+    os: [darwin]
 
   fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
@@ -4846,6 +4889,16 @@ packages:
   player.style@0.3.1:
     resolution: {integrity: sha512-z/T8hJGaTkHT9vdXgWdOgF37eB1FV7/j52VXQZ2lgEhpru9oT8TaUWIxp6GoxTnhPBM4X6nSbpkAHrT7UTjUKg==}
 
+  playwright-core@1.58.2:
+    resolution: {integrity: sha512-yZkEtftgwS8CsfYo7nm0KE8jsvm6i/PTgVtB8DL726wNf6H2IMsDuxCpJj59KDaxCtSnrWan2AeDqM7JBaultg==}
+    engines: {node: '>=18'}
+    hasBin: true
+
+  playwright@1.58.2:
+    resolution: {integrity: sha512-vA30H8Nvkq/cPBnNw4Q8TWz1EJyqgpuinBcHET0YVJVFldr8JDNiU9LaWAE1KqSkRYazuaBhTpB5ZzShOezQ6A==}
+    engines: {node: '>=18'}
+    hasBin: true
+
   pluralize-esm@9.0.5:
     resolution: {integrity: sha512-Kb2dcpMsIutFw2hYrN0EhsAXOUJTd6FVMIxvNAkZCMQLVt9NGZqQczvGpYDxNWCZeCWLHUPxQIBudWzt1h7VVA==}
     engines: {node: '>=14.0.0'}
@@ -4991,6 +5044,11 @@ packages:
         optional: true
       typescript:
         optional: true
+
+  react-icons@5.5.0:
+    resolution: {integrity: sha512-MEFcXdkP3dLo8uumGI5xN3lDFNsRtrjbOEKDLD7yv76v4wpnEq2Lt2qeHaQOr34I/wPN3s3+N08WkQ+CW37Xiw==}
+    peerDependencies:
+      react: '*'
 
   react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
@@ -8942,6 +9000,11 @@ snapshots:
   '@unrs/resolver-binding-win32-x64-msvc@1.11.1':
     optional: true
 
+  '@vercel/analytics@1.6.1(next@16.1.6(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react@19.2.3)':
+    optionalDependencies:
+      next: 16.1.6(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      react: 19.2.3
+
   '@vercel/edge@1.2.2': {}
 
   '@vitejs/plugin-react@5.1.4(vite@7.3.1(@types/node@20.19.33)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)(yaml@2.8.2))':
@@ -10331,6 +10394,9 @@ snapshots:
 
   fs-constants@1.0.0: {}
 
+  fsevents@2.3.2:
+    optional: true
+
   fsevents@2.3.3:
     optional: true
 
@@ -11494,6 +11560,14 @@ snapshots:
     transitivePeerDependencies:
       - react
 
+  playwright-core@1.58.2: {}
+
+  playwright@1.58.2:
+    dependencies:
+      playwright-core: 1.58.2
+    optionalDependencies:
+      fsevents: 2.3.2
+
   pluralize-esm@9.0.5: {}
 
   pluralize@8.0.0: {}
@@ -11630,6 +11704,10 @@ snapshots:
     optionalDependencies:
       react-dom: 19.2.3(react@19.2.3)
       typescript: 5.9.3
+
+  react-icons@5.5.0(react@19.2.3):
+    dependencies:
+      react: 19.2.3
 
   react-is@16.13.1: {}
 
