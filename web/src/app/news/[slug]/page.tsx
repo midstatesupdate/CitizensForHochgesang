@@ -1,0 +1,98 @@
+import type {Metadata} from 'next'
+import {notFound} from 'next/navigation'
+import Link from 'next/link'
+import Image from 'next/image'
+
+import {ArticleContent} from '@/components/article-content'
+import {ArticleSceneObserver} from '@/components/article-scene-observer'
+import {formatDate} from '@/lib/cms/format'
+import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-visuals'
+import {getAllPosts, getPageVisualSettings, getPostBySlug} from '@/lib/cms/repository'
+
+type PostPageProps = {
+  params: Promise<{slug: string}>
+}
+
+export async function generateStaticParams() {
+  const posts = await getAllPosts()
+  return posts.map((post) => ({slug: post.slug}))
+}
+
+export async function generateMetadata({params}: PostPageProps): Promise<Metadata> {
+  const {slug} = await params
+  const post = await getPostBySlug(slug)
+
+  if (!post) {
+    return {
+      title: 'Article not found',
+    }
+  }
+
+  return {
+    title: post.title,
+    description: post.excerpt,
+  }
+}
+
+export default async function PostPage({params}: PostPageProps) {
+  const {slug} = await params
+  const [post, pageVisualSettings] = await Promise.all([
+    getPostBySlug(slug),
+    getPageVisualSettings('news-detail'),
+  ])
+
+  if (!post) {
+    notFound()
+  }
+
+  const storyExperience = Array.isArray(post.storyTimeline) ? post.storyTimeline : []
+
+  return (
+    <main className={getPageShellClasses(pageVisualSettings)} {...getPageShellDataAttributes(pageVisualSettings)}>
+      <article className="card mx-auto w-full max-w-4xl">
+        <div className="flex flex-col gap-5">
+          <Link className="text-sm font-semibold text-[color:var(--color-accent)] hover:underline" href="/news">
+            ← Back to News
+          </Link>
+          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[color:var(--color-muted)]">
+            {formatDate(post.publishedAt)}
+          </p>
+          <h1 className="hero-title">{post.title}</h1>
+          {post.coverImageUrl ? (
+            <div className="card-media">
+              <Image
+                src={post.coverImageUrl}
+                alt={`${post.title} cover image`}
+                width={1600}
+                height={900}
+                className="h-auto w-full object-cover"
+                unoptimized
+              />
+            </div>
+          ) : null}
+          {post.excerpt ? <p className="text-base text-[color:var(--color-muted)]">{post.excerpt}</p> : null}
+          {post.tags.length > 0 ? (
+            <ul className="flex flex-wrap gap-2">
+              {post.tags.map((tag) => (
+                <li
+                  key={`${post.slug}-${tag}`}
+                  className="rounded-full border border-[color:var(--color-border)] px-3 py-1 text-xs text-[color:var(--color-muted)]"
+                >
+                  {tag}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+          <ArticleContent body={post.body} />
+          {storyExperience.length > 0 ? (
+            <section className="grid gap-3">
+              <p className="eyebrow">Reading Experience</p>
+              <ArticleContent body={storyExperience} />
+            </section>
+          ) : null}
+        </div>
+      </article>
+      <ArticleSceneObserver />
+    </main>
+  )
+}

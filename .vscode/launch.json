@@ -1,0 +1,63 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Web: Dev (Production)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "pnpm -C web dev",
+      "env": {
+        "NEXT_PUBLIC_SANITY_PROJECT_ID": "n2oyijjv",
+        "NEXT_PUBLIC_SANITY_DATASET": "production",
+        "NEXT_PUBLIC_SANITY_API_VERSION": "2025-02-19"
+      }
+    },
+    {
+      "name": "Web: Dev (Development)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "pnpm -C web dev",
+      "env": {
+        "NEXT_PUBLIC_SANITY_PROJECT_ID": "n2oyijjv",
+        "NEXT_PUBLIC_SANITY_DATASET": "development",
+        "NEXT_PUBLIC_SANITY_API_VERSION": "2025-02-19"
+      }
+    },
+    {
+      "name": "Studio: Dev (Production)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "pnpm -C studio dev",
+      "env": {
+        "SANITY_STUDIO_PROJECT_ID": "n2oyijjv",
+        "SANITY_STUDIO_DATASET": "production"
+      }
+    },
+    {
+      "name": "Studio: Dev (Development)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "pnpm -C studio dev",
+      "env": {
+        "SANITY_STUDIO_PROJECT_ID": "n2oyijjv",
+        "SANITY_STUDIO_DATASET": "development"
+      }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Campaign Stack (Production)",
+      "configurations": [
+        "Web: Dev (Production)",
+        "Studio: Dev (Production)"
+      ]
+    },
+    {
+      "name": "Campaign Stack (Development)",
+      "configurations": [
+        "Web: Dev (Development)",
+        "Studio: Dev (Development)"
+      ]
+    }
+  ]
+}

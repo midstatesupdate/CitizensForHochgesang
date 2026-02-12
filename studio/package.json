@@ -1,0 +1,43 @@
+{
+  "name": "stop-the-mid-states-corridor",
+  "private": true,
+  "version": "1.0.0",
+  "main": "package.json",
+  "license": "UNLICENSED",
+  "scripts": {
+    "dev": "sanity dev",
+    "start": "sanity start",
+    "build": "sanity build",
+    "deploy": "sanity deploy",
+    "deploy-graphql": "sanity graphql deploy",
+    "apply:branding": "sanity exec scripts/apply-branding.ts --with-user-token",
+    "fix:keys": "sanity exec scripts/fix-missing-keys.ts --with-user-token",
+    "seed:content": "sanity exec scripts/seed-content.ts --with-user-token",
+    "seed:experience": "sanity exec scripts/seed-reading-experience.ts --with-user-token",
+    "set:temp-portrait": "sanity exec scripts/set-temp-portrait.ts --with-user-token",
+    "sync:page-visuals": "sanity exec scripts/sync-page-visuals.ts --with-user-token"
+  },
+  "keywords": [
+    "sanity"
+  ],
+  "dependencies": {
+    "@sanity/vision": "^5.9.0",
+    "react": "^19.1",
+    "react-dom": "^19.1",
+    "sanity": "^5.9.0",
+    "styled-components": "^6.1.18"
+  },
+  "devDependencies": {
+    "@sanity/eslint-config-studio": "^6.0.0",
+    "@types/react": "^19.1",
+    "eslint": "^9.28",
+    "prettier": "^3.5",
+    "typescript": "^5.8"
+  },
+  "prettier": {
+    "semi": false,
+    "printWidth": 100,
+    "bracketSpacing": false,
+    "singleQuote": true
+  }
+}

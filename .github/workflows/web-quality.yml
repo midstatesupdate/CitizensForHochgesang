@@ -1,0 +1,54 @@
+name: Web Quality
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'web/**'
+      - 'studio/**'
+      - '.github/workflows/web-quality.yml'
+  pull_request:
+    paths:
+      - 'web/**'
+      - 'studio/**'
+      - '.github/workflows/web-quality.yml'
+
+jobs:
+  web-quality:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.29.3
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint web
+        run: pnpm -C web lint
+
+      - name: Build web
+        run: pnpm -C web build
+
+      - name: Verify Sanity schema-aware checks
+        run: pnpm -C web verify:sanity
+
+      - name: Check published links
+        run: pnpm -C web check:links
+
+      - name: Check content freshness
+        run: pnpm -C web check:freshness
+
+      - name: Build studio
+        run: pnpm -C studio build

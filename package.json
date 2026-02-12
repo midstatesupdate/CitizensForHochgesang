@@ -1,0 +1,12 @@
+{
+  "name": "citizens-for-hochgesang",
+  "private": true,
+  "packageManager": "pnpm@10.29.3",
+  "scripts": {
+    "dev:web": "pnpm -C web dev",
+    "dev:studio": "pnpm -C studio dev",
+    "build:web": "pnpm -C web build",
+    "build:studio": "pnpm -C studio build",
+    "lint:web": "pnpm -C web lint"
+  }
+}
