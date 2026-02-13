@@ -59,6 +59,13 @@ Profile templates:
 - `.env.production.local.example`
 - `.env.development.local.example`
 
+Cloudflare production variables for web runtime:
+- `NEXT_PUBLIC_SANITY_PROJECT_ID=n2oyijjv`
+- `NEXT_PUBLIC_SANITY_DATASET=production`
+- `NEXT_PUBLIC_SANITY_API_VERSION=2025-02-19`
+
+Note: `SANITY_STUDIO_PROJECT_ID` and `SANITY_STUDIO_DATASET` are Studio variables and are not read by the Next.js web app.
+
 ## Build
 
 From repo root:
@@ -108,6 +115,9 @@ pnpm check:freshness
 - When previewing via static export output (`web/out`), CMS changes only appear after rebuilding/exporting the site.
 - Per-page background/tone/container visuals are controlled in Sanity via `pageVisualSettings` and consumed in route shells.
 - Full-page background animation, text-link animation, motion intensity, and scroll reveal dynamics are controlled per route via `pageVisualSettings`.
+- Background animations are disabled by default for low-noise operation.
+- Set `NEXT_PUBLIC_ENABLE_BG_ANIMATIONS=1` to re-enable per-page CMS background animation classes (`drift`, `tracers`, `pulse`, etc.).
+- Set `NEXT_PUBLIC_BG_ANIM_STEPPED=1` (with background animations enabled) to reduce visual update frequency via stepped timing while keeping each animation's total duration unchanged.
 - Long-form article storytelling controls are authored in Sanity `post.body` via `Story Scene` and `Stat Callout` blocks with per-element animation presets, delay, and duration.
 - Site statistics tracking is enabled via Vercel Analytics (`@vercel/analytics`) in the root layout.
 - Repository calls in `src/lib/cms/repository.ts` intentionally fall back to

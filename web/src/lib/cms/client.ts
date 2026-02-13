@@ -1,5 +1,5 @@
-const SANITY_PROJECT_ID = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID ?? 'scos8zjw'
-const SANITY_DATASET = process.env.NEXT_PUBLIC_SANITY_DATASET ?? 'citizens-for-hochgesang'
+const SANITY_PROJECT_ID = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID ?? 'n2oyijjv'
+const SANITY_DATASET = process.env.NEXT_PUBLIC_SANITY_DATASET ?? 'production'
 const SANITY_API_VERSION = process.env.NEXT_PUBLIC_SANITY_API_VERSION ?? '2025-02-19'
 
 type QueryParam = string | number | boolean

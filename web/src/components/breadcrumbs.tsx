@@ -61,8 +61,8 @@ function getNewsSlug(pathname: string) {
 }
 
 function resolveSanityApiUrl(query: string, slug: string) {
-  const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID ?? 'scos8zjw'
-  const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET ?? 'citizens-for-hochgesang'
+  const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID ?? 'n2oyijjv'
+  const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET ?? 'production'
   const apiVersion = process.env.NEXT_PUBLIC_SANITY_API_VERSION ?? '2025-02-19'
 
   const url = new URL(`https://${projectId}.api.sanity.io/v${apiVersion}/data/query/${dataset}`)

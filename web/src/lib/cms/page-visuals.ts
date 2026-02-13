@@ -18,7 +18,7 @@ const defaultVisuals: Record<PageVisualPageKey, PageVisualSettings> = {
     toneVariant: 'news',
     motionPreset: 'balanced',
     textLinkAnimation: 'glint',
-    pageBackgroundAnimation: 'pulse',
+    pageBackgroundAnimation: 'drift',
     scrollRevealAnimation: 'dynamic',
   },
   'news-detail': {
@@ -58,7 +58,7 @@ const defaultVisuals: Record<PageVisualPageKey, PageVisualSettings> = {
     toneVariant: 'media',
     motionPreset: 'lively',
     textLinkAnimation: 'glint',
-    pageBackgroundAnimation: 'tracers',
+    pageBackgroundAnimation: 'drift',
     scrollRevealAnimation: 'dynamic',
   },
   press: {
@@ -68,7 +68,7 @@ const defaultVisuals: Record<PageVisualPageKey, PageVisualSettings> = {
     toneVariant: 'media',
     motionPreset: 'calm',
     textLinkAnimation: 'subtle',
-    pageBackgroundAnimation: 'drift-tracers',
+    pageBackgroundAnimation: 'drift',
     scrollRevealAnimation: 'soft',
   },
   support: {
@@ -89,12 +89,15 @@ export function getDefaultPageVisual(pageKey: PageVisualPageKey): PageVisualSett
 
 export function getPageShellClasses(visuals: PageVisualSettings): string {
   const classes = ['page-shell']
+  const backgroundAnimationsEnabled = process.env.NEXT_PUBLIC_ENABLE_BG_ANIMATIONS === '1'
+  const steppedBackgroundAnimations = process.env.NEXT_PUBLIC_BG_ANIM_STEPPED === '1'
 
   classes.push(`page-bg-${visuals.backgroundVariant}`)
   classes.push(`page-shell-container-${visuals.containerVariant}`)
   classes.push(`motion-${visuals.motionPreset}`)
   classes.push(`text-links-${visuals.textLinkAnimation}`)
-  classes.push(`bg-anim-${visuals.pageBackgroundAnimation}`)
+  classes.push(`bg-anim-${backgroundAnimationsEnabled ? visuals.pageBackgroundAnimation : 'none'}`)
+  classes.push(steppedBackgroundAnimations ? 'bg-anim-fps-stepped' : 'bg-anim-fps-normal')
   classes.push(`scroll-reveal-${visuals.scrollRevealAnimation}`)
 
   if (visuals.toneVariant !== 'default') {
