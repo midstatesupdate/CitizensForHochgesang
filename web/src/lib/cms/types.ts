@@ -107,7 +107,7 @@ export type PostSummary = {
   coverImage?: SanityImageSource
   publishedAt: string
   coverImageUrl?: string
-  newsCardLayout?: 'stacked' | 'image-left' | 'image-right' | 'feature-split'
+  newsCardLayout?: 'stacked' | 'image-left' | 'image-right' | 'feature-split' | 'no-photo'
   newsImageOrientation?: 'landscape' | 'portrait'
   newsImageAspectRatio?: '3:2' | '4:3' | '16:9' | '1:1' | '4:5' | '3:4' | '2:3' | '9:16'
   newsCardAnimation?: 'fade-up' | 'slide-up' | 'slide-left' | 'slide-right' | 'none'

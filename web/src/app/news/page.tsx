@@ -22,6 +22,7 @@ const LAYOUT_CLASSNAMES: Record<string, string> = {
   'image-left': 'news-card-layout-image-left',
   'image-right': 'news-card-layout-image-right',
   'feature-split': 'news-card-layout-feature-split',
+  'no-photo': 'news-card-layout-no-photo',
 }
 
 const ANIMATION_CLASSNAMES: Record<string, string> = {
@@ -69,14 +70,15 @@ export default async function NewsPage() {
           const coverImageUrl =
             getSanityImageUrl(post.coverImage, {width: ratio.width, height: ratio.height}) ?? post.coverImageUrl
           const previewText = getBodyPreview(post)
+          const showMedia = post.newsCardLayout !== 'no-photo' && !!coverImageUrl
 
           return (
             <article key={post.slug} className={`card article-card news-card ${layoutClass} ${animationClass}`}>
               <div className="news-card-content-wrap">
-                {coverImageUrl ? (
+                {showMedia ? (
                   <div className={`card-media news-card-media ${ratio.className}`}>
                     <Image
-                      src={coverImageUrl}
+                      src={coverImageUrl!}
                       alt={`${post.title} cover image`}
                       width={ratio.width}
                       height={ratio.height}

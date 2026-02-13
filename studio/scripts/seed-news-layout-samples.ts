@@ -87,12 +87,14 @@ async function main() {
       newsImageOrientation: 'landscape',
       newsImageAspectRatio: '16:9',
       newsCardAnimation: 'fade-up',
-      newsBodyPreviewChars: 460,
+      newsBodyPreviewChars: 900,
       tags: ['layout-sample', 'feature-split'],
       body: portableText([
-        'This sample article demonstrates the feature split layout with a widescreen 16:9 image and a longer body preview block.',
-        'Use this to verify card rhythm, spacing, and typography consistency next to other layout combinations.',
-        'The crop/hotspot controls on the image can still fine-tune framing while preserving a consistent card ratio.',
+        'This sample article demonstrates the feature split layout with a widescreen 16:9 image and intentionally long body text so card truncation behavior is easy to evaluate at larger desktop widths.',
+        'Use this to verify card rhythm, spacing, typography consistency, and visual balance against portrait-driven cards when the text column has significantly more content than the available vertical space.',
+        'The crop and hotspot controls on the image can still fine-tune framing while preserving a consistent card ratio, which means editors can adjust focal points without breaking list alignment or page rhythm.',
+        'In campaign publishing workflows, this allows one article to carry context-heavy detail while another remains concise, yet both still render in a unified system that is readable, accessible, and visually predictable.',
+        'Additional filler copy is included here specifically to ensure six-line clamps are exceeded at wide breakpoints and that native ellipsis rendering appears at the end of the final visible line.',
       ]),
     })
     .createOrReplace({
@@ -107,12 +109,14 @@ async function main() {
       newsImageOrientation: 'portrait',
       newsImageAspectRatio: '4:5',
       newsCardAnimation: 'slide-left',
-      newsBodyPreviewChars: 430,
+      newsBodyPreviewChars: 900,
       tags: ['layout-sample', 'image-left'],
       body: portableText([
-        'This sample validates portrait media in a left-hand layout while the body preview remains visually balanced against the image.',
-        'When editors adjust crop and hotspot, the 4:5 ratio remains stable for consistent list design.',
-        'Animation is configured per article so this card can move differently without harming page cohesion.',
+        'This sample validates portrait media in a left-hand layout while the body preview remains visually balanced against the image and intentionally exceeds the visible card copy area.',
+        'When editors adjust crop and hotspot, the 4:5 ratio remains stable for consistent list design, allowing tightly framed portraits and event photography to coexist in the same feed.',
+        'Animation is configured per article so this card can move differently without harming page cohesion, preserving consistency while still giving the content team meaningful per-post creative control.',
+        'Long-form body text in this sample is deliberate: it confirms that truncation is handled by layout overflow rules rather than ad hoc punctuation or artificial hard-stop rendering.',
+        'That behavior is especially important for responsive layouts where line length changes substantially between tablet and desktop experiences.',
       ]),
     })
     .createOrReplace({
@@ -127,12 +131,14 @@ async function main() {
       newsImageOrientation: 'landscape',
       newsImageAspectRatio: '3:2',
       newsCardAnimation: 'slide-right',
-      newsBodyPreviewChars: 420,
+      newsBodyPreviewChars: 900,
       tags: ['layout-sample', 'image-right'],
       body: portableText([
-        'This card verifies right-side media alignment and demonstrates how DSLR-friendly imagery behaves in list context.',
-        'Spacing, metadata, tags, and CTA remain consistent with other card variants despite layout differences.',
-        'The preview section should fade and ellipsize once it reaches the available card space.',
+        'This card verifies right-side media alignment and demonstrates how DSLR-friendly imagery behaves in list context when the text column contains substantially more copy than can be displayed.',
+        'Spacing, metadata, tags, and call-to-action placement remain consistent with other card variants despite layout differences, reinforcing a cohesive design system for campaign readers.',
+        'The preview section is designed to truncate naturally at the final line boundary and should show native ellipsis behavior once available card space is consumed.',
+        'This extended paragraph ensures truncation remains visible in wide desktop contexts where shorter copy might fully fit and therefore not visually demonstrate overflow treatment.',
+        'By keeping this sample intentionally verbose, you can quickly verify truncation consistency across browser widths and layout options.',
       ]),
     })
     .createOrReplace({
@@ -147,12 +153,14 @@ async function main() {
       newsImageOrientation: 'portrait',
       newsImageAspectRatio: '9:16',
       newsCardAnimation: 'slide-up',
-      newsBodyPreviewChars: 480,
+      newsBodyPreviewChars: 900,
       tags: ['layout-sample', 'stacked'],
       body: portableText([
-        'This stacked variant checks tall mobile-style imagery in a standard top-image card structure.',
-        'Editors can use this when they want strong portrait framing while retaining predictable vertical rhythm in the list.',
-        'With the larger preview character limit, the body text reliably transitions to fade and ellipsis.',
+        'This stacked variant checks tall mobile-style imagery in a standard top-image card structure and intentionally uses long copy to force overflow in desktop and tablet breakpoints.',
+        'Editors can use this when they want strong portrait framing while retaining predictable vertical rhythm in the list, even when article context is dense and requires additional body text.',
+        'With a larger preview character limit, truncation depends on available space rather than aggressive early slicing, producing more natural previews for long-form campaign updates.',
+        'This extra paragraph keeps the sample sufficiently verbose to prove line-clamp behavior in environments where card width increases and ordinary excerpts might otherwise render in full.',
+        'The goal of this sample is visual QA confidence, not editorial brevity, so each line is purposely extended for overflow testing.',
       ]),
     })
     .commit()

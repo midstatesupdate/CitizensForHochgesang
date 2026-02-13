@@ -90,6 +90,7 @@ async function main() {
             asset: {_type: 'reference', _ref: logoAssetRef},
           }
         : undefined,
+      newsCardLayout: 'no-photo',
       tags: ['sample', 'reading experience', 'infrastructure'],
       body: [
         ...paragraphBlocks(longIntroA, 'infra-intro'),
@@ -190,6 +191,7 @@ async function main() {
             asset: {_type: 'reference', _ref: logoAssetRef},
           }
         : undefined,
+      newsCardLayout: 'no-photo',
       tags: ['sample', 'reading experience', 'constituent services', 'ai'],
       body: [
         ...paragraphBlocks(longIntroB, 'service-intro'),

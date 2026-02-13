@@ -20,6 +20,7 @@ const newsCardLayoutOptions = [
   {title: 'Image Left', value: 'image-left'},
   {title: 'Image Right', value: 'image-right'},
   {title: 'Feature Split', value: 'feature-split'},
+  {title: 'No Photo (Text Only)', value: 'no-photo'},
 ]
 
 const newsCardAnimationOptions = [
