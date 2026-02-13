@@ -9,6 +9,8 @@ import {
 export const mockSiteSettings: SiteSettings = {
   siteTitle: 'Citizens For Hochgesang',
   tagline: 'Practical leadership for Indiana State Senate District 48.',
+  homeLinkLine1: 'Brad Hochgesang',
+  homeLinkLine2: 'For State Senate',
   campaignLogoAlt: 'Brad Hochgesang for State Senate campaign logo',
   homeHeroLayout: 'clean-split',
   donateUrl: 'https://secure.actblue.com/donate/brad-hochgesang-1',

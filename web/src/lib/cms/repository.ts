@@ -34,6 +34,9 @@ export async function getSiteSettings(): Promise<SiteSettings> {
   const query = `*[_type=="siteSettings"][0]{
     "siteTitle": coalesce(siteTitle, "Citizens For Hochgesang"),
     "tagline": coalesce(tagline, "Practical leadership for Indiana State Senate District 48."),
+    "homeLinkLine1": coalesce(homeLinkLine1, "Brad Hochgesang"),
+    "homeLinkLine2": coalesce(homeLinkLine2, "For State Senate"),
+    campaignLogo,
     "campaignLogoUrl": campaignLogo.asset->url,
     "campaignLogoAlt": campaignLogoAlt,
     "candidatePortraitUrl": candidatePortrait.asset->url,

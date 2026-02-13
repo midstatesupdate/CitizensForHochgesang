@@ -3,9 +3,32 @@ export type SocialLink = {
   url: string
 }
 
+export type SanityImageSource = {
+  _type?: 'image'
+  asset?: {
+    _ref: string
+    _type?: 'reference'
+  }
+  crop?: {
+    top: number
+    bottom: number
+    left: number
+    right: number
+  }
+  hotspot?: {
+    x: number
+    y: number
+    height: number
+    width: number
+  }
+}
+
 export type SiteSettings = {
   siteTitle: string
   tagline: string
+  homeLinkLine1: string
+  homeLinkLine2: string
+  campaignLogo?: SanityImageSource
   campaignLogoUrl?: string
   campaignLogoAlt?: string
   candidatePortraitUrl?: string

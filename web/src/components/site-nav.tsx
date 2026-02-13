@@ -1,6 +1,6 @@
 'use client'
 
-import {useEffect, useState} from 'react'
+import {useState} from 'react'
 import Link from 'next/link'
 import {usePathname} from 'next/navigation'
 import {FaBars, FaCalendarAlt, FaHandsHelping, FaNewspaper, FaQuestionCircle, FaRegNewspaper, FaTimes, FaVideo} from 'react-icons/fa'
@@ -34,10 +34,6 @@ function isActivePath(pathname: string, href: string) {
 export function SiteNav() {
   const pathname = usePathname() ?? '/'
   const [mobileOpen, setMobileOpen] = useState(false)
-
-  useEffect(() => {
-    setMobileOpen(false)
-  }, [pathname])
 
   return (
     <nav aria-label="Primary" className="site-nav z-[90] text-sm font-semibold">
@@ -88,6 +84,7 @@ export function SiteNav() {
                 href={item.href}
                 className={`nav-link nav-link-mobile ${active ? 'nav-link-active' : ''}`}
                 aria-current={active ? 'page' : undefined}
+                onClick={() => setMobileOpen(false)}
               >
                 <Icon aria-hidden className="mr-2 inline-block" />
                 {item.label}

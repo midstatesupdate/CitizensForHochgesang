@@ -5,7 +5,7 @@ Sanity content model definitions for the campaign CMS. This folder controls what
 
 ## Files
 - [`index.ts`](index.ts): Exports all registered schema types.
-- [`siteSettings.ts`](siteSettings.ts): Global campaign settings (site title, tagline, full-size campaign logo upload, homepage candidate portrait, selectable home hero layout variant, press resource timestamp, donate/volunteer URLs, contact and social links).
+- [`siteSettings.ts`](siteSettings.ts): Global campaign settings (site title, tagline, editable header home-link lines, full-size campaign logo upload, homepage candidate portrait, selectable home hero layout variant, press resource timestamp, donate/volunteer URLs, contact and social links).
 - [`pageVisualSettings.ts`](pageVisualSettings.ts): Per-route visual controls for textured background style (5 options), container width, descriptive tone accents, motion presets, text-link animation, page background animation, and scroll reveal behavior.
 - [`post.ts`](post.ts): News/article documents with title, slug, excerpt, publish date, image, tags, plus scene-based body blocks (`Story Scene`, `Stat Callout`, inline images) for interactive reading experiences.
 - [`event.ts`](event.ts): Event documents with scheduling, location, description, and RSVP URL.

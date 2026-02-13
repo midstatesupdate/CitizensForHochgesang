@@ -52,6 +52,8 @@ Primary frontend source area for the public campaign site.
 - Default experience is dark mode (`data-theme='dark'`) with `light` as a user-selectable variant.
 - Route-level visuals are CMS-driven from `pageVisualSettings` and mapped through `lib/cms/page-visuals.ts`.
 - Homepage hero composition is CMS-driven from `siteSettings.homeHeroLayout` (`clean-split`, `portrait-left`, `immersive-overlay`).
+- Header brand lockup lines are CMS-driven from `siteSettings.homeLinkLine1` and `siteSettings.homeLinkLine2`.
+- Header logo circle uses Sanity crop/hotspot-aware image URLs to keep face/logo framing aligned with Studio image settings.
 - CMS visual setting queries use `no-store` in local dev/runtime, but switch to revalidated fetch during production static builds so published values are embedded correctly.
 - Hero variant CSS keeps portrait media/text reorder at `md+`, keeps split-layout proof badges full-width, and scopes immersive overlay positioning to the immersive frame.
 - `pageVisualSettings` now controls: background style, container width, tone accents, motion preset, text-link animation, page background animation, and scroll reveal behavior.

@@ -18,6 +18,22 @@ export const siteSettings = defineType({
       validation: (Rule) => Rule.max(160),
     }),
     defineField({
+      name: 'homeLinkLine1',
+      title: 'Header Home Link Line 1',
+      type: 'string',
+      initialValue: 'Brad Hochgesang',
+      description: 'Top line shown in the clickable home link in the site header.',
+      validation: (Rule) => Rule.required().max(80),
+    }),
+    defineField({
+      name: 'homeLinkLine2',
+      title: 'Header Home Link Line 2',
+      type: 'string',
+      initialValue: 'For State Senate',
+      description: 'Second line shown in the clickable home link in the site header.',
+      validation: (Rule) => Rule.required().max(80),
+    }),
+    defineField({
       name: 'campaignLogo',
       title: 'Campaign Logo',
       type: 'image',
