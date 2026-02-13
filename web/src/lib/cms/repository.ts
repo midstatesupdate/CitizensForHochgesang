@@ -204,8 +204,15 @@ export async function getUpcomingEvents(): Promise<CampaignEvent[]> {
     endDate,
     location,
     description,
+    scheduleImage,
     rsvpLink,
-    "scheduleImageUrl": scheduleImage.asset->url
+    "scheduleImageUrl": scheduleImage.asset->url,
+    "eventCardLayout": coalesce(eventCardLayout, "stacked"),
+    "eventImageOrientation": coalesce(eventImageOrientation, "landscape"),
+    "eventImageAspectRatio": coalesce(eventImageAspectRatio, "3:2"),
+    "eventCardAnimation": coalesce(eventCardAnimation, "fade-up"),
+    "eventDescriptionPreviewChars": coalesce(eventDescriptionPreviewChars, select(eventCardLayout == "no-photo" => 1800, 420)),
+    "tags": coalesce(tags, [])
   }`
 
   const events = await sanityQuery<Array<Omit<CampaignEvent, 'id'> & {_id: string}>>(query)

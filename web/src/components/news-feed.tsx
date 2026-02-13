@@ -59,6 +59,7 @@ function getBodyPreview(post: PostSummary): string | null {
 
 export function NewsFeed({posts}: NewsFeedProps) {
   const [selectedTag, setSelectedTag] = useState<string | null>(null)
+  const [tagQuery, setTagQuery] = useState('')
   const [sortMode, setSortMode] = useState<SortMode>('newest')
   const [visibleCount, setVisibleCount] = useState(6)
   const sentinelRef = useRef<HTMLDivElement | null>(null)
@@ -73,16 +74,38 @@ export function NewsFeed({posts}: NewsFeedProps) {
     setVisibleCount(6)
   }
 
-  const allTags = useMemo(() => {
-    const tags = new Set<string>()
+  const tagCounts = useMemo(() => {
+    const counts = new Map<string, number>()
     for (const post of posts) {
       for (const tag of post.tags) {
-        tags.add(tag)
+        const normalized = tag.trim()
+        if (!normalized) {
+          continue
+        }
+
+        counts.set(normalized, (counts.get(normalized) ?? 0) + 1)
       }
     }
 
-    return Array.from(tags).sort((a, b) => a.localeCompare(b))
+    return Array.from(counts.entries())
+      .sort((a, b) => {
+        if (b[1] !== a[1]) {
+          return b[1] - a[1]
+        }
+
+        return a[0].localeCompare(b[0])
+      })
+      .map(([tag, count]) => ({tag, count}))
   }, [posts])
+
+  const filteredTagCounts = useMemo(() => {
+    const query = tagQuery.trim().toLowerCase()
+    if (!query) {
+      return tagCounts
+    }
+
+    return tagCounts.filter(({tag}) => tag.toLowerCase().includes(query))
+  }, [tagCounts, tagQuery])
 
   const preparedPosts = useMemo(
     () =>
@@ -98,6 +121,8 @@ export function NewsFeed({posts}: NewsFeedProps) {
           layout,
           animation,
           coverImageUrl,
+          isWidescreen: (post.newsImageAspectRatio ?? '3:2') === '16:9',
+          isTallPortrait: (post.newsImageAspectRatio ?? '3:2') === '9:16',
           previewText: getBodyPreview(post),
         }
       }),
@@ -149,32 +174,47 @@ export function NewsFeed({posts}: NewsFeedProps) {
 
   return (
     <section className="grid gap-6">
-      <div className="flex flex-col gap-3 rounded-2xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)]/70 p-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-wrap items-center gap-2">
+      <div className="flex items-start gap-3 rounded-2xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)]/70 p-4">
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
           <span className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--color-muted)]">Filter tags</span>
-          <button
-            type="button"
-            onClick={() => applyTagFilter(null)}
-            className={`pill-badge ${selectedTag === null ? 'pill-badge-active' : ''}`}
-          >
-            All
-          </button>
-          {allTags.map((tag) => (
-            <button
-              key={tag}
-              type="button"
-              onClick={() => applyTagFilter(tag)}
-              className={`pill-badge ${selectedTag === tag ? 'pill-badge-active' : ''}`}
-            >
-              {tag}
-            </button>
-          ))}
+          <label className="tag-search-shell" aria-label="Search news tags">
+            <input
+              type="search"
+              value={tagQuery}
+              onChange={(event) => setTagQuery(event.target.value)}
+              placeholder="Search tags"
+              className="tag-search-input"
+            />
+          </label>
+          <div className="tag-rail-scroll" role="group" aria-label="News tags sorted by number of posts">
+            <div className="tag-rail-grid">
+              <button
+                type="button"
+                onClick={() => applyTagFilter(null)}
+                className={`pill-badge ${selectedTag === null ? 'pill-badge-active' : ''}`}
+              >
+                <span>All</span>
+                {posts.length >= 2 ? <span className="pill-badge-count">{posts.length}</span> : null}
+              </button>
+              {filteredTagCounts.map(({tag, count}) => (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => applyTagFilter(tag)}
+                  className={`pill-badge ${selectedTag === tag ? 'pill-badge-active' : ''}`}
+                >
+                  <span>{tag}</span>
+                  {count >= 2 ? <span className="pill-badge-count">{count}</span> : null}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
-        <label className="flex items-center gap-2 text-sm text-[color:var(--color-muted)]">
+        <label className="flex shrink-0 items-center gap-2 text-sm text-[color:var(--color-muted)]">
           <span>Sort</span>
           <select
-            className="rounded-xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] px-3 py-1.5 text-sm text-[color:var(--color-ink)]"
+            className="w-28 rounded-xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] px-3 py-1.5 text-sm text-[color:var(--color-ink)] sm:w-36"
             value={sortMode}
             onChange={(event) => applySortMode(event.target.value as SortMode)}
           >
@@ -194,7 +234,11 @@ export function NewsFeed({posts}: NewsFeedProps) {
           <article key={post.slug} className={`card article-card news-card ${layoutClass} ${animationClass}`}>
             <div className="news-card-content-wrap">
               {showMedia ? (
-                <div className={`card-media news-card-media ${post.ratio.className}`}>
+                <Link
+                  href={`/news/${post.slug}`}
+                  className={`card-media news-card-media ${post.ratio.className} ${post.isWidescreen ? 'news-card-media-widescreen' : ''} ${post.isTallPortrait ? 'news-card-media-tall-portrait' : ''}`}
+                  aria-label={`Read ${post.title}`}
+                >
                   <Image
                     src={post.coverImageUrl!}
                     alt={`${post.title} cover image`}
@@ -203,20 +247,30 @@ export function NewsFeed({posts}: NewsFeedProps) {
                     className="h-full w-full object-cover"
                     unoptimized
                   />
-                </div>
+                </Link>
               ) : null}
 
               <div className="news-card-copy">
                 <p className="article-meta text-xs font-semibold uppercase tracking-[0.3em] text-[color:var(--color-muted)]">
                   {formatDate(post.publishedAt)}
                 </p>
-                <h2 className="article-title text-2xl font-semibold text-[color:var(--color-ink)]">{post.title}</h2>
+                <h2 className="article-title text-2xl font-semibold text-[color:var(--color-ink)]">
+                  <Link href={`/news/${post.slug}`} className="article-title-link" aria-label={`Read ${post.title}`}>
+                    {post.title}
+                  </Link>
+                </h2>
 
                 {post.previewText ? (
                   <Link href={`/news/${post.slug}`} className="news-excerpt-link" aria-label={`Read ${post.title}`}>
                     <p className="news-excerpt text-sm text-[color:var(--color-muted)]">{post.previewText}</p>
                   </Link>
                 ) : null}
+
+                <p className="article-inline-cta text-sm font-semibold">
+                  <Link href={`/news/${post.slug}`} className="article-inline-link" aria-label={`Read ${post.title}`}>
+                    Read article →
+                  </Link>
+                </p>
 
                 {post.tags.length > 0 ? (
                   <ul className="flex flex-wrap gap-2">
@@ -233,12 +287,6 @@ export function NewsFeed({posts}: NewsFeedProps) {
                     ))}
                   </ul>
                 ) : null}
-
-                <div>
-                  <Link className="article-cta link-pill link-pill-news" href={`/news/${post.slug}`}>
-                    Read article
-                  </Link>
-                </div>
               </div>
             </div>
           </article>

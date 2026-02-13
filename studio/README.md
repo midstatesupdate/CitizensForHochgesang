@@ -92,6 +92,20 @@ Seed baseline content documents (posts/events/media):
 pnpm -C studio seed:content
 ```
 
+`seed:content` now creates 14 upcoming sample events with mixed card layouts, uploaded sample images, broad tag coverage for events-page infinite-scroll/tag-filter QA, and end date/times so automatic passed-state behavior can be tested.
+
+Seed production `siteSettings` defaults for only missing home hero/list fields (never overwrites existing values):
+
+```bash
+pnpm -C studio seed:site-settings:production
+```
+
+This command only uses `setIfMissing` for:
+- `homeHeroActions`
+- `homeHeroBadges`
+- `homeFocusItems`
+- `homeSectionCards`
+
 Normalize `siteSettings` shape/defaults (forces `homeHeroLayout` to `clean-split` and converts legacy rich-text lockup blocks to HTML markup):
 
 ```bash

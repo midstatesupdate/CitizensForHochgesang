@@ -2,11 +2,11 @@
 
 import {useState} from 'react'
 import {usePathname} from 'next/navigation'
-import {FaBars, FaBullhorn, FaCalendarAlt, FaHandsHelping, FaNewspaper, FaQuestionCircle, FaRegNewspaper, FaTimes, FaVideo, FaVoteYea} from 'react-icons/fa'
-import type {IconType} from 'react-icons'
+import {FaBars, FaNewspaper, FaTimes} from 'react-icons/fa'
 
 import {CmsLink} from '@/components/cms-link'
 import {ThemeToggle} from '@/components/theme-toggle'
+import {resolveCmsIcon} from '@/lib/cms/icon-map'
 import type {IconName} from '@/lib/cms/types'
 
 type NavItem = {
@@ -23,17 +23,6 @@ const defaultNavItems: NavItem[] = [
   {href: '/press', label: 'Press', icon: 'reg-newspaper'},
   {href: '/support', label: 'Support', icon: 'hands-helping'},
 ]
-
-const iconMap: Record<IconName, IconType> = {
-  bullhorn: FaBullhorn,
-  calendar: FaCalendarAlt,
-  'hands-helping': FaHandsHelping,
-  newspaper: FaNewspaper,
-  'question-circle': FaQuestionCircle,
-  'reg-newspaper': FaRegNewspaper,
-  video: FaVideo,
-  'vote-yea': FaVoteYea,
-}
 
 type SiteNavProps = {
   items?: NavItem[]
@@ -57,7 +46,7 @@ export function SiteNav({items}: SiteNavProps) {
       <div className="hidden items-center gap-3 lg:flex">
         {navItems.map((item) => {
           const active = isActivePath(pathname, item.href)
-          const Icon = item.icon ? iconMap[item.icon] : FaNewspaper
+          const Icon = resolveCmsIcon(item.icon, FaNewspaper)
 
           return (
             <CmsLink
@@ -93,7 +82,7 @@ export function SiteNav({items}: SiteNavProps) {
         <div id="mobile-primary-nav" className="site-nav-mobile-panel lg:hidden">
           {navItems.map((item) => {
             const active = isActivePath(pathname, item.href)
-            const Icon = item.icon ? iconMap[item.icon] : FaNewspaper
+            const Icon = resolveCmsIcon(item.icon, FaNewspaper)
 
             return (
               <CmsLink

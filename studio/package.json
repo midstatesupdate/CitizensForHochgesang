@@ -13,6 +13,7 @@
     "apply:branding": "sanity exec scripts/apply-branding.ts --with-user-token",
     "fix:keys": "sanity exec scripts/fix-missing-keys.ts --with-user-token",
     "seed:content": "sanity exec scripts/seed-content.ts --with-user-token",
+    "seed:site-settings:production": "sanity exec scripts/seed-site-settings-production.ts --with-user-token",
     "seed:experience": "sanity exec scripts/seed-reading-experience.ts --with-user-token",
     "seed:news-layout-samples": "sanity exec scripts/seed-news-layout-samples.ts --with-user-token",
     "normalize:site-settings": "sanity exec scripts/normalize-site-settings.ts --with-user-token",

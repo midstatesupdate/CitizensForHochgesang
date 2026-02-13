@@ -1,12 +1,11 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import {FaBullhorn, FaCalendarAlt, FaHandsHelping, FaNewspaper, FaVideo, FaVoteYea} from 'react-icons/fa'
-import type {IconType} from 'react-icons'
 
 import {CmsLink} from '@/components/cms-link'
 import {formatDate, formatDateTime} from '@/lib/cms/format'
+import {resolveCmsIcon} from '@/lib/cms/icon-map'
 import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-visuals'
-import type {IconName} from '@/lib/cms/types'
 import {
   getFundraisingLinks,
   getMediaLinks,
@@ -36,25 +35,6 @@ function normalizeHomeHeroLayout(value: string | undefined): 'clean-split' | 'po
   }
 
   return 'clean-split'
-}
-
-const iconMap: Record<IconName, IconType> = {
-  bullhorn: FaBullhorn,
-  calendar: FaCalendarAlt,
-  'hands-helping': FaHandsHelping,
-  newspaper: FaNewspaper,
-  'question-circle': FaNewspaper,
-  'reg-newspaper': FaNewspaper,
-  video: FaVideo,
-  'vote-yea': FaVoteYea,
-}
-
-function resolveIcon(icon: IconName | undefined, fallback: IconType): IconType {
-  if (!icon) {
-    return fallback
-  }
-
-  return iconMap[icon] ?? fallback
 }
 
 function resolveActionClass(style: 'primary' | 'outline' | 'accent' | undefined): string {
@@ -119,7 +99,7 @@ export default async function Home() {
                 <p className="max-w-2xl text-lg text-[color:var(--color-muted)]">{heroSummary}</p>
                 <div className="flex flex-wrap gap-4">
                   {heroActions.map((action) => {
-                    const ActionIcon = resolveIcon(action.icon, FaHandsHelping)
+                    const ActionIcon = resolveCmsIcon(action.icon, FaHandsHelping)
 
                     return (
                       <CmsLink key={`${action.label}-${action.url}`} className={resolveActionClass(action.style)} href={action.url}>
@@ -131,7 +111,7 @@ export default async function Home() {
                 </div>
                 <div className="flex flex-wrap gap-4 text-sm text-[color:var(--color-muted)]">
                   {textBadges.map((badge) => {
-                    const BadgeIcon = resolveIcon(badge.icon, FaBullhorn)
+                    const BadgeIcon = resolveCmsIcon(badge.icon, FaBullhorn)
                     const key = `${badge.label}-${badge.url ?? 'no-link'}`
 
                     if (badge.url) {
@@ -164,7 +144,7 @@ export default async function Home() {
               </div>
               <div className="flex flex-wrap gap-4">
                 {heroActions.map((action) => {
-                  const ActionIcon = resolveIcon(action.icon, FaHandsHelping)
+                  const ActionIcon = resolveCmsIcon(action.icon, FaHandsHelping)
 
                   return (
                     <CmsLink key={`${action.label}-${action.url}`} className={resolveActionClass(action.style)} href={action.url}>
@@ -176,7 +156,7 @@ export default async function Home() {
               </div>
               <div className="flex flex-wrap gap-4 text-sm text-[color:var(--color-muted)]">
                 {textBadges.map((badge) => {
-                  const BadgeIcon = resolveIcon(badge.icon, FaBullhorn)
+                  const BadgeIcon = resolveCmsIcon(badge.icon, FaBullhorn)
                   const key = `${badge.label}-${badge.url ?? 'no-link'}`
 
                   if (badge.url) {
@@ -219,7 +199,7 @@ export default async function Home() {
               {mediaBadges.length > 0 ? (
                 <div className="flex flex-wrap gap-3">
                   {mediaBadges.map((badge) => {
-                    const BadgeIcon = resolveIcon(badge.icon, FaBullhorn)
+                    const BadgeIcon = resolveCmsIcon(badge.icon, FaBullhorn)
                     const key = `${badge.label}-${badge.url ?? 'no-link'}`
 
                     if (badge.url) {
@@ -252,7 +232,7 @@ export default async function Home() {
 
         <div className="campaign-proof-strip">
           {proofBadges.map((badge) => {
-            const BadgeIcon = resolveIcon(badge.icon, FaBullhorn)
+            const BadgeIcon = resolveCmsIcon(badge.icon, FaBullhorn)
             const key = `${badge.label}-${badge.url ?? 'no-link'}`
 
             if (badge.url) {
@@ -276,7 +256,7 @@ export default async function Home() {
 
       <section className="grid gap-6 lg:grid-cols-3">
         {homeSectionCards.map((item) => {
-          const SectionIcon = resolveIcon(item.icon, FaNewspaper)
+          const SectionIcon = resolveCmsIcon(item.icon, FaNewspaper)
 
           return (
           <div key={item.title} className="card">
