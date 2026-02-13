@@ -3,6 +3,16 @@ export type SocialLink = {
   url: string
 }
 
+export type IconName =
+  | 'bullhorn'
+  | 'calendar'
+  | 'hands-helping'
+  | 'newspaper'
+  | 'question-circle'
+  | 'reg-newspaper'
+  | 'video'
+  | 'vote-yea'
+
 export type SanityImageSource = {
   _type?: 'image'
   asset?: {
@@ -26,14 +36,41 @@ export type SanityImageSource = {
 export type SiteSettings = {
   siteTitle: string
   tagline: string
-  homeLinkLine1: string
-  homeLinkLine2: string
+  homeDistrictLabel?: string
+  homeHeroSummary?: string
+  homeLinkMarkup?: string
   campaignLogo?: SanityImageSource
   campaignLogoUrl?: string
   campaignLogoAlt?: string
   candidatePortraitUrl?: string
   candidatePortraitAlt?: string
+  candidatePortraitCaption?: string
   homeHeroLayout?: 'clean-split' | 'portrait-left' | 'immersive-overlay'
+  homeHeroActions: Array<{
+    label: string
+    url: string
+    icon?: IconName
+    style?: 'primary' | 'outline' | 'accent'
+  }>
+  homeHeroBadges: Array<{
+    label: string
+    url?: string
+    icon?: IconName
+    placement?: 'text' | 'media' | 'proof'
+  }>
+  homeFocusItems: string[]
+  homeSectionCards: Array<{
+    title: string
+    copy: string
+    href: string
+    icon?: IconName
+    ctaLabel?: string
+  }>
+  headerNavItems: Array<{
+    label: string
+    href: string
+    icon?: IconName
+  }>
   pressUpdatedAt?: string
   donateUrl?: string
   volunteerUrl?: string

@@ -1,20 +1,19 @@
 import Link from 'next/link'
-import type {ReactNode} from 'react'
+import type {AnchorHTMLAttributes, ReactNode} from 'react'
 
 import {normalizeHref, shouldOpenInNewTab} from '@/lib/cms/format'
 
 type CmsLinkProps = {
   href: string
-  className?: string
   children: ReactNode
-}
+} & Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'href' | 'children'>
 
-export function CmsLink({href, className, children}: CmsLinkProps) {
+export function CmsLink({href, className, children, ...rest}: CmsLinkProps) {
   const normalized = normalizeHref(href)
 
   if (normalized.startsWith('/')) {
     return (
-      <Link className={className} href={normalized}>
+      <Link className={className} href={normalized} {...rest}>
         {children}
       </Link>
     )
@@ -28,6 +27,7 @@ export function CmsLink({href, className, children}: CmsLinkProps) {
       href={normalized}
       target={openInNewTab ? '_blank' : undefined}
       rel={openInNewTab ? 'noreferrer' : undefined}
+      {...rest}
     >
       {children}
     </a>

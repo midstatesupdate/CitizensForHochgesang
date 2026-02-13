@@ -42,6 +42,12 @@ From repo root:
 pnpm dev:studio
 ```
 
+Preferred fixed local port:
+
+```bash
+pnpm -C studio dev -- --port 3333
+```
+
 Or from this folder:
 
 ```bash
@@ -74,6 +80,12 @@ Seed baseline content documents (posts/events/media):
 
 ```bash
 pnpm -C studio seed:content
+```
+
+Normalize `siteSettings` shape/defaults (forces `homeHeroLayout` to `clean-split` and converts legacy rich-text lockup blocks to HTML markup):
+
+```bash
+pnpm -C studio normalize:site-settings
 ```
 
 Seed long-form sample posts that showcase the interactive reading experience:
@@ -116,6 +128,7 @@ This patches `siteSettings.socialLinks` with stable `_key` values.
 - Favor clear editor labels and validations for fast publishing.
 - Avoid model drift: when schema changes, update docs and consuming frontend code.
 - Homepage hero portrait is controlled by `siteSettings.candidatePortrait` and `siteSettings.candidatePortraitAlt`.
+- Studio information architecture is critical: organize major settings into clear field groups/tabs and keep field order aligned to editor workflow.
 
 ## Post Storytelling Blocks
 `post.body` now supports interactive storytelling blocks that are safe for student contributors:

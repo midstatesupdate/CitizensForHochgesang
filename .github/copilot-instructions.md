@@ -77,6 +77,7 @@ When implementing features, optimize for:
 - Reusable templates for news, events, and media
 - Clear data models for ranking, filtering, and summarizing content
 - Future AI usage (summaries, drafting support, content tagging, scheduling)
+- Studio information architecture that keeps editing flows simple and predictable (clear groups/tabs, concise labels, and editor-first ordering)
 
 ## Content Model Priorities
 When extending schemas, prefer models for:
@@ -98,6 +99,19 @@ When extending schemas, prefer models for:
 - Preserve compatibility with existing schemas and routes when possible.
 - Update this file and relevant README/docs when behavior or setup changes.
 - Add lightweight tests or validation where practical.
+
+## Studio Organization (Critical)
+- Treat Studio organization as a required part of implementation quality.
+- For meaningful schema additions, group fields into clear tabs/sections (for example: Header, Hero, Home Cards, Metadata) to reduce editor confusion.
+- Keep labels plain-language and task-oriented; avoid vague or overly technical field names.
+- Order fields by publishing workflow, not by technical dependency.
+- Update Studio docs when field groups or editor flows change.
+
+## Local Dev Ports
+- Preferred local ports are fixed:
+  - Web: `3000`
+  - Studio: `3333`
+- Before starting either app, stop existing local dev processes that hold these ports to keep URLs stable for review.
 
 ## Compliance and Safety Notes
 - Do not fabricate endorsements, quotes, statistics, or event facts.

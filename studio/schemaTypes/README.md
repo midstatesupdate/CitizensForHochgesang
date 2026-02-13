@@ -5,7 +5,7 @@ Sanity content model definitions for the campaign CMS. This folder controls what
 
 ## Files
 - [`index.ts`](index.ts): Exports all registered schema types.
-- [`siteSettings.ts`](siteSettings.ts): Global campaign settings (site title, tagline, editable header home-link lines, full-size campaign logo upload, homepage candidate portrait, selectable home hero layout variant, press resource timestamp, donate/volunteer URLs, contact and social links).
+- [`siteSettings.ts`](siteSettings.ts): Global campaign settings (site title, tagline, HTML header lockup editor, editable header nav label/link/icon items, full-size campaign logo upload, homepage candidate portrait + caption, selectable home hero layout variant with `clean-split` as the default, editable district label/hero actions/hero bubbles/focus list/home cards, press resource timestamp, donate/volunteer URLs, contact and social links).
 - [`pageVisualSettings.ts`](pageVisualSettings.ts): Per-route visual controls for textured background style (5 options), container width, descriptive tone accents, motion presets, text-link animation, page background animation, and scroll reveal behavior.
 - [`post.ts`](post.ts): News/article documents with title, slug, excerpt, publish date, image, tags, plus scene-based body blocks (`Story Scene`, `Stat Callout`, inline images) for interactive reading experiences.
 - [`event.ts`](event.ts): Event documents with scheduling, location, description, and RSVP URL.
@@ -16,6 +16,7 @@ Sanity content model definitions for the campaign CMS. This folder controls what
 - Keep field names stable once consumed by frontend queries.
 - Add validations for required campaign publishing workflows.
 - Prefer explicit field semantics over generic objects.
+- For meaningful schema additions, use clear groups/tabs/sections so editors can navigate by task (for example: Header, Hero, Home Cards, Metadata).
 - Keep editor UX simple for student contributors: one `pageVisualSettings` doc per route (`home`, `news`, `news-detail`, `events`, `faq`, `media`, `press`, `support`).
 - When adding a schema, update:
   1. `index.ts` exports

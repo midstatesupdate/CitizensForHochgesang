@@ -54,6 +54,21 @@ pnpm dev:web
 pnpm dev:studio
 ```
 
+Preferred local ports:
+- Web app: `http://localhost:3000`
+- Studio: `http://localhost:3333`
+
+When restarting locally, stop existing processes first so ports stay consistent:
+
+```powershell
+# Stop existing Next.js / Studio node processes if needed
+Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force
+
+# Start with fixed ports
+pnpm -C web dev -- -p 3000
+pnpm -C studio dev -- --port 3333
+```
+
 Build the website:
 
 ```bash

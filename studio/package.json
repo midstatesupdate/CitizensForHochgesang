@@ -14,6 +14,7 @@
     "fix:keys": "sanity exec scripts/fix-missing-keys.ts --with-user-token",
     "seed:content": "sanity exec scripts/seed-content.ts --with-user-token",
     "seed:experience": "sanity exec scripts/seed-reading-experience.ts --with-user-token",
+    "normalize:site-settings": "sanity exec scripts/normalize-site-settings.ts --with-user-token",
     "set:temp-portrait": "sanity exec scripts/set-temp-portrait.ts --with-user-token",
     "sync:page-visuals": "sanity exec scripts/sync-page-visuals.ts --with-user-token"
   },

@@ -1,7 +1,7 @@
 import {getCliClient} from 'sanity/cli'
 
-const DATASET = 'citizens-for-hochgesang'
-const PROJECT_ID = 'scos8zjw'
+const DATASET = process.env.SANITY_STUDIO_DATASET ?? 'development'
+const PROJECT_ID = process.env.SANITY_STUDIO_PROJECT_ID ?? 'n2oyijjv'
 const API_VERSION = '2025-02-19'
 
 const client = getCliClient({apiVersion: API_VERSION}).withConfig({
@@ -38,6 +38,84 @@ async function main() {
 
   await client
     .transaction()
+    .createIfNotExists({
+      _id: 'siteSettings',
+      _type: 'siteSettings',
+    })
+    .patch('siteSettings', {
+      set: {
+        siteTitle: 'Citizens For Hochgesang',
+        tagline: 'Practical leadership for Indiana State Senate District 48.',
+        homeHeroLayout: 'clean-split',
+        homeDistrictLabel: 'Indiana State Senate District 48',
+        homeHeroSummary: 'Practical leadership for Indiana State Senate District 48.',
+        homeLinkMarkup:
+          '<span class="home-link-line">Brad Hochgesang</span><span class="home-link-line">For State Senate</span>',
+        donateUrl: 'https://secure.actblue.com/donate/brad-hochgesang-1',
+        volunteerUrl: 'https://www.ngpvan.com/',
+        socialLinks: [
+          {
+            _key: 'facebook',
+            _type: 'object',
+            label: 'Facebook',
+            url: 'https://www.facebook.com/bradhochesangforindianastatesenate',
+          },
+          {
+            _key: 'youtube',
+            _type: 'object',
+            label: 'YouTube',
+            url: 'https://www.youtube.com/',
+          },
+        ],
+        headerNavItems: [
+          {label: 'News', href: '/news', icon: 'newspaper'},
+          {label: 'Events', href: '/events', icon: 'calendar'},
+          {label: 'FAQ', href: '/faq', icon: 'question-circle'},
+          {label: 'Media', href: '/media', icon: 'video'},
+          {label: 'Press', href: '/press', icon: 'reg-newspaper'},
+          {label: 'Support', href: '/support', icon: 'hands-helping'},
+        ],
+        homeHeroActions: [
+          {label: 'Volunteer', url: '/support', icon: 'hands-helping', style: 'primary'},
+          {label: 'Donate', url: 'https://secure.actblue.com/donate/brad-hochgesang-1', icon: 'vote-yea', style: 'outline'},
+        ],
+        homeHeroBadges: [
+          {label: 'Community-first platform', icon: 'bullhorn', placement: 'text'},
+          {label: 'Transparent updates', icon: 'newspaper', placement: 'text'},
+          {label: 'District listening sessions', placement: 'proof'},
+          {label: 'Neighborhood town halls', placement: 'proof'},
+          {label: 'Volunteer-powered outreach', placement: 'proof'},
+        ],
+        homeFocusItems: [
+          'Strengthening local jobs, small businesses, and workforce training.',
+          'Supporting safe communities through partnerships and smart policy.',
+          'Protecting quality education and practical pathways for families.',
+        ],
+        homeSectionCards: [
+          {
+            title: 'News & Updates',
+            copy: 'Campaign announcements and policy updates.',
+            href: '/news',
+            icon: 'newspaper',
+            ctaLabel: 'View News & Updates',
+          },
+          {
+            title: 'Events',
+            copy: 'Town halls, meetups, and district listening sessions.',
+            href: '/events',
+            icon: 'calendar',
+            ctaLabel: 'View Events',
+          },
+          {
+            title: 'Media',
+            copy: 'Video, interviews, and social coverage in one feed.',
+            href: '/media',
+            icon: 'video',
+            ctaLabel: 'View Media',
+          },
+        ],
+      },
+    })
     .createOrReplace({
       _id: 'post-launch-district-48',
       _type: 'post',
@@ -109,6 +187,15 @@ async function main() {
       url: 'https://www.facebook.com/bradhochesangforindianastatesenate',
       publishedAt: daysFromNow(-1),
       thumbnail: logoImage,
+    })
+    .createOrReplace({
+      _id: 'fund-actblue-main',
+      _type: 'fundraisingLink',
+      title: 'Donate with ActBlue',
+      url: 'https://secure.actblue.com/donate/brad-hochgesang-1',
+      description: 'Secure online contribution for campaign operations and voter outreach.',
+      priority: 100,
+      image: logoImage,
     })
     .commit()
 

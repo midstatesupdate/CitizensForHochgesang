@@ -1,7 +1,7 @@
 import {getCliClient} from 'sanity/cli'
 
-const DATASET = 'citizens-for-hochgesang'
-const PROJECT_ID = 'scos8zjw'
+const DATASET = process.env.SANITY_STUDIO_DATASET ?? 'development'
+const PROJECT_ID = process.env.SANITY_STUDIO_PROJECT_ID ?? 'n2oyijjv'
 const API_VERSION = '2025-02-19'
 
 const client = getCliClient({apiVersion: API_VERSION}).withConfig({

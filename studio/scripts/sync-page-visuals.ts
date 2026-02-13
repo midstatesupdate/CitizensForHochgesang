@@ -104,9 +104,12 @@ const visuals: PageVisualSeed[] = [
 ]
 
 async function run() {
+  const projectId = process.env.SANITY_STUDIO_PROJECT_ID ?? 'n2oyijjv'
+  const dataset = process.env.SANITY_STUDIO_DATASET ?? 'development'
+
   const client = getCliClient({apiVersion: '2025-02-19'}).withConfig({
-    projectId: 'scos8zjw',
-    dataset: 'citizens-for-hochgesang',
+    projectId,
+    dataset,
   })
 
   for (const item of visuals) {

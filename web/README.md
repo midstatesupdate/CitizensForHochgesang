@@ -33,6 +33,12 @@ From repo root:
 pnpm dev:web
 ```
 
+Preferred fixed local port:
+
+```bash
+pnpm -C web dev -- -p 3000
+```
+
 Or from this folder:
 
 ```bash

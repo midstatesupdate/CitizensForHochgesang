@@ -9,9 +9,18 @@ type SiteHeaderProps = {
   settings: SiteSettings
 }
 
+function sanitizeHeaderMarkup(markup: string): string {
+  return markup
+    .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '')
+    .replace(/\son\w+\s*=\s*"[^"]*"/gi, '')
+    .replace(/\son\w+\s*=\s*'[^']*'/gi, '')
+    .replace(/javascript:/gi, '')
+}
+
 export function SiteHeader({settings}: SiteHeaderProps) {
-  const homeLinkLine1 = settings.homeLinkLine1?.trim() || 'Brad Hochgesang'
-  const homeLinkLine2 = settings.homeLinkLine2?.trim() || 'For State Senate'
+  const homeLinkMarkup =
+    settings.homeLinkMarkup?.trim() ||
+    '<span class="home-link-line">Brad Hochgesang</span><span class="home-link-line">For State Senate</span>'
   const campaignLogoUrl = getSanityImageUrl(settings.campaignLogo, {width: 96, height: 96}) ?? settings.campaignLogoUrl
 
   return (
@@ -28,13 +37,15 @@ export function SiteHeader({settings}: SiteHeaderProps) {
               unoptimized
             />
           ) : null}
-          <span className="home-link-lockup">
-            <span className="home-link-line">{homeLinkLine1}</span>
-            <span className="home-link-line">{homeLinkLine2}</span>
-          </span>
+          <span
+            className="home-link-lockup"
+            dangerouslySetInnerHTML={{
+              __html: sanitizeHeaderMarkup(homeLinkMarkup),
+            }}
+          />
         </Link>
 
-        <SiteNav />
+        <SiteNav items={settings.headerNavItems} />
       </div>
     </header>
   )

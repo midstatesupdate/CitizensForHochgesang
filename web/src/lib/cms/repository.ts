@@ -34,14 +34,41 @@ export async function getSiteSettings(): Promise<SiteSettings> {
   const query = `*[_type=="siteSettings"][0]{
     "siteTitle": coalesce(siteTitle, "Citizens For Hochgesang"),
     "tagline": coalesce(tagline, "Practical leadership for Indiana State Senate District 48."),
-    "homeLinkLine1": coalesce(homeLinkLine1, "Brad Hochgesang"),
-    "homeLinkLine2": coalesce(homeLinkLine2, "For State Senate"),
+    "homeDistrictLabel": coalesce(homeDistrictLabel, "Indiana State Senate District 48"),
+    homeHeroSummary,
+    "homeLinkMarkup": coalesce(homeLinkMarkup, "<span class='home-link-line'>Brad Hochgesang</span><span class='home-link-line'>For State Senate</span>"),
     campaignLogo,
     "campaignLogoUrl": campaignLogo.asset->url,
     "campaignLogoAlt": campaignLogoAlt,
     "candidatePortraitUrl": candidatePortrait.asset->url,
     "candidatePortraitAlt": candidatePortraitAlt,
+    candidatePortraitCaption,
     "homeHeroLayout": coalesce(homeHeroLayout, "clean-split"),
+    "headerNavItems": coalesce(headerNavItems[]{
+      label,
+      href,
+      icon
+    }, []),
+    "homeHeroActions": coalesce(homeHeroActions[]{
+      label,
+      url,
+      icon,
+      style
+    }, []),
+    "homeHeroBadges": coalesce(homeHeroBadges[]{
+      label,
+      url,
+      icon,
+      placement
+    }, []),
+    "homeFocusItems": coalesce(homeFocusItems, []),
+    "homeSectionCards": coalesce(homeSectionCards[]{
+      title,
+      copy,
+      href,
+      icon,
+      ctaLabel
+    }, []),
     pressUpdatedAt,
     donateUrl,
     volunteerUrl,
@@ -53,7 +80,20 @@ export async function getSiteSettings(): Promise<SiteSettings> {
   }`
 
   const settings = await sanityQuery<SiteSettings>(query, undefined, {revalidateSeconds: 0})
-  return settings ?? mockSiteSettings
+  if (!settings) {
+    return mockSiteSettings
+  }
+
+  return {
+    ...mockSiteSettings,
+    ...settings,
+    socialLinks: settings.socialLinks?.length ? settings.socialLinks : mockSiteSettings.socialLinks,
+    headerNavItems: settings.headerNavItems?.length ? settings.headerNavItems : mockSiteSettings.headerNavItems,
+    homeHeroActions: settings.homeHeroActions?.length ? settings.homeHeroActions : mockSiteSettings.homeHeroActions,
+    homeHeroBadges: settings.homeHeroBadges?.length ? settings.homeHeroBadges : mockSiteSettings.homeHeroBadges,
+    homeFocusItems: settings.homeFocusItems?.length ? settings.homeFocusItems : mockSiteSettings.homeFocusItems,
+    homeSectionCards: settings.homeSectionCards?.length ? settings.homeSectionCards : mockSiteSettings.homeSectionCards,
+  }
 }
 
 export async function getAllPosts(): Promise<PostSummary[]> {
