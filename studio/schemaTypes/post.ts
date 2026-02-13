@@ -15,12 +15,44 @@ const sceneLayoutOptions = [
   {title: 'Highlight Panel', value: 'highlight'},
 ]
 
+const newsCardLayoutOptions = [
+  {title: 'Stacked (Image Top)', value: 'stacked'},
+  {title: 'Image Left', value: 'image-left'},
+  {title: 'Image Right', value: 'image-right'},
+  {title: 'Feature Split', value: 'feature-split'},
+]
+
+const newsCardAnimationOptions = [
+  {title: 'Soft Fade Up', value: 'fade-up'},
+  {title: 'Slide Up', value: 'slide-up'},
+  {title: 'Slide In Left', value: 'slide-left'},
+  {title: 'Slide In Right', value: 'slide-right'},
+  {title: 'None', value: 'none'},
+]
+
+const newsImageOrientationOptions = [
+  {title: 'Landscape', value: 'landscape'},
+  {title: 'Portrait', value: 'portrait'},
+]
+
+const newsImageAspectRatioOptions = [
+  {title: 'DSLR Landscape (3:2)', value: '3:2'},
+  {title: 'Standard Landscape (4:3)', value: '4:3'},
+  {title: 'Widescreen (16:9)', value: '16:9'},
+  {title: 'Square (1:1)', value: '1:1'},
+  {title: 'Classic Portrait (4:5)', value: '4:5'},
+  {title: 'Standard Portrait (3:4)', value: '3:4'},
+  {title: 'DSLR Portrait (2:3)', value: '2:3'},
+  {title: 'Phone Portrait (9:16)', value: '9:16'},
+]
+
 export const post = defineType({
   name: 'post',
   title: 'Post',
   type: 'document',
   groups: [
     {name: 'content', title: 'Article Content', default: true},
+    {name: 'newsList', title: 'News List Card'},
     {name: 'experience', title: 'Reading Experience'},
     {name: 'metadata', title: 'Metadata'},
   ],
@@ -59,8 +91,63 @@ export const post = defineType({
       name: 'coverImage',
       title: 'Cover Image',
       type: 'image',
-      group: ['content', 'metadata'],
+      group: ['content', 'newsList', 'metadata'],
       options: {hotspot: true},
+    }),
+    defineField({
+      name: 'newsCardLayout',
+      title: 'News Card Layout',
+      type: 'string',
+      group: 'newsList',
+      initialValue: 'stacked',
+      options: {
+        list: newsCardLayoutOptions,
+        layout: 'radio',
+      },
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'newsImageOrientation',
+      title: 'News Card Image Orientation',
+      type: 'string',
+      group: 'newsList',
+      initialValue: 'landscape',
+      options: {
+        list: newsImageOrientationOptions,
+        layout: 'radio',
+      },
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'newsImageAspectRatio',
+      title: 'News Card Image Aspect Ratio',
+      type: 'string',
+      group: 'newsList',
+      initialValue: '3:2',
+      options: {
+        list: newsImageAspectRatioOptions,
+      },
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'newsCardAnimation',
+      title: 'News Card Animation',
+      type: 'string',
+      group: 'newsList',
+      initialValue: 'fade-up',
+      options: {
+        list: newsCardAnimationOptions,
+      },
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'newsBodyPreviewChars',
+      title: 'Body Preview Character Limit',
+      type: 'number',
+      group: 'newsList',
+      initialValue: 420,
+      description: 'Maximum characters used for the body preview text in the news list card.',
+      validation: (Rule) => Rule.required().min(220).max(900).precision(0),
     }),
     defineField({
       name: 'body',

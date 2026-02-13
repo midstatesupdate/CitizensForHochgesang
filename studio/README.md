@@ -62,6 +62,16 @@ From repo root:
 pnpm build:studio
 ```
 
+## Dependency Changes (Important)
+If you add/update/remove dependencies for Studio, always sync lockfiles from repository root:
+
+```bash
+pnpm install
+pnpm install --frozen-lockfile
+```
+
+Commit `pnpm-lock.yaml` together with any `studio/package.json` changes. Cloudflare/CI runs install with frozen lockfile and will fail if the root lockfile is stale.
+
 ## Branding Data Apply
 From repo root, apply campaign logo + core URLs to Sanity:
 
@@ -92,6 +102,12 @@ Seed long-form sample posts that showcase the interactive reading experience:
 
 ```bash
 pnpm -C studio seed:experience
+```
+
+Seed news-list layout samples (uploads generated mixed-ratio sample images and creates posts covering layout/aspect/animation combinations):
+
+```bash
+pnpm -C studio seed:news-layout-samples
 ```
 
 Sync per-page visual settings to current website defaults:

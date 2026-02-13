@@ -101,22 +101,52 @@ export async function getAllPosts(): Promise<PostSummary[]> {
     title,
     "slug": slug.current,
     excerpt,
+    "bodyPreview": coalesce(pt::text(body), ""),
     publishedAt,
+    coverImage,
     "coverImageUrl": coverImage.asset->url,
+    "newsCardLayout": coalesce(newsCardLayout, "stacked"),
+    "newsImageOrientation": coalesce(newsImageOrientation, "landscape"),
+    "newsImageAspectRatio": coalesce(newsImageAspectRatio, "3:2"),
+    "newsCardAnimation": coalesce(newsCardAnimation, "fade-up"),
+    "newsBodyPreviewChars": coalesce(newsBodyPreviewChars, 420),
     "tags": coalesce(tags, [])
   }`
 
   const posts = await sanityQuery<PostSummary[]>(query)
   if (!posts || posts.length === 0) {
     return sortByDateDesc(
-      mockPosts.map(({title, slug, excerpt, publishedAt, coverImageUrl, tags}) => ({
+      mockPosts.map(
+        ({
+          title,
+          slug,
+          excerpt,
+          bodyPreview,
+          coverImage,
+          publishedAt,
+          coverImageUrl,
+          newsCardLayout,
+          newsImageOrientation,
+          newsImageAspectRatio,
+          newsCardAnimation,
+          newsBodyPreviewChars,
+          tags,
+        }) => ({
         title,
         slug,
         excerpt,
+        bodyPreview,
+        coverImage,
         publishedAt,
         coverImageUrl,
+        newsCardLayout,
+        newsImageOrientation,
+        newsImageAspectRatio,
+        newsCardAnimation,
+        newsBodyPreviewChars,
         tags,
-      }))
+      })
+      )
     )
   }
 

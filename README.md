@@ -43,8 +43,16 @@ This repository is the project knowledge store for future human and AI contribut
 Install dependencies:
 
 ```bash
-pnpm -C web install
-pnpm -C studio install
+pnpm install
+```
+
+Lockfile discipline (required for CI/Cloudflare):
+- When changing dependencies in any workspace package (`web/` or `studio/`), run `pnpm install` from repo root.
+- Commit the updated root lockfile `pnpm-lock.yaml` in the same change as the `package.json` edit.
+- Validate exactly what CI enforces before pushing:
+
+```bash
+pnpm install --frozen-lockfile
 ```
 
 Run apps from the repo root:
