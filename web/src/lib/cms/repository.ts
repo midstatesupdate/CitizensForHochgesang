@@ -109,7 +109,7 @@ export async function getAllPosts(): Promise<PostSummary[]> {
     "newsImageOrientation": coalesce(newsImageOrientation, "landscape"),
     "newsImageAspectRatio": coalesce(newsImageAspectRatio, "3:2"),
     "newsCardAnimation": coalesce(newsCardAnimation, "fade-up"),
-    "newsBodyPreviewChars": coalesce(newsBodyPreviewChars, 420),
+    "newsBodyPreviewChars": coalesce(newsBodyPreviewChars, select(newsCardLayout == "no-photo" => 1800, 420)),
     "tags": coalesce(tags, [])
   }`
 

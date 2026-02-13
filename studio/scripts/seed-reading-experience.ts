@@ -91,6 +91,7 @@ async function main() {
           }
         : undefined,
       newsCardLayout: 'no-photo',
+      newsBodyPreviewChars: 1800,
       tags: ['sample', 'reading experience', 'infrastructure'],
       body: [
         ...paragraphBlocks(longIntroA, 'infra-intro'),
@@ -192,6 +193,7 @@ async function main() {
           }
         : undefined,
       newsCardLayout: 'no-photo',
+      newsBodyPreviewChars: 1800,
       tags: ['sample', 'reading experience', 'constituent services', 'ai'],
       body: [
         ...paragraphBlocks(longIntroB, 'service-intro'),

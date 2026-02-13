@@ -57,6 +57,7 @@ Primary frontend source area for the public campaign site.
 - Header logo circle uses Sanity crop/hotspot-aware image URLs to keep face/logo framing aligned with Studio image settings.
 - Homepage hero supports CMS control of district label, summary copy, action buttons (label/link/icon/style), bubble badges with placement (`text`/`media`/`proof`), focus list items, candidate portrait caption, and large section cards via `siteSettings`.
 - News list cards are CMS-configurable per article from `post` fields: card layout (`stacked`/`image-left`/`image-right`/`feature-split`/`no-photo`), image orientation, image aspect ratio (DSLR/phone-friendly options), card animation preset, and body preview character limit.
+- News list UX includes clickable body previews (open article detail), clickable tags (in-page related-article filtering), lightweight sorting (`Newest`, `Oldest`, `Title A-Z`), and intersection-observer infinite scroll to avoid heavy render work.
 - CMS visual setting queries use `no-store` in local dev/runtime, but switch to revalidated fetch during production static builds so published values are embedded correctly.
 - Hero variant CSS keeps portrait media/text reorder at `md+`, keeps split-layout proof badges full-width, and scopes immersive overlay positioning to the immersive frame.
 - `pageVisualSettings` now controls: background style, container width, tone accents, motion preset, text-link animation, page background animation, and scroll reveal behavior.
