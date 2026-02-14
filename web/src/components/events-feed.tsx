@@ -272,14 +272,18 @@ export function EventsFeed({events}: EventsFeedProps) {
         const layoutClass = LAYOUT_CLASSNAMES[event.layout] ?? LAYOUT_CLASSNAMES.stacked
         const animationClass = ANIMATION_CLASSNAMES[event.animation] ?? ANIMATION_CLASSNAMES['fade-up']
         const showMedia = event.layout !== 'no-photo' && !!event.scheduleImageUrl
+        // Prefer the event details anchor route so each card has a drill-down destination.
+        const detailHref = event.slug ? `/events/details#${encodeURIComponent(event.slug)}` : null
+        // Fall back to RSVP-only behavior if no slug is available.
+        const primaryHref = detailHref ?? event.rsvpLink ?? null
 
         return (
           <article key={event.id} className={`card article-card news-card ${layoutClass} ${animationClass}`}>
             <div className="news-card-content-wrap">
               {showMedia ? (
-                event.rsvpLink ? (
+                primaryHref ? (
                   <CmsLink
-                    href={event.rsvpLink}
+                    href={primaryHref}
                     className={`card-media news-card-media ${event.ratio.className} ${event.isWidescreen ? 'news-card-media-widescreen' : ''} ${event.isTallPortrait ? 'news-card-media-tall-portrait' : ''}`}
                     aria-label={`View ${event.title}`}
                   >
@@ -318,8 +322,8 @@ export function EventsFeed({events}: EventsFeedProps) {
                   </p>
                 ) : null}
                 <h2 className="article-title text-2xl font-semibold text-[color:var(--color-ink)]">
-                  {event.rsvpLink ? (
-                    <CmsLink className="article-title-link" href={event.rsvpLink}>
+                  {primaryHref ? (
+                    <CmsLink className="article-title-link" href={primaryHref}>
                       {event.title}
                     </CmsLink>
                   ) : (

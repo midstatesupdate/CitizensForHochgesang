@@ -7,13 +7,46 @@ type SiteFooterProps = {
 }
 
 export function SiteFooter({settings}: SiteFooterProps) {
+  const contactHref = settings.contactEmail ? `mailto:${settings.contactEmail}` : '/support'
+
   return (
     <footer className="border-t border-[color:var(--color-border)] bg-[color:var(--color-surface)]">
-      <div className="mx-auto grid w-full max-w-6xl gap-6 px-6 py-8 text-sm text-[color:var(--color-muted)] sm:grid-cols-2">
+      <div className="mx-auto grid w-full max-w-6xl gap-6 px-6 py-8 text-sm text-[color:var(--color-muted)] sm:grid-cols-3">
         <div className="space-y-2">
           <p className="font-semibold text-[color:var(--color-ink)]">{settings.siteTitle}</p>
           <p>{settings.tagline}</p>
           {settings.contactEmail ? <p>Contact: {settings.contactEmail}</p> : null}
+        </div>
+
+        <div className="space-y-2">
+          <p className="font-semibold text-[color:var(--color-ink)]">Explore</p>
+          <ul className="space-y-1">
+            <li>
+              <CmsLink className="link-soft" href="/news">
+                News
+              </CmsLink>
+            </li>
+            <li>
+              <CmsLink className="link-soft" href="/events">
+                Events
+              </CmsLink>
+            </li>
+            <li>
+              <CmsLink className="link-soft" href="/platform">
+                About & Priorities
+              </CmsLink>
+            </li>
+            <li>
+              <CmsLink className="link-soft" href="/media">
+                Media & Press
+              </CmsLink>
+            </li>
+            <li>
+              <CmsLink className="link-soft" href={contactHref}>
+                Contact Us
+              </CmsLink>
+            </li>
+          </ul>
         </div>
 
         <div className="space-y-2 sm:justify-self-end sm:text-right">

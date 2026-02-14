@@ -54,6 +54,13 @@ async function main() {
             _ref: uploadedLogo._id,
           },
         },
+        headerLogoSmall: {
+          _type: 'image',
+          asset: {
+            _type: 'reference',
+            _ref: uploadedLogo._id,
+          },
+        },
         campaignLogoAlt: 'Brad Hochgesang for State Senate campaign logo',
         pressUpdatedAt: new Date().toISOString(),
         donateUrl: DONATE_URL,

@@ -99,6 +99,8 @@ When extending schemas, prefer models for:
 - Preserve compatibility with existing schemas and routes when possible.
 - Update this file and relevant README/docs when behavior or setup changes.
 - Add lightweight tests or validation where practical.
+- Remove unused/dead code introduced by refactors in the same change (functions, routes, queries, and stale config paths).
+- Add concise, high-value comments where behavior is non-obvious (for example: fallback chains, route-linking assumptions, and data-shape constraints); avoid noisy comments that restate code.
 
 ## Studio Organization (Critical)
 - Treat Studio organization as a required part of implementation quality.

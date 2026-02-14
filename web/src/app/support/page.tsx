@@ -27,6 +27,34 @@ export default async function SupportPage() {
         </p>
       </section>
 
+      <section className="grid gap-6">
+        <h2 className="section-title">Donation links</h2>
+        {links.map((link) => (
+          <article key={link.id} className="card flex flex-col gap-3">
+            {link.imageUrl ? (
+              <div className="card-media">
+                <Image
+                  src={link.imageUrl}
+                  alt={`${link.title} image`}
+                  width={1200}
+                  height={630}
+                  className="h-52 w-full object-cover"
+                  unoptimized
+                />
+              </div>
+            ) : null}
+            <h3 className="text-lg font-semibold text-[color:var(--color-ink)]">{link.title}</h3>
+            {link.description ? <p className="text-sm text-[color:var(--color-muted)]">{link.description}</p> : null}
+            <div>
+              <CmsLink className="btn btn-accent" href={link.url}>
+                <FaVoteYea aria-hidden />
+                Donate now
+              </CmsLink>
+            </div>
+          </article>
+        ))}
+      </section>
+
       <section className="grid gap-6 lg:grid-cols-2">
         <article className="card flex flex-col gap-4">
           <h2 className="text-xl font-semibold text-[color:var(--color-ink)]">Volunteer</h2>
@@ -46,7 +74,7 @@ export default async function SupportPage() {
           ) : null}
         </article>
 
-        <article className="card flex flex-col gap-4">
+        <article id="contact-us" className="card flex flex-col gap-4 scroll-mt-28">
           <h2 className="text-xl font-semibold text-[color:var(--color-ink)]">Direct campaign contact</h2>
           <p className="text-sm text-[color:var(--color-muted)]">
             Reach the campaign directly for scheduling, press, or community requests.
@@ -88,34 +116,6 @@ export default async function SupportPage() {
             <li className="rounded-2xl border border-[color:var(--color-border)] px-4 py-3">Help with event logistics and voter outreach</li>
           </ul>
         </article>
-      </section>
-
-      <section className="grid gap-6">
-        <h2 className="section-title">Donation links</h2>
-        {links.map((link) => (
-          <article key={link.id} className="card flex flex-col gap-3">
-            {link.imageUrl ? (
-              <div className="card-media">
-                <Image
-                  src={link.imageUrl}
-                  alt={`${link.title} image`}
-                  width={1200}
-                  height={630}
-                  className="h-52 w-full object-cover"
-                  unoptimized
-                />
-              </div>
-            ) : null}
-            <h3 className="text-lg font-semibold text-[color:var(--color-ink)]">{link.title}</h3>
-            {link.description ? <p className="text-sm text-[color:var(--color-muted)]">{link.description}</p> : null}
-            <div>
-              <CmsLink className="btn btn-accent" href={link.url}>
-                <FaVoteYea aria-hidden />
-                Donate now
-              </CmsLink>
-            </div>
-          </article>
-        ))}
       </section>
 
       <VoterActionHub />

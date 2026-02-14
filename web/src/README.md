@@ -14,14 +14,19 @@ Primary frontend source area for the public campaign site.
 - [`app/globals.css`](app/globals.css): Global styles, dark/light color tokens, and shared interactive utility classes.
 - [`app/loading.tsx`](app/loading.tsx): Root route loading state.
 - [`app/not-found.tsx`](app/not-found.tsx): Global 404 page.
+- [`app/icon.png`](app/icon.png): Campaign-branded PNG favicon source used by Next.js App Router.
+- [`app/apple-icon.png`](app/apple-icon.png): Campaign-branded PNG Apple touch icon.
 - [`app/faq/page.tsx`](app/faq/page.tsx): Interactive FAQ route shell.
-- [`app/press/page.tsx`](app/press/page.tsx): Press resources and media access route.
+- [`app/press/page.tsx`](app/press/page.tsx): Redirect route that forwards legacy press URLs to `app/media/page.tsx`.
 - [`app/sitemap.ts`](app/sitemap.ts): XML sitemap route for search discovery.
 - [`app/robots.ts`](app/robots.ts): Robots rules route.
 - [`app/news/page.tsx`](app/news/page.tsx): News/article listing.
 - [`app/news/[slug]/page.tsx`](app/news/[slug]/page.tsx): Article detail route.
 - [`app/events/page.tsx`](app/events/page.tsx): Event listing.
-- [`app/media/page.tsx`](app/media/page.tsx): Media link listing.
+- [`app/events/details/page.tsx`](app/events/details/page.tsx): Event drill-down detail route with rich body content and related links from CMS.
+- [`app/platform/page.tsx`](app/platform/page.tsx): CMS-backed About & Priorities route using `aboutPriorities` content and `pageVisualSettings` for `platform`.
+- [`app/platform/[slug]/page.tsx`](app/platform/[slug]/page.tsx): Priority drill-down detail route using per-priority slug/body/link content from CMS.
+- [`app/media/page.tsx`](app/media/page.tsx): Combined Media & Press hub (media links, press assets, contact, and newsroom context).
 - [`app/support/page.tsx`](app/support/page.tsx): Volunteer, voter tools, district map, and fundraising CTAs.
 - [`components/cms-link.tsx`](components/cms-link.tsx): Smart internal/external link renderer for CMS URLs.
 - [`components/site-header.tsx`](components/site-header.tsx): Primary navigation header.
@@ -55,11 +60,12 @@ Primary frontend source area for the public campaign site.
 - Header brand lockup is CMS-driven from HTML in `siteSettings.homeLinkMarkup`.
 - Header nav items are CMS-driven from `siteSettings.headerNavItems` (label, link, icon).
 - Header logo circle uses Sanity crop/hotspot-aware image URLs to keep face/logo framing aligned with Studio image settings.
+- Header logo source prioritizes `siteSettings.headerLogoSmall` (for optimized small-format branding), then falls back to `siteSettings.campaignLogo`.
 - Homepage hero supports CMS control of district label, summary copy, action buttons (label/link/icon/style), bubble badges with placement (`text`/`media`/`proof`), focus list items, candidate portrait caption, and large section cards via `siteSettings`.
 - News list cards are CMS-configurable per article from `post` fields: card layout (`stacked`/`image-left`/`image-right`/`feature-split`/`no-photo`), image orientation, image aspect ratio (DSLR/phone-friendly options), card animation preset, and body preview character limit.
 - News list UX includes clickable images, titles, and body previews (open article detail), compact inline `Read article →` cues above tags, mobile-friendly media insets for `16:9` and tall `9:16` cards, searchable tags in a responsive two-row capped rail sorted by article count (count labels shown only when a tag appears in 2+ articles), top-right sorting (`Newest`, `Oldest`, `Title A-Z`), and intersection-observer infinite scroll to avoid heavy render work.
 - Events list cards are CMS-configurable per event from `event` fields: card layout (`stacked`/`image-left`/`image-right`/`feature-split`/`no-photo`), image orientation, image aspect ratio, animation preset, description preview character limit, and tags.
-- Events list UX now supports clickable event images and titles when RSVP links are available, compact inline `RSVP →` cues, mobile-friendly media insets for `16:9` and tall `9:16` cards, a compact tag search plus tag filtering in a responsive two-row capped rail sorted by event count (count labels shown only when a tag appears in 2+ events), top-right sorting (`Soonest`, `Latest`, `Title A-Z`), crop-aware image rendering, intersection-observer infinite scroll for efficient rendering, and automatic `Passed` badges when an event's `endDate` (or fallback `startDate`) is earlier than current Eastern time.
+- Events list UX now supports drill-down links from event images/titles to `/events/details#slug` (with RSVP fallback when needed), compact inline `RSVP →` cues, mobile-friendly media insets for `16:9` and tall `9:16` cards, a compact tag search plus tag filtering in a responsive two-row capped rail sorted by event count (count labels shown only when a tag appears in 2+ events), top-right sorting (`Soonest`, `Latest`, `Title A-Z`), crop-aware image rendering, intersection-observer infinite scroll for efficient rendering, and automatic `Passed` badges when an event's `endDate` (or fallback `startDate`) is earlier than current Eastern time.
 - CMS visual setting queries use `no-store` in local dev/runtime, but switch to revalidated fetch during production static builds so published values are embedded correctly.
 - Hero variant CSS keeps portrait media/text reorder at `md+`, keeps split-layout proof badges full-width, and scopes immersive overlay positioning to the immersive frame.
 - `pageVisualSettings` now controls: background style, container width, tone accents, motion preset, text-link animation, page background animation, and scroll reveal behavior.

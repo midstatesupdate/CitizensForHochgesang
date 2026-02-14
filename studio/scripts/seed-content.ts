@@ -302,6 +302,156 @@ async function main() {
       eventDescriptionPreviewChars: 720,
       tags: ['virtual', 'district priorities', 'transparency', 'livestream', 'Q&A'],
     },
+    {
+      id: 'event-senior-services-roundtable',
+      title: 'Senior Services Roundtable',
+      startOffsetDays: 60,
+      durationHours: 1.5,
+      location: 'New Albany Senior Center',
+      description:
+        'Conversation with seniors and caregivers about property taxes, transportation access, and aging-in-place support.',
+      eventCardLayout: 'image-left',
+      eventImageOrientation: 'portrait',
+      eventImageAspectRatio: '4:5',
+      eventCardAnimation: 'slide-left',
+      eventDescriptionPreviewChars: 480,
+      tags: ['seniors', 'caregivers', 'transportation', 'property taxes'],
+    },
+    {
+      id: 'event-riverfront-cleanup-day',
+      title: 'Riverfront Cleanup Day',
+      startOffsetDays: 63,
+      durationHours: 2.5,
+      location: 'Jeffersonville Riverfront Park',
+      description:
+        'Volunteer cleanup and neighborhood beautification event focused on practical community stewardship.',
+      eventCardLayout: 'stacked',
+      eventImageOrientation: 'landscape',
+      eventImageAspectRatio: '3:2',
+      eventCardAnimation: 'fade-up',
+      eventDescriptionPreviewChars: 440,
+      tags: ['volunteer', 'environment', 'community', 'riverfront'],
+    },
+    {
+      id: 'event-rural-roads-listening-session',
+      title: 'Rural Roads Listening Session',
+      startOffsetDays: 67,
+      durationHours: 1.75,
+      location: 'Borden Town Hall',
+      description:
+        'Residents and local leaders review road maintenance priorities, winter readiness, and safety concerns.',
+      eventCardLayout: 'feature-split',
+      eventImageOrientation: 'landscape',
+      eventImageAspectRatio: '16:9',
+      eventCardAnimation: 'slide-up',
+      eventDescriptionPreviewChars: 500,
+      tags: ['infrastructure', 'rural roads', 'public safety', 'winter readiness'],
+    },
+    {
+      id: 'event-school-board-community-night',
+      title: 'School Board Community Night',
+      startOffsetDays: 71,
+      durationHours: 2,
+      location: 'Silver Creek High School',
+      description:
+        'Open forum with parents, educators, and students on classroom resources and post-grad pathways.',
+      eventCardLayout: 'image-right',
+      eventImageOrientation: 'landscape',
+      eventImageAspectRatio: '4:3',
+      eventCardAnimation: 'slide-right',
+      eventDescriptionPreviewChars: 520,
+      tags: ['education', 'parents', 'teachers', 'students'],
+    },
+    {
+      id: 'event-neighborhood-public-safety-walk',
+      title: 'Neighborhood Public Safety Walk',
+      startOffsetDays: 75,
+      durationHours: 1.25,
+      location: 'Clarksville Main Street Corridor',
+      description:
+        'Walking audit focused on lighting, traffic calming, and practical safety partnerships in neighborhood corridors.',
+      eventCardLayout: 'no-photo',
+      eventImageOrientation: 'landscape',
+      eventImageAspectRatio: '3:2',
+      eventCardAnimation: 'none',
+      eventDescriptionPreviewChars: 740,
+      tags: ['public safety', 'neighborhoods', 'lighting', 'traffic calming'],
+    },
+    {
+      id: 'event-small-town-business-coffee-hour',
+      title: 'Small-Town Business Coffee Hour',
+      startOffsetDays: 78,
+      durationHours: 1.5,
+      location: 'Sellersburg Commerce Office',
+      description:
+        'Local entrepreneurs discuss permitting timelines, hiring challenges, and practical support ideas.',
+      eventCardLayout: 'image-left',
+      eventImageOrientation: 'portrait',
+      eventImageAspectRatio: '4:5',
+      eventCardAnimation: 'slide-left',
+      eventDescriptionPreviewChars: 470,
+      tags: ['small business', 'jobs', 'local economy', 'permits'],
+    },
+    {
+      id: 'event-community-health-resource-fair',
+      title: 'Community Health Resource Fair',
+      startOffsetDays: 82,
+      durationHours: 2.25,
+      location: 'Charlestown Family Wellness Center',
+      description:
+        'Connect families with preventive care, mental health support, and local health access resources.',
+      eventCardLayout: 'feature-split',
+      eventImageOrientation: 'landscape',
+      eventImageAspectRatio: '16:9',
+      eventCardAnimation: 'fade-up',
+      eventDescriptionPreviewChars: 520,
+      tags: ['healthcare', 'mental health', 'families', 'community services'],
+    },
+    {
+      id: 'event-youth-leadership-forum',
+      title: 'Youth Leadership Forum',
+      startOffsetDays: 86,
+      durationHours: 1.5,
+      location: 'IUS Civic Engagement Hall',
+      description:
+        'Student-led policy forum covering civic education, internships, and local service opportunities.',
+      eventCardLayout: 'stacked',
+      eventImageOrientation: 'portrait',
+      eventImageAspectRatio: '9:16',
+      eventCardAnimation: 'slide-up',
+      eventDescriptionPreviewChars: 620,
+      tags: ['youth', 'students', 'civic engagement', 'internships'],
+    },
+    {
+      id: 'event-transportation-future-roundtable',
+      title: 'Transportation Future Roundtable',
+      startOffsetDays: 90,
+      durationHours: 2,
+      location: 'New Albany Transit Hub',
+      description:
+        'Roundtable on commuter reliability, pedestrian safety, and long-term district transportation priorities.',
+      eventCardLayout: 'image-right',
+      eventImageOrientation: 'landscape',
+      eventImageAspectRatio: '4:3',
+      eventCardAnimation: 'slide-right',
+      eventDescriptionPreviewChars: 540,
+      tags: ['transportation', 'commuters', 'pedestrian safety', 'infrastructure'],
+    },
+    {
+      id: 'event-fall-district-wrap-up',
+      title: 'Fall District Wrap-Up Meeting',
+      startOffsetDays: 95,
+      durationHours: 2,
+      location: 'Jeffersonville Community Center',
+      description:
+        'Campaign-wide wrap-up on district feedback themes and next-step commitments before election season.',
+      eventCardLayout: 'no-photo',
+      eventImageOrientation: 'landscape',
+      eventImageAspectRatio: '3:2',
+      eventCardAnimation: 'fade-up',
+      eventDescriptionPreviewChars: 760,
+      tags: ['district priorities', 'accountability', 'community', 'campaign updates'],
+    },
   ]
 
   await client
@@ -319,6 +469,7 @@ async function main() {
         homeHeroSummary: 'Practical leadership for Indiana State Senate District 48.',
         homeLinkMarkup:
           '<span class="home-link-line">Brad Hochgesang</span><span class="home-link-line">For State Senate</span>',
+        headerLogoSmall: logoImage,
         donateUrl: 'https://secure.actblue.com/donate/brad-hochgesang-1',
         volunteerUrl: 'https://www.ngpvan.com/',
         socialLinks: [
@@ -338,9 +489,9 @@ async function main() {
         headerNavItems: [
           {label: 'News', href: '/news', icon: 'newspaper'},
           {label: 'Events', href: '/events', icon: 'calendar'},
+          {label: 'About & Priorities', href: '/platform', icon: 'user-friends'},
           {label: 'FAQ', href: '/faq', icon: 'question-circle'},
-          {label: 'Media', href: '/media', icon: 'video'},
-          {label: 'Press', href: '/press', icon: 'reg-newspaper'},
+          {label: 'Media & Press', href: '/media', icon: 'video'},
           {label: 'Support', href: '/support', icon: 'hands-helping'},
         ],
         homeHeroActions: [
@@ -385,6 +536,80 @@ async function main() {
       },
     })
     .createOrReplace({
+      _id: 'aboutPriorities',
+      _type: 'aboutPriorities',
+      pageEyebrow: 'About & Priorities',
+      pageTitle: 'Who Brad is and what this campaign stands for',
+      pageIntro:
+        'A practical, community-first campaign for Indiana State Senate District 48 focused on everyday issues voters feel directly.',
+      bioHeading: 'Candidate bio',
+      bioBody: portableText([
+        'Brad Hochgesang is running to bring practical, transparent leadership to District 48. This campaign is built on direct conversations with neighbors, clear public updates, and policy priorities grounded in day-to-day realities for Indiana families.',
+        'The focus is simple: listen first, act with accountability, and deliver measurable progress in jobs, education, public safety, and constituent service.',
+      ]),
+      valuesHeading: 'Campaign values',
+      values: [
+        'Community-first decision making',
+        'Honest communication and transparency',
+        'Practical policy over partisan noise',
+      ],
+      prioritiesHeading: 'Core priorities',
+      priorities: [
+        {
+          _key: 'jobs-growth',
+          title: 'Jobs and local economic growth',
+          slug: {_type: 'slug', current: 'jobs-and-local-economic-growth'},
+          summary:
+            'Support small businesses, strengthen workforce training pipelines, and focus state policy on practical growth for local families.',
+          body: portableText([
+            'District 48 deserves practical economic policy that supports workers and local employers at the same time.',
+            'This campaign prioritizes workforce partnerships, reduced bottlenecks for small businesses, and measurable outcomes families can feel in paychecks and opportunity.',
+          ]),
+          links: [
+            {label: 'See upcoming business-focused events', url: '/events'},
+            {label: 'Read campaign updates', url: '/news'},
+          ],
+        },
+        {
+          _key: 'safe-services',
+          title: 'Safe communities and responsive services',
+          slug: {_type: 'slug', current: 'safe-communities-and-responsive-services'},
+          summary:
+            'Invest in prevention, emergency readiness, and constituent services that are transparent, fast, and accountable.',
+          body: portableText([
+            'Public safety is strongest when prevention, preparedness, and neighborhood trust are all funded and coordinated.',
+            'Constituent services should be clear, timely, and easy to navigate so residents can get help when they need it.',
+          ]),
+          links: [
+            {label: 'Attend a public safety event', url: '/events'},
+            {label: 'Volunteer with the campaign', url: '/support'},
+          ],
+        },
+        {
+          _key: 'education-opportunity',
+          title: 'Education and opportunity',
+          slug: {_type: 'slug', current: 'education-and-opportunity'},
+          summary:
+            'Back strong schools, career-ready pathways, and family-focused education choices that prepare students for real-world success.',
+          body: portableText([
+            'Education policy should expand options for families while supporting educators and students with practical resources.',
+            'From strong K-12 foundations to career training and internships, this campaign supports pathways that lead to long-term opportunity.',
+          ]),
+          links: [
+            {label: 'Read education updates', url: '/news'},
+            {label: 'Join the next forum', url: '/events'},
+          ],
+        },
+      ],
+      ctaHeading: 'Get involved',
+      ctaCopy:
+        'Want to help shape these priorities and move them forward? Join the campaign, attend events, and share your input directly.',
+      primaryCtaLabel: 'Volunteer & donate',
+      primaryCtaUrl: '/support',
+      secondaryCtaLabel: 'Attend an event',
+      secondaryCtaUrl: '/events',
+    })
+    .createOrReplace({
       _id: 'post-launch-district-48',
       _type: 'post',
       title: 'Launching a District 48 Listening Tour',
@@ -414,6 +639,129 @@ async function main() {
         'District 48 business owners highlighted workforce needs and permitting friction as top concerns.',
         'Our policy approach centers on reducing unnecessary delays while keeping communities safe and competitive.',
         'Additional roundtables will be scheduled in the coming weeks to keep this feedback loop active.',
+      ]),
+    })
+    .createOrReplace({
+      _id: 'post-public-safety-community-briefing',
+      _type: 'post',
+      title: 'Public Safety Community Briefing Recap',
+      slug: {_type: 'slug', current: 'public-safety-community-briefing-recap'},
+      excerpt:
+        'Key takeaways from neighborhood safety leaders on prevention, response coordination, and trust-building.',
+      publishedAt: daysFromNow(-3),
+      coverImage: logoImage,
+      tags: ['public safety', 'community'],
+      body: portableText([
+        'Residents asked for practical public safety improvements that focus on prevention and strong local partnerships.',
+        'The campaign heard consistent requests for better communication with first responders and clear accountability metrics.',
+        'Future events will include follow-up updates with progress milestones.',
+      ]),
+    })
+    .createOrReplace({
+      _id: 'post-education-forum-next-steps',
+      _type: 'post',
+      title: 'Education Forum: Next Steps for District 48',
+      slug: {_type: 'slug', current: 'education-forum-next-steps-district-48'},
+      excerpt:
+        'Parents, students, and teachers shared priorities around resources, classroom focus, and career pathways.',
+      publishedAt: daysFromNow(-4),
+      coverImage: logoImage,
+      tags: ['education', 'students', 'families'],
+      body: portableText([
+        'Participants asked for steady investment in classroom fundamentals and practical pathways into skilled careers.',
+        'District conversations highlighted the need for transparent school funding and local workforce alignment.',
+        'Campaign planning now includes recurring education-focused feedback sessions.',
+      ]),
+    })
+    .createOrReplace({
+      _id: 'post-healthcare-access-town-notes',
+      _type: 'post',
+      title: 'Healthcare Access Town Notes',
+      slug: {_type: 'slug', current: 'healthcare-access-town-notes'},
+      excerpt: 'Community members outlined practical steps to improve affordability, preventive care, and local access.',
+      publishedAt: daysFromNow(-5),
+      coverImage: logoImage,
+      tags: ['healthcare', 'families'],
+      body: portableText([
+        'Caregivers and families emphasized faster access to primary care and predictable out-of-pocket costs.',
+        'Residents also asked for stronger local coordination between clinics, schools, and support services.',
+        'These notes will guide upcoming policy drafts and listening sessions.',
+      ]),
+    })
+    .createOrReplace({
+      _id: 'post-transportation-priority-check-in',
+      _type: 'post',
+      title: 'Transportation Priority Check-In',
+      slug: {_type: 'slug', current: 'transportation-priority-check-in'},
+      excerpt: 'A district update on roads, sidewalks, and commuter reliability priorities raised by residents.',
+      publishedAt: daysFromNow(-6),
+      coverImage: logoImage,
+      tags: ['transportation', 'infrastructure'],
+      body: portableText([
+        'Neighbors continue to prioritize safer corridors, sidewalk continuity, and predictable commute routes.',
+        'Conversations also focused on practical maintenance scheduling and transparent project timelines.',
+        'The campaign will publish a corridor-by-corridor feedback summary soon.',
+      ]),
+    })
+    .createOrReplace({
+      _id: 'post-veterans-resources-update',
+      _type: 'post',
+      title: 'Veterans Resources Update',
+      slug: {_type: 'slug', current: 'veterans-resources-update'},
+      excerpt: 'New district conversations on benefits navigation, service access, and veteran family support.',
+      publishedAt: daysFromNow(-7),
+      coverImage: logoImage,
+      tags: ['veterans', 'community services'],
+      body: portableText([
+        'Veterans and families requested simpler pathways to local support, benefits information, and employment resources.',
+        'Campaign outreach teams are compiling a district resource checklist for upcoming fairs and forums.',
+        'Additional veteran-focused listening events are scheduled through the season.',
+      ]),
+    })
+    .createOrReplace({
+      _id: 'post-housing-neighborhood-feedback',
+      _type: 'post',
+      title: 'Housing and Neighborhood Feedback',
+      slug: {_type: 'slug', current: 'housing-and-neighborhood-feedback'},
+      excerpt:
+        'Residents discussed rent pressure, first-time buyer barriers, and neighborhood stability priorities.',
+      publishedAt: daysFromNow(-8),
+      coverImage: logoImage,
+      tags: ['housing', 'neighborhoods'],
+      body: portableText([
+        'Community input centered on predictable housing costs and practical support for first-time buyers.',
+        'Participants also raised concerns about zoning clarity and neighborhood infrastructure capacity.',
+        'The campaign will continue collecting examples to shape actionable proposals.',
+      ]),
+    })
+    .createOrReplace({
+      _id: 'post-youth-engagement-recap',
+      _type: 'post',
+      title: 'Youth Engagement Forum Recap',
+      slug: {_type: 'slug', current: 'youth-engagement-forum-recap'},
+      excerpt: 'Students shared ideas on civic learning, internships, and practical pathways into public service.',
+      publishedAt: daysFromNow(-9),
+      coverImage: logoImage,
+      tags: ['youth', 'education', 'civic engagement'],
+      body: portableText([
+        'Student leaders emphasized early civic education and clearer bridges between school and local service opportunities.',
+        'Participants asked for internship pathways that connect classrooms with real district needs.',
+        'Future updates will track youth-led recommendations and implementation milestones.',
+      ]),
+    })
+    .createOrReplace({
+      _id: 'post-fall-campaign-roadmap',
+      _type: 'post',
+      title: 'Fall Campaign Roadmap',
+      slug: {_type: 'slug', current: 'fall-campaign-roadmap'},
+      excerpt: 'A planning update outlining upcoming events, publishing cadence, and district feedback checkpoints.',
+      publishedAt: daysFromNow(-10),
+      coverImage: logoImage,
+      tags: ['campaign updates', 'roadmap'],
+      body: portableText([
+        'The next campaign phase will expand district events while keeping regular public updates and transparent follow-through.',
+        'Teams are prioritizing practical publishing workflows so residents can track plans and outcomes clearly.',
+        'The roadmap will be reviewed monthly with updates from each focus area.',
       ]),
     })
     .createOrReplace({
@@ -457,10 +805,22 @@ async function main() {
           _id: event.id,
           _type: 'event',
           title: event.title,
+          slug: {
+            _type: 'slug',
+            current: event.id.replace(/^event-/, ''),
+          },
           startDate,
           endDate,
           location: event.location,
           description: event.description,
+          detailBody: portableText([
+            event.description,
+            'This event is part of our district-wide listening and action agenda. Bring your questions, ideas, and priorities so we can build practical policy together.',
+          ]),
+          detailLinks: [
+            {label: 'View all events', url: '/events'},
+            {label: 'Support the campaign', url: '/support'},
+          ],
           rsvpLink: 'https://www.ngpvan.com/',
           ...(event.eventCardLayout === 'no-photo'
             ? {}

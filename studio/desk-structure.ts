@@ -9,6 +9,9 @@ export const deskStructure: StructureResolver = (S) =>
       S.listItem()
         .title('Site Settings')
         .child(S.document().schemaType('siteSettings').documentId('siteSettings')),
+      S.listItem()
+        .title('About & Priorities')
+        .child(S.document().schemaType('aboutPriorities').documentId('aboutPriorities')),
       S.listItem().title('Page Visual Settings').child(S.documentTypeList('pageVisualSettings')),
       S.divider(),
       S.listItem().title('Posts').child(S.documentTypeList('post')),

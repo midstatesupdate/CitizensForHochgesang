@@ -1,12 +1,12 @@
 import {CmsLink} from '@/components/cms-link'
 import {formatDate} from '@/lib/cms/format'
 import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-visuals'
-import {getMediaLinks, getPageVisualSettings} from '@/lib/cms/repository'
+import {getMediaLinks, getPageVisualSettings, getRecentPosts, getSiteSettings, getUpcomingEvents} from '@/lib/cms/repository'
 import Image from 'next/image'
 
 export const metadata = {
-  title: 'Media | Brad Hochgesang for State Senate',
-  description: 'YouTube, Facebook, and other media coverage for the campaign.',
+  title: 'Media & Press | Brad Hochgesang for State Senate',
+  description: 'Campaign media coverage, press resources, and direct contact details.',
 }
 
 function getTypeLabel(mediaType: string): string {
@@ -17,19 +17,78 @@ function getTypeLabel(mediaType: string): string {
 }
 
 export default async function MediaPage() {
-  const [mediaLinks, pageVisualSettings] = await Promise.all([getMediaLinks(), getPageVisualSettings('media')])
+  const [mediaLinks, settings, posts, events, pageVisualSettings] = await Promise.all([
+    getMediaLinks(),
+    getSiteSettings(),
+    getRecentPosts(4),
+    getUpcomingEvents(),
+    getPageVisualSettings('media'),
+  ])
 
   return (
     <main className={getPageShellClasses(pageVisualSettings)} {...getPageShellDataAttributes(pageVisualSettings)}>
       <section className="flex flex-col gap-4">
-        <p className="eyebrow">Media</p>
-        <h1 className="section-title">Interviews, videos, and social updates</h1>
+        <p className="eyebrow">Media & Press</p>
+        <h1 className="section-title">Media coverage and press resources</h1>
         <p className="max-w-3xl text-sm text-[color:var(--color-muted)]">
-          Watch and share campaign coverage across platforms.
+          Watch and share campaign coverage, access official assets, and contact the team for media requests.
         </p>
       </section>
 
+      <section className="grid gap-6 lg:grid-cols-2">
+        <article className="card article-card flex flex-col gap-4">
+          <h2 className="text-xl font-semibold text-[color:var(--color-ink)]">Media contact</h2>
+          <p className="text-sm text-[color:var(--color-muted)]">For interviews, deadlines, and publication requests.</p>
+          {settings.contactEmail ? (
+            <>
+              <CmsLink className="link-pill link-pill-media" href={`mailto:${settings.contactEmail}`}>
+                Contact us
+              </CmsLink>
+              <p className="text-sm font-semibold text-[color:var(--color-accent)]">{settings.contactEmail}</p>
+            </>
+          ) : (
+            <p className="text-sm text-[color:var(--color-muted)]">Contact email pending publication in Site Settings.</p>
+          )}
+          <p className="text-sm text-[color:var(--color-muted)]">Please include your deadline and publication details in the initial request.</p>
+        </article>
+
+        <article className="card article-card flex flex-col gap-4">
+          <h2 className="text-xl font-semibold text-[color:var(--color-ink)]">Press assets</h2>
+          {settings.campaignLogoUrl ? (
+            <>
+              <div className="card-media flex justify-center p-6">
+                <Image
+                  src={settings.campaignLogoUrl}
+                  alt={settings.campaignLogoAlt ?? `${settings.siteTitle} logo`}
+                  width={320}
+                  height={320}
+                  className="h-auto w-full max-w-[14rem] object-contain"
+                  unoptimized
+                />
+              </div>
+              <CmsLink className="link-pill link-pill-media" href={settings.campaignLogoUrl}>
+                Download campaign logo
+              </CmsLink>
+              <div className="grid gap-2 text-sm">
+                <CmsLink className="link-soft" href="/press-kit/candidate-bio-short.md">
+                  Download short bio
+                </CmsLink>
+                <CmsLink className="link-soft" href="/press-kit/media-contact.txt">
+                  Download media contact sheet
+                </CmsLink>
+                <CmsLink className="link-soft" href="/press-kit/logo-usage.md">
+                  Download logo usage guidance
+                </CmsLink>
+              </div>
+            </>
+          ) : (
+            <p className="text-sm text-[color:var(--color-muted)]">Campaign logo not published in site settings yet.</p>
+          )}
+        </article>
+      </section>
+
       <section className="grid gap-6 md:grid-cols-2">
+        <h2 className="section-title md:col-span-2">Interviews, videos, and social updates</h2>
         {mediaLinks.map((item) => (
           <article key={item.id} className="card article-card flex flex-col gap-4">
             {item.thumbnailUrl ? (
@@ -61,6 +120,34 @@ export default async function MediaPage() {
             </div>
           </article>
         ))}
+      </section>
+
+      <section className="grid gap-6 lg:grid-cols-2">
+        <article className="card article-card flex flex-col gap-4">
+          <h2 className="text-xl font-semibold text-[color:var(--color-ink)]">Latest campaign updates</h2>
+          <ul className="grid gap-3">
+            {posts.map((post) => (
+              <li key={post.slug} className="rounded-2xl border border-[color:var(--color-border)] px-4 py-3">
+                <p className="article-meta text-xs font-semibold uppercase tracking-[0.25em] text-[color:var(--color-muted)]">
+                  {formatDate(post.publishedAt)}
+                </p>
+                <p className="article-title mt-2 text-sm font-semibold text-[color:var(--color-ink)]">{post.title}</p>
+              </li>
+            ))}
+          </ul>
+        </article>
+
+        <article className="card article-card flex flex-col gap-4">
+          <h2 className="text-xl font-semibold text-[color:var(--color-ink)]">Upcoming public events</h2>
+          <ul className="grid gap-3">
+            {events.slice(0, 4).map((event) => (
+              <li key={event.id} className="rounded-2xl border border-[color:var(--color-border)] px-4 py-3">
+                <p className="article-title text-sm font-semibold text-[color:var(--color-ink)]">{event.title}</p>
+                <p className="mt-1 text-sm text-[color:var(--color-muted)]">{event.location}</p>
+              </li>
+            ))}
+          </ul>
+        </article>
       </section>
     </main>
   )

@@ -107,7 +107,9 @@ export type SiteSettings = {
   homeHeroSummary?: string
   homeLinkMarkup?: string
   campaignLogo?: SanityImageSource
+  headerLogoSmall?: SanityImageSource
   campaignLogoUrl?: string
+  headerLogoSmallUrl?: string
   campaignLogoAlt?: string
   candidatePortraitUrl?: string
   candidatePortraitAlt?: string
@@ -150,10 +152,40 @@ export type PageVisualPageKey =
   | 'news'
   | 'news-detail'
   | 'events'
+  | 'events-detail'
   | 'faq'
+  | 'platform'
+  | 'platform-detail'
   | 'media'
   | 'press'
   | 'support'
+
+export type AboutPriorities = {
+  pageEyebrow: string
+  pageTitle: string
+  pageIntro: string
+  bioHeading: string
+  bioBody: PostBodyNode[]
+  valuesHeading: string
+  values: string[]
+  prioritiesHeading: string
+  priorities: Array<{
+    title: string
+    slug: string
+    summary: string
+    body: PostBodyNode[]
+    links: Array<{
+      label: string
+      url: string
+    }>
+  }>
+  ctaHeading: string
+  ctaCopy: string
+  primaryCtaLabel: string
+  primaryCtaUrl: string
+  secondaryCtaLabel: string
+  secondaryCtaUrl: string
+}
 
 export type PageVisualSettings = {
   pageKey: PageVisualPageKey
@@ -256,10 +288,16 @@ export type PostDetail = PostSummary & {
 export type CampaignEvent = {
   id: string
   title: string
+  slug: string
   startDate: string
   endDate?: string
   location: string
   description?: string
+  detailBody?: PostBodyNode[]
+  detailLinks?: Array<{
+    label: string
+    url: string
+  }>
   scheduleImage?: SanityImageSource
   rsvpLink?: string
   scheduleImageUrl?: string

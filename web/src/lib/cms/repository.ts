@@ -1,5 +1,6 @@
 import {sanityQuery} from './client'
 import {
+  mockAboutPriorities,
   mockEvents,
   mockFundraisingLinks,
   mockMediaLinks,
@@ -7,6 +8,7 @@ import {
   mockSiteSettings,
 } from './mockData'
 import type {
+  AboutPriorities,
   CampaignEvent,
   FundraisingLink,
   MediaLink,
@@ -30,6 +32,67 @@ function sortByDateAsc<T extends {startDate: string}>(items: T[]): T[] {
   return [...items].sort((a, b) => Date.parse(a.startDate) - Date.parse(b.startDate))
 }
 
+export async function getAboutPriorities(): Promise<AboutPriorities> {
+  const query = `*[_type=="aboutPriorities"][0]{
+    "pageEyebrow": coalesce(pageEyebrow, "About & Priorities"),
+    "pageTitle": coalesce(pageTitle, "Who Brad is and what this campaign stands for"),
+    pageIntro,
+    "bioHeading": coalesce(bioHeading, "Candidate bio"),
+    "bioBody": coalesce(bioBody[]{
+      ...,
+      _type == "image" => {
+        ...,
+        "asset": {
+          "url": asset->url
+        }
+      }
+    }, []),
+    "valuesHeading": coalesce(valuesHeading, "Campaign values"),
+    "values": coalesce(values, []),
+    "prioritiesHeading": coalesce(prioritiesHeading, "Core priorities"),
+    "priorities": coalesce(priorities[]{
+      title,
+      "slug": slug.current,
+      summary,
+      "body": coalesce(body[]{
+        ...,
+        _type == "image" => {
+          ...,
+          "asset": {
+            "url": asset->url
+          }
+        }
+      }, []),
+      "links": coalesce(links[]{label, url}, [])
+    }, []),
+    "ctaHeading": coalesce(ctaHeading, "Get involved"),
+    ctaCopy,
+    "primaryCtaLabel": coalesce(primaryCtaLabel, "Volunteer & donate"),
+    "primaryCtaUrl": coalesce(primaryCtaUrl, "/support"),
+    "secondaryCtaLabel": coalesce(secondaryCtaLabel, "Attend an event"),
+    "secondaryCtaUrl": coalesce(secondaryCtaUrl, "/events")
+  }`
+
+  const about = await sanityQuery<AboutPriorities>(query, undefined, {revalidateSeconds: 0})
+  if (!about) {
+    return mockAboutPriorities
+  }
+
+  return {
+    ...mockAboutPriorities,
+    ...about,
+    bioBody: about.bioBody?.length ? about.bioBody : mockAboutPriorities.bioBody,
+    values: about.values?.length ? about.values : mockAboutPriorities.values,
+    priorities: about.priorities?.length
+      ? about.priorities.map((priority) => ({
+          ...priority,
+          body: priority.body?.length ? priority.body : [{_type: 'block', children: [{_type: 'span', text: priority.summary, marks: []}]}],
+          links: priority.links ?? [],
+        }))
+      : mockAboutPriorities.priorities,
+  }
+}
+
 export async function getSiteSettings(): Promise<SiteSettings> {
   const query = `*[_type=="siteSettings"][0]{
     "siteTitle": coalesce(siteTitle, "Citizens For Hochgesang"),
@@ -38,7 +101,9 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     homeHeroSummary,
     "homeLinkMarkup": coalesce(homeLinkMarkup, "<span class='home-link-line'>Brad Hochgesang</span><span class='home-link-line'>For State Senate</span>"),
     campaignLogo,
+    headerLogoSmall,
     "campaignLogoUrl": campaignLogo.asset->url,
+    "headerLogoSmallUrl": headerLogoSmall.asset->url,
     "campaignLogoAlt": campaignLogoAlt,
     "candidatePortraitUrl": candidatePortrait.asset->url,
     "candidatePortraitAlt": candidatePortraitAlt,
@@ -200,10 +265,21 @@ export async function getUpcomingEvents(): Promise<CampaignEvent[]> {
   const query = `*[_type=="event"] | order(startDate asc){
     "_id": _id,
     title,
+    "slug": slug.current,
     startDate,
     endDate,
     location,
     description,
+    "detailBody": coalesce(detailBody[]{
+      ...,
+      _type == "image" => {
+        ...,
+        "asset": {
+          "url": asset->url
+        }
+      }
+    }, []),
+    "detailLinks": coalesce(detailLinks[]{label, url}, []),
     scheduleImage,
     rsvpLink,
     "scheduleImageUrl": scheduleImage.asset->url,

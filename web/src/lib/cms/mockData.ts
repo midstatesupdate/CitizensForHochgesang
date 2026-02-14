@@ -1,10 +1,115 @@
 import {
+  type AboutPriorities,
   type CampaignEvent,
   type FundraisingLink,
   type MediaLink,
   type PostDetail,
   type SiteSettings,
 } from './types'
+
+export const mockAboutPriorities: AboutPriorities = {
+  pageEyebrow: 'About & Priorities',
+  pageTitle: 'Who Brad is and what this campaign stands for',
+  pageIntro:
+    'A practical, community-first campaign for Indiana State Senate District 48 focused on everyday issues voters feel directly.',
+  bioHeading: 'Candidate bio',
+  bioBody: [
+    {
+      _type: 'block',
+      children: [
+        {
+          _type: 'span',
+          text: 'Brad Hochgesang is running to bring practical, transparent leadership to District 48. This campaign is built on direct conversations with neighbors, clear public updates, and policy priorities grounded in day-to-day realities for Indiana families.',
+        },
+      ],
+    },
+    {
+      _type: 'block',
+      children: [
+        {
+          _type: 'span',
+          text: 'The focus is simple: listen first, act with accountability, and deliver measurable progress in jobs, education, public safety, and constituent service.',
+        },
+      ],
+    },
+  ],
+  valuesHeading: 'Campaign values',
+  values: [
+    'Community-first decision making',
+    'Honest communication and transparency',
+    'Practical policy over partisan noise',
+  ],
+  prioritiesHeading: 'Core priorities',
+  priorities: [
+    {
+      title: 'Jobs and local economic growth',
+      slug: 'jobs-and-local-economic-growth',
+      summary:
+        'Support small businesses, strengthen workforce training pipelines, and focus state policy on practical growth for local families.',
+      body: [
+        {
+          _type: 'block',
+          children: [
+            {
+              _type: 'span',
+              text: 'District 48 needs practical economic policy that helps local employers hire and grow without unnecessary friction.',
+            },
+          ],
+        },
+      ],
+      links: [
+        {label: 'Small business updates', url: '/news'},
+      ],
+    },
+    {
+      title: 'Safe communities and responsive services',
+      slug: 'safe-communities-and-responsive-services',
+      summary:
+        'Invest in prevention, emergency readiness, and constituent services that are transparent, fast, and accountable.',
+      body: [
+        {
+          _type: 'block',
+          children: [
+            {
+              _type: 'span',
+              text: 'Public safety works best when prevention, rapid response, and neighborhood trust are designed to work together.',
+            },
+          ],
+        },
+      ],
+      links: [
+        {label: 'Community events', url: '/events'},
+      ],
+    },
+    {
+      title: 'Education and opportunity',
+      slug: 'education-and-opportunity',
+      summary:
+        'Back strong schools, career-ready pathways, and family-focused education choices that prepare students for real-world success.',
+      body: [
+        {
+          _type: 'block',
+          children: [
+            {
+              _type: 'span',
+              text: 'Students and families deserve education systems that connect classrooms, career pathways, and local employers.',
+            },
+          ],
+        },
+      ],
+      links: [
+        {label: 'Read education updates', url: '/news'},
+      ],
+    },
+  ],
+  ctaHeading: 'Get involved',
+  ctaCopy:
+    'Want to help shape these priorities and move them forward? Join the campaign, attend events, and share your input directly.',
+  primaryCtaLabel: 'Volunteer & donate',
+  primaryCtaUrl: '/support',
+  secondaryCtaLabel: 'Attend an event',
+  secondaryCtaUrl: '/events',
+}
 
 export const mockSiteSettings: SiteSettings = {
   siteTitle: 'Citizens For Hochgesang',
@@ -19,9 +124,9 @@ export const mockSiteSettings: SiteSettings = {
   headerNavItems: [
     {label: 'News', href: '/news', icon: 'newspaper'},
     {label: 'Events', href: '/events', icon: 'calendar'},
+    {label: 'About & Priorities', href: '/platform', icon: 'user-friends'},
     {label: 'FAQ', href: '/faq', icon: 'question-circle'},
-    {label: 'Media', href: '/media', icon: 'video'},
-    {label: 'Press', href: '/press', icon: 'reg-newspaper'},
+    {label: 'Media & Press', href: '/media', icon: 'video'},
     {label: 'Support', href: '/support', icon: 'hands-helping'},
   ],
   homeHeroActions: [
@@ -270,6 +375,7 @@ export const mockPosts: PostDetail[] = [
 export const mockEvents: CampaignEvent[] = [
   {
     id: 'event-town-hall-1',
+    slug: 'district-48-community-town-hall',
     title: 'District 48 Community Town Hall',
     startDate: '2026-02-20T23:00:00.000Z',
     endDate: '2026-02-21T01:00:00.000Z',
@@ -283,10 +389,25 @@ export const mockEvents: CampaignEvent[] = [
     eventImageAspectRatio: '16:9',
     eventCardAnimation: 'fade-up',
     eventDescriptionPreviewChars: 420,
+    detailBody: [
+      {
+        _type: 'block',
+        children: [{_type: 'span', text: 'Join this open forum to share district priorities and hear campaign policy updates.'}],
+      },
+      {
+        _type: 'block',
+        children: [{_type: 'span', text: 'Topics include transportation, school funding, neighborhood safety, and constituent services.'}],
+      },
+    ],
+    detailLinks: [
+      {label: 'Volunteer opportunities', url: '/support'},
+      {label: 'Latest campaign news', url: '/news'},
+    ],
     tags: ['town hall', 'transportation', 'education'],
   },
   {
     id: 'event-meet-and-greet-1',
+    slug: 'coffee-and-conversation',
     title: 'Coffee and Conversation',
     startDate: '2026-02-24T14:30:00.000Z',
     endDate: '2026-02-24T16:00:00.000Z',
@@ -299,10 +420,18 @@ export const mockEvents: CampaignEvent[] = [
     eventImageAspectRatio: '4:5',
     eventCardAnimation: 'slide-left',
     eventDescriptionPreviewChars: 420,
+    detailBody: [
+      {
+        _type: 'block',
+        children: [{_type: 'span', text: 'An informal neighborhood event designed for one-on-one conversation with voters.'}],
+      },
+    ],
+    detailLinks: [{label: 'Campaign support', url: '/support'}],
     tags: ['community', 'meet-and-greet'],
   },
   {
     id: 'event-workforce-listening-session',
+    slug: 'workforce-listening-session',
     title: 'Workforce Listening Session',
     startDate: '2026-03-01T22:00:00.000Z',
     endDate: '2026-03-01T23:30:00.000Z',
@@ -314,6 +443,13 @@ export const mockEvents: CampaignEvent[] = [
     eventImageAspectRatio: '3:2',
     eventCardAnimation: 'none',
     eventDescriptionPreviewChars: 1600,
+    detailBody: [
+      {
+        _type: 'block',
+        children: [{_type: 'span', text: 'This session focuses on workforce pipelines, practical credentialing pathways, and job access barriers.'}],
+      },
+    ],
+    detailLinks: [{label: 'Economic priorities', url: '/platform/jobs-and-local-economic-growth'}],
     tags: ['jobs', 'small business', 'training'],
   },
 ]

@@ -38,6 +38,7 @@ export const event = defineType({
   type: 'document',
   groups: [
     {name: 'content', title: 'Event Content', default: true},
+    {name: 'detail', title: 'Event Detail Page'},
     {name: 'listCard', title: 'Events List Card'},
     {name: 'metadata', title: 'Metadata'},
   ],
@@ -54,6 +55,14 @@ export const event = defineType({
       title: 'Start Date',
       type: 'datetime',
       group: ['content', 'metadata'],
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'slug',
+      title: 'Slug',
+      type: 'slug',
+      group: ['detail', 'metadata'],
+      options: {source: 'title', maxLength: 96},
       validation: (Rule) => Rule.required(),
     }),
     defineField({
@@ -145,6 +154,69 @@ export const event = defineType({
       type: 'text',
       group: ['content', 'listCard'],
       rows: 4,
+    }),
+    defineField({
+      name: 'detailBody',
+      title: 'Detail Page Body',
+      type: 'array',
+      group: 'detail',
+      description: 'Article-style rich content for the event drill-down page.',
+      of: [
+        {type: 'block'},
+        {
+          type: 'image',
+          options: {hotspot: true},
+          fields: [
+            defineField({
+              name: 'alt',
+              title: 'Alt text',
+              type: 'string',
+              validation: (Rule) => Rule.max(160),
+            }),
+          ],
+        },
+      ],
+      validation: (Rule) => Rule.required().min(1),
+    }),
+    defineField({
+      name: 'detailLinks',
+      title: 'Detail Links',
+      type: 'array',
+      group: 'detail',
+      of: [
+        {
+          type: 'object',
+          fields: [
+            defineField({
+              name: 'label',
+              title: 'Label',
+              type: 'string',
+              validation: (Rule) => Rule.required().max(60),
+            }),
+            defineField({
+              name: 'url',
+              title: 'URL',
+              type: 'string',
+              validation: (Rule) =>
+                Rule.required().custom((value) => {
+                  if (!value) {
+                    return 'URL is required'
+                  }
+
+                  return value.startsWith('/') || value.startsWith('http')
+                    ? true
+                    : 'Use an internal path (/events) or full URL (https://...)'
+                }),
+            }),
+          ],
+          preview: {
+            select: {
+              title: 'label',
+              subtitle: 'url',
+            },
+          },
+        },
+      ],
     }),
     defineField({
       name: 'eventDescriptionPreviewChars',

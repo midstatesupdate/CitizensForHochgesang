@@ -176,6 +176,15 @@ export const siteSettings = defineType({
       description: 'Upload the full-size primary campaign logo.',
     }),
     defineField({
+      name: 'headerLogoSmall',
+      title: 'Header Logo (Small Optimized)',
+      type: 'image',
+      group: 'header',
+      options: {hotspot: true},
+      description:
+        'Optional optimized small-format logo for the header circle. If empty, the main campaign logo is used.',
+    }),
+    defineField({
       name: 'campaignLogoAlt',
       title: 'Campaign Logo Alt Text',
       type: 'string',

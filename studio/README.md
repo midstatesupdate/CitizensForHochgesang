@@ -3,7 +3,7 @@
 Sanity Studio for campaign content management.
 
 ## Definition
-This app is the editorial control plane for campaign content, including posts, events, media links, fundraising links, and site-wide settings.
+This app is the editorial control plane for campaign content, including posts, events, media links, fundraising links, About & Priorities page content, and site-wide settings.
 
 ## Quick Links
 - [`../README.md`](../README.md): Repository root and docs index.
@@ -80,6 +80,8 @@ $env:LOGO_PATH="C:\\path\\to\\logo_full_size.png"
 pnpm -C studio apply:branding
 ```
 
+`apply:branding` now sets both `siteSettings.campaignLogo` and `siteSettings.headerLogoSmall` from the uploaded asset by default (you can later replace `headerLogoSmall` in Studio with a purpose-built small-format logo).
+
 Set a temporary homepage candidate portrait (replace later in Studio → Site Settings):
 
 ```bash
@@ -92,7 +94,23 @@ Seed baseline content documents (posts/events/media):
 pnpm -C studio seed:content
 ```
 
-`seed:content` now creates 14 upcoming sample events with mixed card layouts, uploaded sample images, broad tag coverage for events-page infinite-scroll/tag-filter QA, and end date/times so automatic passed-state behavior can be tested.
+Quick one-command debug reseed alias (development dataset defaults):
+
+```bash
+pnpm -C studio seed:debug
+```
+
+Wipe development content docs and fully replace with fresh debug seed content:
+
+```bash
+pnpm -C studio seed:debug:reset
+```
+
+`seed:content` now creates 24 upcoming sample events with mixed card layouts, uploaded sample images, broad tag coverage for events-page infinite-scroll/tag-filter QA, event slugs + event detail-body/link content for `/events/details#slug`, and end date/times so automatic passed-state behavior can be tested.
+
+It also seeds 10 sample news posts for richer debug/article-list testing in development datasets.
+
+It also seeds the `aboutPriorities` singleton with article-style `bioBody` content and per-priority detail slugs/body/links for `/platform/[slug]` drill-down pages.
 
 Seed production `siteSettings` defaults for only missing home hero/list fields (never overwrites existing values):
 

@@ -13,6 +13,7 @@ This repository is the project knowledge store for future human and AI contribut
 - News listing and article detail routes
 - Scene-based long-form article experiences with per-element animation controls authored in Sanity
 - Events listing route
+- About & Priorities route with CMS-backed bio/platform content
 - Interactive FAQ route with search, filtering, and accordion behavior
 - Media links route (YouTube/Facebook/audio/other)
 - Support route for volunteer/contact/fundraising calls to action

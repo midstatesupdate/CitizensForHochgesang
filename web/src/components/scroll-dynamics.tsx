@@ -59,8 +59,8 @@ export function ScrollDynamics() {
           }
         },
         {
-          threshold: 0.16,
-          rootMargin: '0px 0px -8% 0px',
+          threshold: 0.1,
+          rootMargin: '0px 0px -4% 0px',
         }
       )
 
@@ -71,6 +71,16 @@ export function ScrollDynamics() {
 
         element.classList.remove('scroll-dynamic-item', 'scroll-dynamic-visible')
         element.classList.add('scroll-dynamic-item')
+
+        const rect = element.getBoundingClientRect()
+        const viewportHeight = window.innerHeight || document.documentElement.clientHeight
+        const isInitiallyVisible = rect.bottom > 0 && rect.top < viewportHeight
+
+        if (isInitiallyVisible) {
+          element.classList.add('scroll-dynamic-visible')
+          continue
+        }
+
         observer.observe(element)
       }
     }

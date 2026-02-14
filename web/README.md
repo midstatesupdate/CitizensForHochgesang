@@ -10,9 +10,10 @@ This app renders the public campaign experience: candidate messaging, news/artic
 - `/news`: News and article listing.
 - `/news/[slug]`: Individual article pages with scene-based storytelling blocks (animated on scroll).
 - `/events`: Campaign events listing.
+- `/platform`: CMS-backed About & Priorities page (candidate bio, campaign values, priority cards, and CTA controls from `aboutPriorities`).
 - `/faq`: Interactive FAQ experience with category filters, search, and accordion controls.
-- `/media`: External media links (YouTube/Facebook/audio/other).
-- `/press`: Press contacts, logo access, and recent updates.
+- `/media`: Combined Media & Press hub for external media links, press assets, and contact details.
+- `/press`: Redirects to `/media` to keep a single newsroom destination.
 - `/support`: Volunteer, contact, fundraising, district map, voter registration tools, and engagement checklist.
 - Route-level loading states: `app/loading.tsx` plus per-route `loading.tsx` files.
 - Custom 404 page: `app/not-found.tsx`.
@@ -133,5 +134,7 @@ pnpm check:freshness
 	paths stay in-app while external URLs open in a new tab.
 - Site branding pulls from `siteSettings.campaignLogo` and related image fields
 	in Sanity when available.
+- Header logo prefers `siteSettings.headerLogoSmall` when present, then falls back to `siteSettings.campaignLogo`.
 - SEO/discovery infrastructure includes metadata templates, `sitemap.xml`, and
 	`robots.txt` routes.
+- App Router icon assets (`src/app/icon.png`, `src/app/apple-icon.png`) provide a campaign-branded favicon and touch icon.
