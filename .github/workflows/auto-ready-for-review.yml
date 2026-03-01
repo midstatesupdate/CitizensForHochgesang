@@ -1,0 +1,38 @@
+name: Auto-Ready Agent PRs
+
+# Triggers when a comment is posted on a PR — we filter for the
+# Copilot "finished work" message so this only fires once the agent
+# is done, not on PR creation or after every commit.
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  auto-ready:
+    name: Mark agent PR ready for review
+    runs-on: ubuntu-latest
+    # Only run when:
+    #   1. The comment is on a pull request (not a plain issue)
+    #   2. The commenter is copilot[bot]
+    #   3. The comment signals the agent finished its work
+    if: >-
+      github.event.issue.pull_request &&
+      github.event.comment.user.login == 'copilot[bot]' &&
+      contains(github.event.comment.body, 'finished work on behalf of')
+    steps:
+      - name: Mark PR ready for review
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          # Check if the PR is actually still a draft before marking ready
+          IS_DRAFT=$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json isDraft --jq '.isDraft')
+          if [ "$IS_DRAFT" = "true" ]; then
+            gh pr ready "$PR_NUMBER" --repo "$GITHUB_REPOSITORY"
+            echo "✅ Marked PR #$PR_NUMBER as ready for review"
+          else
+            echo "ℹ️ PR #$PR_NUMBER is already ready for review — nothing to do"
+          fi
