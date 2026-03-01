@@ -1,38 +1,71 @@
 name: Auto-Ready Agent PRs
 
-# Triggers when a comment is posted on a PR — we filter for the
-# Copilot "finished work" message so this only fires once the agent
-# is done, not on PR creation or after every commit.
+# Runs every 5 minutes. Finds draft PRs opened by copilot[bot] with
+# no new commits in the last 5 minutes (i.e. the agent has stopped
+# pushing) and marks them ready for review. This avoids triggering
+# checks while the agent is still working.
 on:
-  issue_comment:
-    types: [created]
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch: {} # Allow manual trigger for testing
 
 permissions:
   pull-requests: write
 
 jobs:
   auto-ready:
-    name: Mark agent PR ready for review
+    name: Mark idle agent drafts ready
     runs-on: ubuntu-latest
-    # Only run when:
-    #   1. The comment is on a pull request (not a plain issue)
-    #   2. The commenter is copilot[bot]
-    #   3. The comment signals the agent finished its work
-    if: >-
-      github.event.issue.pull_request &&
-      github.event.comment.user.login == 'copilot[bot]' &&
-      contains(github.event.comment.body, 'finished work on behalf of')
     steps:
-      - name: Mark PR ready for review
+      - name: Find and promote idle agent draft PRs
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.issue.number }}
         run: |
-          # Check if the PR is actually still a draft before marking ready
-          IS_DRAFT=$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json isDraft --jq '.isDraft')
-          if [ "$IS_DRAFT" = "true" ]; then
-            gh pr ready "$PR_NUMBER" --repo "$GITHUB_REPOSITORY"
-            echo "✅ Marked PR #$PR_NUMBER as ready for review"
-          else
-            echo "ℹ️ PR #$PR_NUMBER is already ready for review — nothing to do"
+          REPO="${{ github.repository }}"
+          IDLE_MINUTES=5
+
+          echo "🔍 Checking for draft PRs by copilot[bot] idle for ${IDLE_MINUTES}+ minutes..."
+
+          # List open draft PRs authored by copilot[bot]
+          DRAFT_PRS=$(gh pr list \
+            --repo "$REPO" \
+            --author "app/copilot" \
+            --draft \
+            --state open \
+            --json number,headRefName,updatedAt \
+            --jq '.[]')
+
+          if [ -z "$DRAFT_PRS" ]; then
+            echo "ℹ️  No draft agent PRs found."
+            exit 0
           fi
+
+          # Process each draft PR
+          gh pr list \
+            --repo "$REPO" \
+            --author "app/copilot" \
+            --draft \
+            --state open \
+            --json number,updatedAt \
+            --jq '.[] | "\(.number) \(.updatedAt)"' | \
+          while read -r PR_NUMBER UPDATED_AT; do
+            # Get the timestamp of the last commit on the PR branch
+            LAST_PUSH=$(gh pr view "$PR_NUMBER" \
+              --repo "$REPO" \
+              --json commits \
+              --jq '.commits[-1].committedDate')
+
+            # Calculate minutes since last commit
+            LAST_PUSH_EPOCH=$(date -d "$LAST_PUSH" +%s 2>/dev/null || date -j -f "%Y-%m-%dT%H:%M:%SZ" "$LAST_PUSH" +%s 2>/dev/null)
+            NOW_EPOCH=$(date +%s)
+            DIFF_MINUTES=$(( (NOW_EPOCH - LAST_PUSH_EPOCH) / 60 ))
+
+            echo "  PR #$PR_NUMBER: last commit ${DIFF_MINUTES}m ago"
+
+            if [ "$DIFF_MINUTES" -ge "$IDLE_MINUTES" ]; then
+              gh pr ready "$PR_NUMBER" --repo "$REPO"
+              echo "  ✅ Marked PR #$PR_NUMBER as ready for review"
+            else
+              echo "  ⏳ PR #$PR_NUMBER still active — skipping"
+            fi
+          done
