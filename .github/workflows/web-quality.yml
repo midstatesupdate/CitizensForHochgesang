@@ -1,16 +1,21 @@
 name: Web Quality
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
     paths:
       - 'web/**'
       - 'studio/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
       - '.github/workflows/web-quality.yml'
   pull_request:
     paths:
       - 'web/**'
       - 'studio/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
       - '.github/workflows/web-quality.yml'
 
 jobs:
