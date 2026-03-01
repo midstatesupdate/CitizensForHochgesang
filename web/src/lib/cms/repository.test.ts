@@ -1,5 +1,7 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 
+// Replace the real sanityQuery (which calls the Sanity HTTP API) with a
+// controllable mock so tests run offline without network calls.
 vi.mock('./client', () => ({
   sanityQuery: vi.fn(),
 }))
@@ -29,6 +31,7 @@ import { getDefaultPageVisual } from './page-visuals'
 const mockQuery = vi.mocked(sanityQuery)
 
 beforeEach(() => {
+  // Clear call history and return-value queue so tests don't interfere with each other
   mockQuery.mockReset()
 })
 
@@ -67,7 +70,8 @@ describe('getAllPosts', () => {
 // ---------------------------------------------------------------------------
 describe('getRecentPosts', () => {
   beforeEach(() => {
-    // Return null so the fallback path (mockPosts) is used — gives a predictable list
+    // Return null so the fallback path (mockPosts) is used — gives a predictable,
+    // stable list regardless of live Sanity content
     mockQuery.mockResolvedValue(null)
   })
 
@@ -144,9 +148,10 @@ describe('getUpcomingEvents', () => {
     ]
     mockQuery.mockResolvedValueOnce(rawEvents)
     const events = await getUpcomingEvents()
+    // After ascending sort, the earlier date (event-2) should be first
     expect(events[0].id).toBe('event-2') // earliest date first
     expect(events[1].id).toBe('event-1')
-    // _id must not appear on the result objects
+    // The Sanity _id field must be stripped from the normalized result
     expect('_id' in events[0]).toBe(false)
   })
 
@@ -200,7 +205,7 @@ describe('getMediaLinks', () => {
   })
 
   it('applies limit when provided', async () => {
-    mockQuery.mockResolvedValueOnce(null) // uses mock data (2 items)
+    mockQuery.mockResolvedValueOnce(null) // triggers fallback to mock data (2 items)
     const media = await getMediaLinks(1)
     expect(media.length).toBe(1)
   })
@@ -382,6 +387,7 @@ describe('getAboutPriorities', () => {
     mockQuery.mockResolvedValueOnce(liveAbout)
     const about = await getAboutPriorities()
     const generatedBody = about.priorities[0].body
+    // repository.ts synthesizes a single paragraph block from the summary field
     expect(generatedBody.length).toBe(1)
     expect(generatedBody[0]._type).toBe('block')
     const block = generatedBody[0] as { _type: 'block'; children: { text: string }[] }
@@ -397,6 +403,7 @@ describe('getAboutPriorities', () => {
     }
     mockQuery.mockResolvedValueOnce(liveAbout)
     const about = await getAboutPriorities()
+    // Ensures downstream consumers always receive an array, never undefined
     expect(about.priorities[0].links).toEqual([])
   })
 })

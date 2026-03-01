@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest'
 import { getSanityImageUrl } from './image-url'
 import type { SanityImageSource } from './types'
 
+// Canonical _ref format: image-{hex}-{width}x{height}-{extension}
+// This is the shape Sanity produces for uploaded image assets.
 const validSource: SanityImageSource = {
   _type: 'image',
   asset: {
@@ -100,12 +102,13 @@ describe('getSanityImageUrl', () => {
     })
 
     it('omits width param when width is 0 (falsy)', () => {
-      // The implementation uses `if (options?.width)` — 0 is falsy
+      // The implementation uses `if (options?.width)` — 0 is falsy so the param is skipped
       const url = getSanityImageUrl(validSource, { width: 0 })
       expect(url).not.toContain('w=')
     })
 
     it('omits height param when height is 0 (falsy)', () => {
+      // Same falsy-guard applies to height
       const url = getSanityImageUrl(validSource, { height: 0 })
       expect(url).not.toContain('h=')
     })
