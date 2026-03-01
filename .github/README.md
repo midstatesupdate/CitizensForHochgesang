@@ -16,11 +16,12 @@ Repository governance, CI/CD automation, and agent-facing instruction area. File
 
 ### Agent Prompts
 - [`agent-prompts/requirements-agent.md`](agent-prompts/requirements-agent.md): Prompt for the planning/refinement agent. Produces implementation plans on issues labeled `agent:refine`.
-- [`agent-prompts/qa-agent.md`](agent-prompts/qa-agent.md): Prompt for the QA review agent. Evaluates PR diffs against issue intent, requirements, and project standards.
+- [`agent-prompts/qa-agent.md`](agent-prompts/qa-agent.md): Reference QA review prompt. Context for the Copilot code review instructions.
+- [`copilot-review-instructions.md`](copilot-review-instructions.md): Copilot code review configuration. Read automatically by the GitHub Copilot reviewer via branch ruleset.
 
 ### Workflows (CI/CD)
 - [`workflows/web-quality.yml`](workflows/web-quality.yml): Push/PR quality checks for lint, build, Sanity verification, link and freshness checks.
-- [`workflows/pr-qa-gate.yml`](workflows/pr-qa-gate.yml): PR gate — template enforcement, build/lint, docs checks, and AI QA review placeholder.
+- [`workflows/pr-qa-gate.yml`](workflows/pr-qa-gate.yml): PR gate — template enforcement, build/lint, and docs checks. AI review is handled by Copilot code review ruleset (not a workflow job).
 - [`workflows/agent-requirements-refiner.yml`](workflows/agent-requirements-refiner.yml): Fires on `agent:refine` label to trigger requirements planning.
 
 ## Agentic Workflow Summary
@@ -39,6 +40,7 @@ After pushing these files, configure in GitHub repo Settings → Rules → Rules
 - **Require status checks**: `PR Template Enforcement`, `Build & Lint`, `Documentation Checks`.
 - **Require approving review(s)**: at least 1 (CODEOWNER).
 - **Require conversation resolution** (optional but recommended).
+- **Automatically request Copilot code review**: enable, with "Review draft pull requests" and "Review new pushes" checked.
 - **Do not allow bypassing** for strictness (or allow for emergency fixes).
 
 ## Maintenance Rules

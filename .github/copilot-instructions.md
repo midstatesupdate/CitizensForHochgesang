@@ -147,7 +147,7 @@ This repository uses a GitHub-native agentic workflow for issue-to-merge automat
 1. **Issue intake** → structured templates force context, intent, success criteria, and screenshot flags.
 2. **Requirements refinement** → label `agent:refine` triggers a planning agent that posts an implementation plan.
 3. **Implementation** → assign an agent (`@copilot`, `@claude`, `@codex`) to the issue; agent opens a PR.
-4. **QA gate** → automated checks + AI QA review run on every PR. Advisory review checks intent alignment, requirements coverage, regressions, standards, and docs.
+4. **QA gate** → automated checks run on every PR. Copilot code review (via branch ruleset) provides advisory AI review on all PRs including drafts.
 5. **Human approval** → branch protection requires at least one human approval before merge.
 6. **Merge** → human merges after reviewing agent work and QA results.
 
@@ -157,8 +157,9 @@ This repository uses a GitHub-native agentic workflow for issue-to-merge automat
 - `.github/PULL_REQUEST_TEMPLATE.md` — PR evidence template (intent, requirements mapping, screenshots).
 - `.github/CODEOWNERS` — review routing (currently sole owner: `@midstatesupdate`).
 - `.github/agent-prompts/requirements-agent.md` — prompt for the planning/refinement agent.
-- `.github/agent-prompts/qa-agent.md` — prompt for the QA review agent.
-- `.github/workflows/pr-qa-gate.yml` — PR template enforcement + markdown/build checks.
+- `.github/agent-prompts/qa-agent.md` — reference QA review prompt (context for the Copilot code review instructions).
+- `.github/copilot-review-instructions.md` — Copilot code review configuration (read automatically by GitHub Copilot reviewer).
+- `.github/workflows/pr-qa-gate.yml` — PR template enforcement + build/lint/docs checks.
 - `.github/workflows/agent-requirements-refiner.yml` — requirements refinement on `agent:refine` label.
 
 ### PR Expectations for Agents
