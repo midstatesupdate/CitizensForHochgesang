@@ -81,6 +81,33 @@ From repo root:
 pnpm build:web
 ```
 
+## Testing
+
+Run all unit tests:
+
+```bash
+pnpm -C web test        # single run
+pnpm -C web test:watch  # watch mode during development
+pnpm -C web test:coverage  # with coverage report
+```
+
+Or from repo root:
+
+```bash
+pnpm test
+```
+
+Test framework: **Vitest** with `@vitejs/plugin-react`. Config at `web/vitest.config.ts`.
+
+Test files live next to the code they test (`*.test.ts` / `*.test.tsx`).
+
+Current test coverage:
+- `src/lib/cms/format.test.ts` — date formatting, URL normalization, tab-target logic
+- `src/lib/cms/page-visuals.test.ts` — default visuals lookup, CSS class generation, data attributes
+- `src/lib/cms/icon-map.test.ts` — icon resolution with fallbacks
+
+Tests are required to pass in CI before merge (both `web-quality.yml` and `pr-qa-gate.yml`).
+
 Verify Sanity published content status:
 
 ```bash

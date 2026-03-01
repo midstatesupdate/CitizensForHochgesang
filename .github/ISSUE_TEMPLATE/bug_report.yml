@@ -1,0 +1,101 @@
+name: Bug Report
+description: Report a defect or unexpected behavior
+title: "[Bug] "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for bugs, regressions, or unexpected behavior.
+        Be specific — agents use these fields to reproduce and fix issues.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: What is broken or unexpected?
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What should happen instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Numbered steps to reproduce the issue.
+      placeholder: |
+        1. Navigate to …
+        2. Click …
+        3. Observe …
+    validations:
+      required: true
+
+  - type: textarea
+    id: success_criteria
+    attributes:
+      label: Success Criteria (required)
+      description: >
+        Testable criteria that confirm the bug is fixed.
+        Include unit test expectations where applicable (e.g., "test covers the
+        previously-failing input" or "regression test added for this edge case").
+      placeholder: |
+        - [ ] Page loads without error
+        - [ ] Content renders correctly on mobile
+        - [ ] Regression test added to prevent recurrence
+    validations:
+      required: true
+
+  - type: dropdown
+    id: visual_change
+    attributes:
+      label: Visual / UI impact?
+      options:
+        - "No"
+        - "Yes — screenshot required in PR"
+        - "Yes — screenshot or video evidence required in PR"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - "Low — cosmetic / minor"
+        - "Medium — functional but workaround exists"
+        - "High — broken feature, no workaround"
+        - "Critical — site down or data loss"
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Browser, device, OS, or relevant config.
+      placeholder: |
+        - Chrome 120 / macOS
+        - Mobile Safari / iPhone 15
+        - localhost:3000
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots / Evidence
+      description: Attach screenshots, console errors, or screen recordings if available.
+
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Constraints / Risks
+      description: Anything the fix should avoid breaking.
+      placeholder: |
+        - Do not change the public route structure
+        - Preserve existing Sanity content

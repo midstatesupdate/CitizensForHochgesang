@@ -1,0 +1,23 @@
+# CODEOWNERS — Citizens For Hochgesang
+# GitHub requires at least one approving review from a code owner
+# before PRs touching these paths can be merged.
+#
+# Since this is a one-person campaign operation, the candidate
+# is the sole owner. Add team handles if contributors join.
+
+# Default owner for everything
+* @midstatesupdate
+
+# Frontend (Next.js)
+/web/ @midstatesupdate
+
+# Sanity Studio / CMS schemas
+/studio/ @midstatesupdate
+
+# Campaign content and strategy docs
+CAMPAIGN_PLAYBOOK.md @midstatesupdate
+PLATFORM_README.md @midstatesupdate
+OPPO_README.md @midstatesupdate
+
+# CI, governance, agent instructions
+/.github/ @midstatesupdate

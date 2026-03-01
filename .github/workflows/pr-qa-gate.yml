@@ -1,0 +1,151 @@
+name: PR QA Gate
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: read
+
+jobs:
+  # ------------------------------------------------------------------
+  # 1. Validate the PR body has required template sections
+  # ------------------------------------------------------------------
+  pr-template-check:
+    name: PR Template Enforcement
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check required PR sections
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          MISSING=""
+
+          if ! echo "$PR_BODY" | grep -q "## Intent Check"; then
+            MISSING="$MISSING\n- Missing '## Intent Check' section"
+          fi
+
+          if ! echo "$PR_BODY" | grep -q "## Requirements Coverage"; then
+            MISSING="$MISSING\n- Missing '## Requirements Coverage' section"
+          fi
+
+          if ! echo "$PR_BODY" | grep -q "## Testing Performed"; then
+            MISSING="$MISSING\n- Missing '## Testing Performed' section"
+          fi
+
+          if ! echo "$PR_BODY" | grep -q "## QA Agent Checklist"; then
+            MISSING="$MISSING\n- Missing '## QA Agent Checklist' section"
+          fi
+
+          if [ -n "$MISSING" ]; then
+            echo "::error::PR body is missing required sections:"
+            echo -e "$MISSING"
+            echo ""
+            echo "Use the PR template at .github/PULL_REQUEST_TEMPLATE.md"
+            exit 1
+          fi
+
+          echo "✅ All required PR template sections present."
+
+  # ------------------------------------------------------------------
+  # 2. Build and quality checks (reuses existing web-quality logic)
+  # ------------------------------------------------------------------
+  build-and-lint:
+    name: Build & Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.29.3
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint web
+        run: pnpm -C web lint
+
+      - name: Run tests
+        run: pnpm -C web test
+
+      - name: Build web
+        run: pnpm -C web build
+
+      - name: Build studio
+        run: pnpm -C studio build
+
+  # ------------------------------------------------------------------
+  # 3. Markdown link and freshness checks
+  # ------------------------------------------------------------------
+  docs-check:
+    name: Documentation Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.29.3
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check published links
+        run: pnpm -C web check:links
+
+      - name: Verify Sanity schema-aware checks
+        run: pnpm -C web verify:sanity
+
+  # ------------------------------------------------------------------
+  # 4. AI QA Review (advisory — uses Copilot's built-in PR review)
+  #    This job posts an AI-generated review comment based on the
+  #    QA agent prompt. Replace the provider/action as needed.
+  # ------------------------------------------------------------------
+  ai-qa-review:
+    name: AI QA Review (Advisory)
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: AI QA review placeholder
+        run: |
+          echo "============================================"
+          echo "AI QA Review"
+          echo "============================================"
+          echo ""
+          echo "This step is a placeholder for an AI-powered review agent."
+          echo ""
+          echo "To activate, choose one of:"
+          echo "  1. Enable GitHub Copilot code review (Settings > Copilot > Code review)"
+          echo "  2. Add anthropics/claude-code-action for Claude-based review"
+          echo "  3. Add a custom action that reads .github/agent-prompts/qa-agent.md"
+          echo ""
+          echo "The QA agent prompt is at: .github/agent-prompts/qa-agent.md"
+          echo ""
+          echo "Review priorities:"
+          echo "  1. Intent alignment (does the change serve the stated purpose?)"
+          echo "  2. Requirements completeness (all success criteria met?)"
+          echo "  3. Regression risk (what existing features could break?)"
+          echo "  4. Standards and documentation quality"
+          echo "============================================"

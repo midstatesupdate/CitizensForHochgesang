@@ -1,0 +1,47 @@
+name: Requirements Refiner
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  refine:
+    name: Refine Requirements
+    if: github.event.label.name == 'agent:refine'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (for repo docs access)
+        uses: actions/checkout@v4
+
+      - name: Post refinement plan
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: |
+          echo "============================================"
+          echo "Requirements Refinement Agent"
+          echo "============================================"
+          echo ""
+          echo "Issue #$ISSUE_NUMBER labeled with agent:refine"
+          echo ""
+          echo "This workflow is a placeholder for an AI-powered requirements agent."
+          echo ""
+          echo "To activate, choose one of:"
+          echo "  1. Use GitHub Copilot coding agent — assign the issue to @copilot"
+          echo "     with a comment asking for a requirements plan"
+          echo "  2. Add anthropics/claude-code-action to run the refinement prompt"
+          echo "  3. Add a custom action that reads .github/agent-prompts/requirements-agent.md"
+          echo ""
+          echo "The agent prompt is at: .github/agent-prompts/requirements-agent.md"
+          echo ""
+          echo "Expected output: a structured implementation plan posted as an issue comment."
+          echo "============================================"
+
+          # Post a notification comment so the issue author knows refinement was requested
+          gh issue comment "$ISSUE_NUMBER" \
+            --body "🔍 **Requirements refinement requested.** An agent will analyze this issue and post an implementation plan. See \`.github/agent-prompts/requirements-agent.md\` for the review prompt."

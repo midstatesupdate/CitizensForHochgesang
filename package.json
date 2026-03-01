@@ -7,6 +7,8 @@
     "dev:studio": "pnpm -C studio dev",
     "build:web": "pnpm -C web build",
     "build:studio": "pnpm -C studio build",
-    "lint:web": "pnpm -C web lint"
+    "lint:web": "pnpm -C web lint",
+    "test": "pnpm -C web test",
+    "test:web": "pnpm -C web test"
   }
 }

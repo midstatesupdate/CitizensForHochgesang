@@ -9,7 +9,10 @@
     "lint": "eslint",
     "verify:sanity": "node ./scripts/verify-sanity.mjs",
     "check:links": "node ./scripts/check-links.mjs",
-    "check:freshness": "node ./scripts/check-content-freshness.mjs"
+    "check:freshness": "node ./scripts/check-content-freshness.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@portabletext/react": "^6.0.2",
@@ -25,10 +28,12 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^5.1.4",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "playwright": "^1.58.2",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.0.18"
   }
 }

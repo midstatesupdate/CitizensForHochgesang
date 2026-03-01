@@ -1,0 +1,114 @@
+name: Feature / Change Request
+description: Structured ticket for agent-ready implementation
+title: "[Feature] "
+labels: ["triage", "needs-refinement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for any new feature, enhancement, or meaningful change.
+        Fill in all required fields — agents use these to plan and verify implementation.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / Opportunity
+      description: What problem are we solving or what opportunity are we capturing?
+    validations:
+      required: true
+
+  - type: textarea
+    id: intent
+    attributes:
+      label: Intent (why this matters)
+      description: >
+        The outcome and user/business intent. QA uses this to verify the change meets
+        the spirit of the request, not just the literal checklist.
+    validations:
+      required: true
+
+  - type: textarea
+    id: requirements
+    attributes:
+      label: Functional Requirements
+      description: Bullet points — be explicit about what should happen.
+      placeholder: |
+        - The page should display …
+        - Clicking the button should …
+        - Data should be sourced from …
+    validations:
+      required: true
+
+  - type: textarea
+    id: success_criteria
+    attributes:
+      label: Success Criteria (required)
+      description: >
+        Testable criteria that must all be true when the work is complete.
+        Use checkbox syntax so agents and reviewers can verify each one.
+        Include unit test expectations (what should be tested, not just "tests pass").
+      placeholder: |
+        - [ ] New route renders without errors
+        - [ ] Content is editable in Sanity Studio
+        - [ ] Mobile layout matches desktop intent
+        - [ ] Unit tests cover [specific logic] including edge cases
+    validations:
+      required: true
+
+  - type: dropdown
+    id: visual_change
+    attributes:
+      label: Visual / UI change?
+      options:
+        - "No"
+        - "Yes — screenshot required in PR"
+        - "Yes — screenshot or video evidence required in PR"
+    validations:
+      required: true
+
+  - type: textarea
+    id: docs_links
+    attributes:
+      label: Linked project docs / markdowns
+      description: >
+        List repo-relative paths the implementing agent must read before coding.
+        Include any relevant READMEs, playbooks, or schema docs.
+      placeholder: |
+        - .github/copilot-instructions.md
+        - web/src/README.md
+        - studio/schemaTypes/README.md
+
+  - type: textarea
+    id: affected_areas
+    attributes:
+      label: Affected Areas
+      description: Which parts of the codebase does this touch?
+      placeholder: |
+        - web/src/app/...
+        - studio/schemaTypes/...
+        - web/src/components/...
+
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Constraints / Non-goals / Risks
+      description: Anything the agent should NOT do, or risks to watch for.
+      placeholder: |
+        - Do not change existing route paths
+        - Preserve backward compatibility with published Sanity content
+        - Do not fabricate campaign facts
+
+  - type: textarea
+    id: test_notes
+    attributes:
+      label: Test Notes
+      description: >
+        Test data, environments, edge cases, or manual verification steps.
+        Include expectations for unit tests: which functions/logic should be tested,
+        what edge cases matter, and whether existing tests need updates.
+      placeholder: |
+        - Verify with `pnpm build:web` (no type errors)
+        - Unit tests for new utility functions (edge cases: empty input, invalid data)
+        - Existing tests in format.test.ts must still pass if format.ts is changed
+        - Check mobile viewport (375px)
+        - Confirm Sanity preview works in Studio

@@ -38,6 +38,9 @@ jobs:
       - name: Lint web
         run: pnpm -C web lint
 
+      - name: Run tests
+        run: pnpm -C web test
+
       - name: Build web
         run: pnpm -C web build
 

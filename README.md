@@ -39,6 +39,9 @@ This repository is the project knowledge store for future human and AI contribut
 - [`studio/schemaTypes/README.md`](studio/schemaTypes/README.md): Content schema dictionary and modeling guidance.
 - [`studio/chat-content/README.md`](studio/chat-content/README.md): Chat-driven content authoring workflow for Sanity.
 
+## Agentic Workflow
+This repo uses a GitHub-native agentic workflow: structured issue templates → requirements refinement → agent implementation → automated QA gate → human approval → merge. See [`.github/README.md`](.github/README.md) for the full workflow and setup instructions, and [`.github/copilot-instructions.md`](.github/copilot-instructions.md) § "Agentic Workflow" for details.
+
 ## Development
 
 Install dependencies:
@@ -82,6 +85,12 @@ Build the website:
 
 ```bash
 pnpm build:web
+```
+
+Run unit tests:
+
+```bash
+pnpm test
 ```
 
 Verify published Sanity content counts consumed by the web app:

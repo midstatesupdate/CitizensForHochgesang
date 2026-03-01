@@ -98,9 +98,19 @@ When extending schemas, prefer models for:
 - Do not remove existing user-authored content without instruction.
 - Preserve compatibility with existing schemas and routes when possible.
 - Update this file and relevant README/docs when behavior or setup changes.
-- Add lightweight tests or validation where practical.
 - Remove unused/dead code introduced by refactors in the same change (functions, routes, queries, and stale config paths).
 - Add concise, high-value comments where behavior is non-obvious (for example: fallback chains, route-linking assumptions, and data-shape constraints); avoid noisy comments that restate code.
+
+## Unit Testing Standards (Required)
+- **Write unit tests for all new code where possible.** Every new utility function, helper, formatter, data transform, or pure function must have a corresponding `*.test.ts` file.
+- Test files live next to the code they test (e.g., `format.ts` → `format.test.ts`).
+- Use **Vitest** as the test framework (`vitest.config.ts` in `web/`). Run with `pnpm test` or `pnpm -C web test`.
+- All tests must pass before merge. CI enforces this in both `web-quality.yml` and `pr-qa-gate.yml`.
+- When modifying existing code, **do not remove or weaken existing tests** unless the underlying requirement has changed. If requirements changed, update tests to cover all new behavior while still catching regressions from the original functionality.
+- When changing a function's behavior, existing test cases that validated the prior behavior must either (a) still pass if the prior behavior is preserved, or (b) be explicitly updated with a comment explaining why the old expectation no longer applies.
+- Prefer testing edge cases, error paths, and boundary conditions — not just happy paths.
+- Components with complex logic (conditional rendering, data transforms) should have tests for that logic, extracted into testable utilities where practical.
+- Include unit test expectations in issue success criteria. "Tests pass" is not sufficient — criteria should specify **what** is tested (e.g., "Unit tests cover date formatting edge cases including invalid input").
 
 ## Studio Organization (Critical)
 - Treat Studio organization as a required part of implementation quality.
@@ -127,6 +137,45 @@ If there is a tradeoff, prefer:
 2. Content-editability via Sanity
 3. Reliability and clarity over cleverness
 4. Maintainable code that one developer can run and evolve
+
+## Agentic Workflow
+
+This repository uses a GitHub-native agentic workflow for issue-to-merge automation.
+
+### Workflow Overview
+1. **Issue intake** → structured templates force context, intent, success criteria, and screenshot flags.
+2. **Requirements refinement** → label `agent:refine` triggers a planning agent that posts an implementation plan.
+3. **Implementation** → assign an agent (`@copilot`, `@claude`, `@codex`) to the issue; agent opens a PR.
+4. **QA gate** → automated checks + AI QA review run on every PR. Advisory review checks intent alignment, requirements coverage, regressions, standards, and docs.
+5. **Human approval** → branch protection requires at least one human approval before merge.
+6. **Merge** → human merges after reviewing agent work and QA results.
+
+### Key Files
+- `.github/ISSUE_TEMPLATE/feature_request.yml` — structured feature/change ticket.
+- `.github/ISSUE_TEMPLATE/bug_report.yml` — structured bug report.
+- `.github/PULL_REQUEST_TEMPLATE.md` — PR evidence template (intent, requirements mapping, screenshots).
+- `.github/CODEOWNERS` — review routing (currently sole owner: `@midstatesupdate`).
+- `.github/agent-prompts/requirements-agent.md` — prompt for the planning/refinement agent.
+- `.github/agent-prompts/qa-agent.md` — prompt for the QA review agent.
+- `.github/workflows/pr-qa-gate.yml` — PR template enforcement + markdown/build checks.
+- `.github/workflows/agent-requirements-refiner.yml` — requirements refinement on `agent:refine` label.
+
+### PR Expectations for Agents
+- Include "Intent Check" explaining how the change satisfies business/user intent.
+- Include "Requirements Coverage" mapping each success criterion to evidence.
+- Include screenshots when the issue flags a visual/UI change.
+- Update markdown docs if behavior, routes, or schemas changed.
+- **Include unit tests** for all new or changed logic. List new/modified test files in the PR summary.
+- If existing tests were modified, explain why and confirm regression coverage is maintained.
+- Do not claim success without mapping changes to the issue's success criteria.
+- Do not fabricate campaign facts, endorsements, or statistics.
+
+### QA Review Priorities (in order)
+1. Intent alignment — does the change serve the stated purpose?
+2. Requirements completeness — are all success criteria satisfied with evidence?
+3. **Test coverage** — are unit tests present for new/changed logic? Are existing tests preserved or updated with justification?
+4. Regression risk — what existing features could break? Were prior test cases weakened without explanation?
+5. Standards and documentation quality.
 
 ## Best Practices Checklist
 - Keep docs and code synchronized in the same change.
