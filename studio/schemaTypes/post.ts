@@ -146,9 +146,9 @@ export const post = defineType({
       title: 'Body Preview Character Limit',
       type: 'number',
       group: 'newsList',
-      initialValue: 420,
+      initialValue: 2000,
       description: 'Maximum characters used for the body preview text in the news list card.',
-      validation: (Rule) => Rule.required().min(220).max(900).precision(0),
+      validation: (Rule) => Rule.required().min(220).max(3000).precision(0),
     }),
     defineField({
       name: 'body',

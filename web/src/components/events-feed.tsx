@@ -75,7 +75,7 @@ function getDescriptionPreview(event: CampaignEvent): string | null {
     return null
   }
 
-  const defaultLimit = event.eventCardLayout === 'no-photo' ? 1600 : 420
+  const defaultLimit = 2000
   const configuredLimit =
     event.eventDescriptionPreviewChars && event.eventDescriptionPreviewChars > 0
       ? event.eventDescriptionPreviewChars

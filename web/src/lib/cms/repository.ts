@@ -174,7 +174,7 @@ export async function getAllPosts(): Promise<PostSummary[]> {
     "newsImageOrientation": coalesce(newsImageOrientation, "landscape"),
     "newsImageAspectRatio": coalesce(newsImageAspectRatio, "3:2"),
     "newsCardAnimation": coalesce(newsCardAnimation, "fade-up"),
-    "newsBodyPreviewChars": coalesce(newsBodyPreviewChars, select(newsCardLayout == "no-photo" => 1800, 420)),
+    "newsBodyPreviewChars": coalesce(newsBodyPreviewChars, 2000),
     "tags": coalesce(tags, [])
   }`
 
@@ -287,7 +287,7 @@ export async function getUpcomingEvents(): Promise<CampaignEvent[]> {
     "eventImageOrientation": coalesce(eventImageOrientation, "landscape"),
     "eventImageAspectRatio": coalesce(eventImageAspectRatio, "3:2"),
     "eventCardAnimation": coalesce(eventCardAnimation, "fade-up"),
-    "eventDescriptionPreviewChars": coalesce(eventDescriptionPreviewChars, select(eventCardLayout == "no-photo" => 1800, 420)),
+    "eventDescriptionPreviewChars": coalesce(eventDescriptionPreviewChars, 2000),
     "tags": coalesce(tags, [])
   }`
 

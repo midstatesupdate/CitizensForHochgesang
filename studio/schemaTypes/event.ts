@@ -223,8 +223,8 @@ export const event = defineType({
       title: 'Description Preview Character Limit',
       type: 'number',
       group: 'listCard',
-      initialValue: 420,
-      validation: (Rule) => Rule.required().min(220).max(1200).precision(0),
+      initialValue: 2000,
+      validation: (Rule) => Rule.required().min(220).max(2600).precision(0),
     }),
     defineField({
       name: 'rsvpLink',

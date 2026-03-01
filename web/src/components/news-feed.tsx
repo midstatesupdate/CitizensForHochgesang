@@ -47,7 +47,7 @@ function getBodyPreview(post: PostSummary): string | null {
     return null
   }
 
-  const defaultLimit = post.newsCardLayout === 'no-photo' ? 1800 : 420
+  const defaultLimit = 2000
   const configuredLimit = post.newsBodyPreviewChars && post.newsBodyPreviewChars > 0 ? post.newsBodyPreviewChars : defaultLimit
   const effectiveLimit =
     post.newsCardLayout === 'no-photo'
