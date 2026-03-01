@@ -17,6 +17,7 @@
   - Evidence:
 
 ## Testing Performed
+- [ ] `pnpm install --frozen-lockfile` passes (lockfile is up to date)
 - [ ] `pnpm build:web` passes (no type/build errors)
 - [ ] `pnpm -C web lint` passes
 - [ ] `pnpm -C web test` passes (all unit tests green)

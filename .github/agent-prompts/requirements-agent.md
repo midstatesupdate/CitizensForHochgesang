@@ -27,7 +27,7 @@ Numbered, ordered steps an agent can follow sequentially.
 - If the issue modifies existing code, note which existing test files must continue to pass.
 
 ### Test Plan
-- List commands to run (`pnpm build:web`, `pnpm -C web lint`, `pnpm -C web test`, etc.).
+- List commands to run (`pnpm install --frozen-lockfile`, `pnpm build:web`, `pnpm -C web lint`, `pnpm -C web test`, etc.).
 - **Unit test expectations**: identify which new functions, helpers, or transforms need `*.test.ts` files. Name the file paths.
 - **Regression test expectations**: if existing code is changed, list which existing test files must still pass. Flag if any existing test expectations need updating due to changed requirements — and require that updated tests still cover the original behavior or explicitly document why it no longer applies.
 - List manual verification steps.

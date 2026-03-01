@@ -100,6 +100,7 @@ When extending schemas, prefer models for:
 - Update this file and relevant README/docs when behavior or setup changes.
 - Remove unused/dead code introduced by refactors in the same change (functions, routes, queries, and stale config paths).
 - Add concise, high-value comments where behavior is non-obvious (for example: fallback chains, route-linking assumptions, and data-shape constraints); avoid noisy comments that restate code.
+- **Keep lockfiles in sync.** After adding, removing, or updating any dependency in a `package.json`, run `pnpm install` from the repo root so `pnpm-lock.yaml` is regenerated. Verify with `pnpm install --frozen-lockfile` before committing. CI uses `--frozen-lockfile` and will fail if the lockfile is stale.
 
 ## Unit Testing Standards (Required)
 - **Write unit tests for all new code where possible.** Every new utility function, helper, formatter, data transform, or pure function must have a corresponding `*.test.ts` file.

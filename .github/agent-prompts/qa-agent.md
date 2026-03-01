@@ -46,6 +46,7 @@ This is a **blocking** review criterion, not advisory.
 - Components are modular, typed, and use existing patterns.
 - Sanity schemas follow Studio organization rules (groups, tabs, plain labels).
 - No fabricated campaign facts, endorsements, or statistics.
+- **Lockfile discipline**: If any `package.json` was changed, verify `pnpm-lock.yaml` was updated in the same commit. CI uses `--frozen-lockfile` and will fail otherwise.
 
 ### 7. Documentation Sync
 - Are READMEs updated if behavior, routes, or schemas changed?
