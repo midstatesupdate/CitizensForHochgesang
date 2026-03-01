@@ -123,13 +123,20 @@ describe('sanityQuery', () => {
   })
 
   it('uses cache:no-store when revalidateSeconds is 0 (non-production build)', async () => {
-    // NEXT_PHASE is unset in the test environment → IS_PRODUCTION_BUILD is false;
-    // revalidateSeconds: 0 on a non-production build maps to cache: 'no-store'
+    // IS_PRODUCTION_BUILD is captured at module load, so we must stub NEXT_PHASE
+    // before re-importing the module to guarantee the non-production branch is taken.
+    vi.stubEnv('NEXT_PHASE', '')
+    vi.resetModules()
+    const { sanityQuery: devQuery } = await import('./client')
+
+    // Set up the fetch mock after re-importing so it covers this fresh module instance
+    vi.stubGlobal('fetch', vi.fn())
     vi.mocked(fetch).mockResolvedValueOnce({
       ok: true,
       json: vi.fn().mockResolvedValueOnce({ result: null }),
     } as unknown as Response)
-    await sanityQuery('*[_type=="siteSettings"]', undefined, { revalidateSeconds: 0 })
+
+    await devQuery('*[_type=="siteSettings"]', undefined, { revalidateSeconds: 0 })
     const [, opts] = vi.mocked(fetch).mock.calls[0] as [string, { cache?: string; next?: unknown }]
     expect(opts?.cache).toBe('no-store')
   })

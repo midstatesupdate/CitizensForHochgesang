@@ -58,13 +58,15 @@ describe('getSanityImageUrl', () => {
 
     it('includes project ID in the URL path', () => {
       const url = getSanityImageUrl(validSource)
-      // Default project ID used when env var is absent
-      expect(url).toContain('n2oyijjv')
+      // Read the same env var the module uses so this assertion is valid in any environment
+      const expectedProjectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID ?? 'n2oyijjv'
+      expect(url).toContain(expectedProjectId)
     })
 
     it('includes dataset in the URL path', () => {
       const url = getSanityImageUrl(validSource)
-      expect(url).toContain('production')
+      const expectedDataset = process.env.NEXT_PUBLIC_SANITY_DATASET ?? 'production'
+      expect(url).toContain(expectedDataset)
     })
   })
 
