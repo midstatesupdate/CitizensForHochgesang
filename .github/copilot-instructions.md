@@ -162,6 +162,7 @@ This repository uses a GitHub-native agentic workflow for issue-to-merge automat
 - `.github/workflows/agent-requirements-refiner.yml` — requirements refinement on `agent:refine` label.
 
 ### PR Expectations for Agents
+- **Use the PR template.** When opening a pull request, read `.github/PULL_REQUEST_TEMPLATE.md` and use its exact structure for the PR body. The PR must contain these sections verbatim: `## Summary`, `## Linked Issue(s)`, `## Intent Check`, `## Requirements Coverage`, `## Testing Performed`, `## Visual Evidence`, `## Documentation Updates`, `## Risks / Rollback`, and `## QA Agent Checklist`. CI enforces this and the PR will fail without them.
 - Include "Intent Check" explaining how the change satisfies business/user intent.
 - Include "Requirements Coverage" mapping each success criterion to evidence.
 - Include screenshots when the issue flags a visual/UI change.
