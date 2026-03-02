@@ -1,7 +1,7 @@
 import {CmsLink} from '@/components/cms-link'
 import {VoterActionHub} from '@/components/voter-action-hub'
 import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-visuals'
-import {getFundraisingLinks, getPageVisualSettings, getSiteSettings} from '@/lib/cms/repository'
+import {getFundraisingLinks, getPageVisualSettings, getSiteSettings, assertPageEnabled} from '@/lib/cms/repository'
 import Image from 'next/image'
 import {FaEnvelope, FaHandsHelping, FaVoteYea} from 'react-icons/fa'
 
@@ -11,6 +11,7 @@ export const metadata = {
 }
 
 export default async function SupportPage() {
+  await assertPageEnabled('support')
   const [settings, links, pageVisualSettings] = await Promise.all([
     getSiteSettings(),
     getFundraisingLinks(),

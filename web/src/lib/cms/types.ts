@@ -3,6 +3,23 @@ export type SocialLink = {
   url: string
 }
 
+export type PageVisibilityKey = 'news' | 'events' | 'faq' | 'platform' | 'media' | 'support'
+
+export type PageVisibility = {
+  [K in PageVisibilityKey]?: boolean
+}
+
+/**
+ * Returns true when a page is explicitly enabled.
+ * Falls back to `false` when visibility settings are missing or unset so
+ * non-home pages stay disabled by default until configured in Studio.
+ */
+export function isPageEnabled(visibility: PageVisibility | undefined, key: PageVisibilityKey): boolean {
+  if (!visibility) return false
+  const value = visibility[key]
+  return value === undefined ? false : value
+}
+
 export type IconName =
   | 'balance-scale'
   | 'bicycle'
@@ -145,6 +162,7 @@ export type SiteSettings = {
   volunteerUrl?: string
   contactEmail?: string
   socialLinks: SocialLink[]
+  pageVisibility?: PageVisibility
 }
 
 export type PageVisualPageKey =

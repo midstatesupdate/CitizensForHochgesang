@@ -5,18 +5,27 @@ import {notFound} from 'next/navigation'
 import {ArticleContent} from '@/components/article-content'
 import {CmsLink} from '@/components/cms-link'
 import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-visuals'
-import {getAboutPriorities, getPageVisualSettings} from '@/lib/cms/repository'
+import {assertPageEnabled, getAboutPriorities, getPageVisualSettings, getSiteSettings} from '@/lib/cms/repository'
+import {isPageEnabled} from '@/lib/cms/types'
 
 type PriorityDetailPageProps = {
   params: Promise<{slug: string}>
 }
 
 export async function generateStaticParams() {
+  const {pageVisibility} = await getSiteSettings()
+  if (!isPageEnabled(pageVisibility, 'platform')) return []
   const about = await getAboutPriorities()
   return about.priorities.map((priority) => ({slug: priority.slug}))
 }
 
 export async function generateMetadata({params}: PriorityDetailPageProps): Promise<Metadata> {
+  const {pageVisibility} = await getSiteSettings()
+  if (!isPageEnabled(pageVisibility, 'platform')) {
+    // Keep metadata generation aligned with static export gating when the
+    // section is disabled before page rendering runs.
+    return {title: 'About & Priorities unavailable'}
+  }
   const {slug} = await params
   const about = await getAboutPriorities()
   const priority = about.priorities.find((item) => item.slug === slug)
@@ -34,6 +43,7 @@ export async function generateMetadata({params}: PriorityDetailPageProps): Promi
 }
 
 export default async function PriorityDetailPage({params}: PriorityDetailPageProps) {
+  await assertPageEnabled('platform')
   const {slug} = await params
   const [about, pageVisualSettings] = await Promise.all([
     getAboutPriorities(),

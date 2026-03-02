@@ -7,7 +7,8 @@ import {FaBars, FaNewspaper, FaTimes} from 'react-icons/fa'
 import {CmsLink} from '@/components/cms-link'
 import {ThemeToggle} from '@/components/theme-toggle'
 import {resolveCmsIcon} from '@/lib/cms/icon-map'
-import type {IconName} from '@/lib/cms/types'
+import type {IconName, PageVisibility} from '@/lib/cms/types'
+import {filterNavByVisibility} from '@/components/site-nav-visibility'
 
 type NavItem = {
   href: string
@@ -26,6 +27,7 @@ const defaultNavItems: NavItem[] = [
 
 type SiteNavProps = {
   items?: NavItem[]
+  pageVisibility?: PageVisibility
 }
 
 function isActivePath(pathname: string, href: string) {
@@ -70,10 +72,13 @@ function normalizeNavItems(items: NavItem[]): NavItem[] {
   return normalized
 }
 
-export function SiteNav({items}: SiteNavProps) {
+export function SiteNav({items, pageVisibility}: SiteNavProps) {
   const pathname = usePathname() ?? '/'
   const [mobileOpen, setMobileOpen] = useState(false)
-  const navItems = normalizeNavItems(items && items.length > 0 ? items : defaultNavItems)
+  const navItems = filterNavByVisibility(
+    normalizeNavItems(items && items.length > 0 ? items : defaultNavItems),
+    pageVisibility,
+  )
 
   return (
     <nav aria-label="Primary" className="site-nav z-[90] text-sm font-semibold">

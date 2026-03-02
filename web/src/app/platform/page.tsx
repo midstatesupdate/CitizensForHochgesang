@@ -1,7 +1,7 @@
 import {CmsLink} from '@/components/cms-link'
 import {ArticleContent} from '@/components/article-content'
 import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-visuals'
-import {getAboutPriorities, getPageVisualSettings} from '@/lib/cms/repository'
+import {assertPageEnabled, getAboutPriorities, getPageVisualSettings} from '@/lib/cms/repository'
 
 export const metadata = {
   title: 'About & Priorities | Brad Hochgesang for State Senate',
@@ -10,6 +10,7 @@ export const metadata = {
 }
 
 export default async function PlatformPage() {
+  await assertPageEnabled('platform')
   const [about, pageVisualSettings] = await Promise.all([getAboutPriorities(), getPageVisualSettings('platform')])
 
   return (

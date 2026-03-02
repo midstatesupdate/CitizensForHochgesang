@@ -49,7 +49,7 @@ export function SiteHeader({settings}: SiteHeaderProps) {
           />
         </Link>
 
-        <SiteNav items={settings.headerNavItems} />
+        <SiteNav items={settings.headerNavItems} pageVisibility={settings.pageVisibility} />
       </div>
     </header>
   )

@@ -6,6 +6,12 @@ vi.mock('./client', () => ({
   sanityQuery: vi.fn(),
 }))
 
+// Mock next/navigation so assertPageEnabled can call notFound() without crashing
+const mockNotFound = vi.fn(() => { throw new Error('NEXT_NOT_FOUND') })
+vi.mock('next/navigation', () => ({
+  notFound: () => mockNotFound(),
+}))
+
 import { sanityQuery } from './client'
 import {
   getAllPosts,
@@ -17,6 +23,7 @@ import {
   getSiteSettings,
   getAboutPriorities,
   getPageVisualSettings,
+  assertPageEnabled,
 } from './repository'
 import {
   mockPosts,
@@ -329,6 +336,19 @@ describe('getSiteSettings', () => {
     const settings = await getSiteSettings()
     expect(settings.homeSectionCards).toEqual(mockSiteSettings.homeSectionCards)
   })
+
+  it('includes pageVisibility in returned settings when present in live data', async () => {
+    const liveSettings = { ...mockSiteSettings, pageVisibility: {news: false, events: true} }
+    mockQuery.mockResolvedValueOnce(liveSettings)
+    const settings = await getSiteSettings()
+    expect(settings.pageVisibility).toEqual({news: false, events: true})
+  })
+
+  it('returns mockSiteSettings pageVisibility when sanityQuery returns null', async () => {
+    mockQuery.mockResolvedValueOnce(null)
+    const settings = await getSiteSettings()
+    expect(settings.pageVisibility).toEqual(mockSiteSettings.pageVisibility)
+  })
 })
 
 // ---------------------------------------------------------------------------
@@ -432,5 +452,36 @@ describe('getPageVisualSettings', () => {
       const settings = await getPageVisualSettings(key)
       expect(settings.pageKey).toBe(key)
     }
+  })
+})
+
+// ---------------------------------------------------------------------------
+// assertPageEnabled
+// ---------------------------------------------------------------------------
+describe('assertPageEnabled', () => {
+  beforeEach(() => {
+    mockNotFound.mockClear()
+  })
+
+  it('resolves without calling notFound() when the page is enabled', async () => {
+    const settings = {...mockSiteSettings, pageVisibility: {news: true}}
+    mockQuery.mockResolvedValueOnce(settings)
+    await expect(assertPageEnabled('news')).resolves.toBeUndefined()
+    expect(mockNotFound).not.toHaveBeenCalled()
+  })
+
+  it('calls notFound() when the page is explicitly disabled', async () => {
+    const settings = {...mockSiteSettings, pageVisibility: {news: false}}
+    mockQuery.mockResolvedValueOnce(settings)
+    await expect(assertPageEnabled('news')).rejects.toThrow('NEXT_NOT_FOUND')
+    expect(mockNotFound).toHaveBeenCalledOnce()
+  })
+
+  it('calls notFound() when pageVisibility is undefined (default disabled)', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const {pageVisibility: _, ...settingsWithoutVisibility} = mockSiteSettings
+    mockQuery.mockResolvedValueOnce(settingsWithoutVisibility)
+    await expect(assertPageEnabled('events')).rejects.toThrow('NEXT_NOT_FOUND')
+    expect(mockNotFound).toHaveBeenCalledOnce()
   })
 })

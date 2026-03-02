@@ -1,7 +1,7 @@
 import {CmsLink} from '@/components/cms-link'
 import {formatDate} from '@/lib/cms/format'
 import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-visuals'
-import {getMediaLinks, getPageVisualSettings, getRecentPosts, getSiteSettings, getUpcomingEvents} from '@/lib/cms/repository'
+import {getMediaLinks, getPageVisualSettings, getRecentPosts, getSiteSettings, getUpcomingEvents, assertPageEnabled} from '@/lib/cms/repository'
 import Image from 'next/image'
 
 export const metadata = {
@@ -17,6 +17,7 @@ function getTypeLabel(mediaType: string): string {
 }
 
 export default async function MediaPage() {
+  await assertPageEnabled('media')
   const [mediaLinks, settings, posts, events, pageVisualSettings] = await Promise.all([
     getMediaLinks(),
     getSiteSettings(),

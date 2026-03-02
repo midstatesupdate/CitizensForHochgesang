@@ -59,6 +59,7 @@ Primary frontend source area for the public campaign site.
 - Homepage hero composition is CMS-driven from `siteSettings.homeHeroLayout` (`clean-split`, `portrait-left`, `immersive-overlay`).
 - Header brand lockup is CMS-driven from HTML in `siteSettings.homeLinkMarkup`.
 - Header nav items are CMS-driven from `siteSettings.headerNavItems` (label, link, icon).
+- Header/nav and non-home routes are gated by `siteSettings.pageVisibility`; missing or unset keys default to disabled, so editors must explicitly enable each non-home section before links and pages become accessible.
 - Header logo circle uses Sanity crop/hotspot-aware image URLs to keep face/logo framing aligned with Studio image settings.
 - Header logo source prioritizes `siteSettings.headerLogoSmall` (for optimized small-format branding), then falls back to `siteSettings.campaignLogo`.
 - Homepage hero supports CMS control of district label, summary copy, action buttons (label/link/icon/style), bubble badges with placement (`text`/`media`/`proof`), focus list items, candidate portrait caption, and large section cards via `siteSettings`.
