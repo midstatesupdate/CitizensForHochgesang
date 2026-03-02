@@ -7,18 +7,27 @@ import {ArticleContent} from '@/components/article-content'
 import {ArticleSceneObserver} from '@/components/article-scene-observer'
 import {formatDate} from '@/lib/cms/format'
 import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-visuals'
-import {assertPageEnabled, getAllPosts, getPageVisualSettings, getPostBySlug} from '@/lib/cms/repository'
+import {assertPageEnabled, getAllPosts, getPageVisualSettings, getPostBySlug, getSiteSettings} from '@/lib/cms/repository'
+import {isPageEnabled} from '@/lib/cms/types'
 
 type PostPageProps = {
   params: Promise<{slug: string}>
 }
 
 export async function generateStaticParams() {
+  const {pageVisibility} = await getSiteSettings()
+  if (!isPageEnabled(pageVisibility, 'news')) return []
   const posts = await getAllPosts()
   return posts.map((post) => ({slug: post.slug}))
 }
 
 export async function generateMetadata({params}: PostPageProps): Promise<Metadata> {
+  const {pageVisibility} = await getSiteSettings()
+  if (!isPageEnabled(pageVisibility, 'news')) {
+    // Keep metadata generation aligned with static export gating when the
+    // section is disabled before page rendering runs.
+    return {title: 'News unavailable'}
+  }
   const {slug} = await params
   const post = await getPostBySlug(slug)
 

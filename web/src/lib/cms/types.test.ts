@@ -3,16 +3,16 @@ import {isPageEnabled} from './types'
 import type {PageVisibility} from './types'
 
 describe('isPageEnabled', () => {
-  it('returns true for all keys when visibility is undefined', () => {
+  it('returns false for all keys when visibility is undefined', () => {
     const keys = ['news', 'events', 'faq', 'platform', 'media', 'support'] as const
     for (const key of keys) {
-      expect(isPageEnabled(undefined, key)).toBe(true)
+      expect(isPageEnabled(undefined, key)).toBe(false)
     }
   })
 
-  it('returns true when the key is absent from the visibility object (not yet configured)', () => {
+  it('returns false when the key is absent from the visibility object (not yet configured)', () => {
     const visibility: PageVisibility = {}
-    expect(isPageEnabled(visibility, 'news')).toBe(true)
+    expect(isPageEnabled(visibility, 'news')).toBe(false)
   })
 
   it('returns true when the key is explicitly true', () => {
@@ -27,11 +27,11 @@ describe('isPageEnabled', () => {
     const visibility: PageVisibility = {news: false, events: true}
     expect(isPageEnabled(visibility, 'news')).toBe(false)
     expect(isPageEnabled(visibility, 'events')).toBe(true)
-    // unset keys default to enabled
-    expect(isPageEnabled(visibility, 'faq')).toBe(true)
-    expect(isPageEnabled(visibility, 'platform')).toBe(true)
-    expect(isPageEnabled(visibility, 'media')).toBe(true)
-    expect(isPageEnabled(visibility, 'support')).toBe(true)
+    // unset keys default to disabled
+    expect(isPageEnabled(visibility, 'faq')).toBe(false)
+    expect(isPageEnabled(visibility, 'platform')).toBe(false)
+    expect(isPageEnabled(visibility, 'media')).toBe(false)
+    expect(isPageEnabled(visibility, 'support')).toBe(false)
   })
 
   it('returns false for all keys when all are disabled', () => {

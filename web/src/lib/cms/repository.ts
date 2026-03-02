@@ -144,14 +144,24 @@ export async function getSiteSettings(): Promise<SiteSettings> {
       label,
       url
     }, []),
-    "pageVisibility": pageVisibility{
-      news,
-      events,
-      faq,
-      platform,
-      media,
-      support
-    }
+    "pageVisibility": coalesce(
+      pageVisibility{
+        news,
+        events,
+        faq,
+        platform,
+        media,
+        support
+      },
+      {
+        "news": false,
+        "events": false,
+        "faq": false,
+        "platform": false,
+        "media": false,
+        "support": false
+      }
+    )
   }`
 
   const settings = await sanityQuery<SiteSettings>(query, undefined, {revalidateSeconds: 0})

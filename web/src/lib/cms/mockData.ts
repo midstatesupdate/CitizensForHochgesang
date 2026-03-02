@@ -176,12 +176,12 @@ export const mockSiteSettings: SiteSettings = {
     {label: 'YouTube', url: 'https://www.youtube.com/'},
   ],
   pageVisibility: {
-    news: true,
-    events: true,
-    faq: true,
-    platform: true,
-    media: true,
-    support: true,
+    news: false,
+    events: false,
+    faq: false,
+    platform: false,
+    media: false,
+    support: false,
   },
 }
 

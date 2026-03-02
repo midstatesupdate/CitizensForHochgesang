@@ -1,14 +1,6 @@
-import {describe, it, expect, vi} from 'vitest'
+import {describe, it, expect} from 'vitest'
 
-// Stub Next.js and React hooks so the 'use client' component can be imported in
-// a non-browser test environment.
-vi.mock('next/navigation', () => ({usePathname: () => '/'}))
-vi.mock('react', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('react')>()
-  return {...actual, useState: vi.fn(() => [false, vi.fn()])}
-})
-
-import {filterNavByVisibility} from './site-nav'
+import {filterNavByVisibility} from './site-nav-visibility'
 import type {PageVisibility} from '@/lib/cms/types'
 
 const allNavItems = [
@@ -21,21 +13,21 @@ const allNavItems = [
 ]
 
 describe('filterNavByVisibility', () => {
-  it('returns all items when pageVisibility is undefined', () => {
+  it('returns no known internal items when pageVisibility is undefined (default disabled)', () => {
     const result = filterNavByVisibility(allNavItems, undefined)
-    expect(result).toEqual(allNavItems)
+    expect(result).toEqual([])
   })
 
-  it('returns all items when pageVisibility is empty (all default to enabled)', () => {
+  it('returns no known internal items when pageVisibility is empty (all default to disabled)', () => {
     const result = filterNavByVisibility(allNavItems, {})
-    expect(result).toEqual(allNavItems)
+    expect(result).toEqual([])
   })
 
   it('filters out items whose page key is explicitly false', () => {
     const visibility: PageVisibility = {news: false}
     const result = filterNavByVisibility(allNavItems, visibility)
     expect(result.some((item) => item.href === '/news')).toBe(false)
-    expect(result.some((item) => item.href === '/events')).toBe(true)
+    expect(result.some((item) => item.href === '/events')).toBe(false)
   })
 
   it('keeps items whose page key is explicitly true', () => {

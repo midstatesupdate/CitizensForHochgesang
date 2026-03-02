@@ -25,7 +25,6 @@ import {
   getPageVisualSettings,
   assertPageEnabled,
 } from './repository'
-import { isPageEnabled } from './types'
 import {
   mockPosts,
   mockEvents,
@@ -457,54 +456,6 @@ describe('getPageVisualSettings', () => {
 })
 
 // ---------------------------------------------------------------------------
-// isPageEnabled
-// ---------------------------------------------------------------------------
-describe('isPageEnabled', () => {
-  it('returns true for all pages when visibility is undefined', () => {
-    const keys = ['news', 'events', 'faq', 'platform', 'media', 'support'] as const
-    for (const key of keys) {
-      expect(isPageEnabled(undefined, key)).toBe(true)
-    }
-  })
-
-  it('returns true when visibility key is undefined (not yet set)', () => {
-    expect(isPageEnabled({}, 'news')).toBe(true)
-  })
-
-  it('returns true when visibility key is explicitly true', () => {
-    expect(isPageEnabled({news: true}, 'news')).toBe(true)
-  })
-
-  it('returns false when visibility key is explicitly false', () => {
-    expect(isPageEnabled({news: false}, 'news')).toBe(false)
-  })
-
-  it('does not affect other keys when one is disabled', () => {
-    const visibility = {news: false, events: true}
-    expect(isPageEnabled(visibility, 'news')).toBe(false)
-    expect(isPageEnabled(visibility, 'events')).toBe(true)
-    // faq not set → defaults to true
-    expect(isPageEnabled(visibility, 'faq')).toBe(true)
-  })
-
-  it('handles all pages being disabled', () => {
-    const visibility = {news: false, events: false, faq: false, platform: false, media: false, support: false}
-    const keys = ['news', 'events', 'faq', 'platform', 'media', 'support'] as const
-    for (const key of keys) {
-      expect(isPageEnabled(visibility, key)).toBe(false)
-    }
-  })
-
-  it('handles all pages being enabled', () => {
-    const visibility = {news: true, events: true, faq: true, platform: true, media: true, support: true}
-    const keys = ['news', 'events', 'faq', 'platform', 'media', 'support'] as const
-    for (const key of keys) {
-      expect(isPageEnabled(visibility, key)).toBe(true)
-    }
-  })
-})
-
-// ---------------------------------------------------------------------------
 // assertPageEnabled
 // ---------------------------------------------------------------------------
 describe('assertPageEnabled', () => {
@@ -526,11 +477,11 @@ describe('assertPageEnabled', () => {
     expect(mockNotFound).toHaveBeenCalledOnce()
   })
 
-  it('resolves without calling notFound() when pageVisibility is undefined (default enabled)', async () => {
+  it('calls notFound() when pageVisibility is undefined (default disabled)', async () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const {pageVisibility: _, ...settingsWithoutVisibility} = mockSiteSettings
     mockQuery.mockResolvedValueOnce(settingsWithoutVisibility)
-    await expect(assertPageEnabled('events')).resolves.toBeUndefined()
-    expect(mockNotFound).not.toHaveBeenCalled()
+    await expect(assertPageEnabled('events')).rejects.toThrow('NEXT_NOT_FOUND')
+    expect(mockNotFound).toHaveBeenCalledOnce()
   })
 })
