@@ -22,11 +22,11 @@ Repository governance, CI/CD automation, and agent-facing instruction area. File
 ### Workflows (CI/CD)
 - [`workflows/web-quality.yml`](workflows/web-quality.yml): Push/PR quality checks for lint, build, Sanity verification, link and freshness checks.
 - [`workflows/pr-qa-gate.yml`](workflows/pr-qa-gate.yml): PR gate — template enforcement, build/lint, and docs checks. AI review is handled by Copilot code review ruleset (not a workflow job).
-- [`workflows/agent-requirements-refiner.yml`](workflows/agent-requirements-refiner.yml): Fires on `agent:refine` label to trigger requirements planning.
+- [`workflows/agent-requirements-refiner.yml`](workflows/agent-requirements-refiner.yml): Fires on `agent:refine`, dispatches in order `@claude` → `@codex` → `@copilot`, waits for a structured plan response, and escalates automatically if no response is detected.
 
 ## Agentic Workflow Summary
 1. **Issue intake** → structured templates force context, intent, success criteria.
-2. **Refinement** → label `agent:refine` triggers planning agent.
+2. **Refinement** → label `agent:refine` triggers workflow, which dispatches `@claude` first, then `@codex`, then `@copilot` until a structured plan is posted.
 3. **Implementation** → assign agent (`@copilot`, `@claude`, `@codex`) to the issue.
 4. **QA gate** → automated checks + AI review on every PR.
 5. **Human approval** → branch protection requires human review before merge.

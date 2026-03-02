@@ -145,7 +145,7 @@ This repository uses a GitHub-native agentic workflow for issue-to-merge automat
 
 ### Workflow Overview
 1. **Issue intake** → structured templates force context, intent, success criteria, and screenshot flags.
-2. **Requirements refinement** → label `agent:refine` triggers a planning agent that posts an implementation plan.
+2. **Requirements refinement** → label `agent:refine` triggers the refiner workflow, which dispatches in order `@claude`, then `@codex`, then `@copilot` with the planner prompt until a plan is generated.
 3. **Implementation** → assign an agent (`@copilot`, `@claude`, `@codex`) to the issue; agent opens a PR.
 4. **QA gate** → automated checks run on every PR. Copilot code review (via branch ruleset) provides advisory AI review on all PRs including drafts.
 5. **Human approval** → branch protection requires at least one human approval before merge.
@@ -160,7 +160,7 @@ This repository uses a GitHub-native agentic workflow for issue-to-merge automat
 - `.github/agent-prompts/qa-agent.md` — reference QA review prompt (context for the Copilot code review instructions).
 - `.github/copilot-review-instructions.md` — Copilot code review configuration (read automatically by GitHub Copilot reviewer).
 - `.github/workflows/pr-qa-gate.yml` — PR template enforcement + build/lint/docs checks.
-- `.github/workflows/agent-requirements-refiner.yml` — requirements refinement on `agent:refine` label.
+- `.github/workflows/agent-requirements-refiner.yml` — requirements refinement dispatcher on `agent:refine`; escalates `@claude` → `@codex` → `@copilot` using `.github/agent-prompts/requirements-agent.md`.
 
 ### PR Expectations for Agents
 - **Use the PR template.** When opening a pull request, read `.github/PULL_REQUEST_TEMPLATE.md` and use its exact structure for the PR body. The PR must contain these sections verbatim: `## Summary`, `## Linked Issue(s)`, `## Intent Check`, `## Requirements Coverage`, `## Testing Performed`, `## Visual Evidence`, `## Documentation Updates`, `## Risks / Rollback`, and `## QA Agent Checklist`. CI enforces this and the PR will fail without them.
