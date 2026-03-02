@@ -140,6 +140,14 @@ export type SiteSettings = {
     href: string
     icon?: IconName
   }>
+  pageSettings?: {
+    newsEnabled: boolean
+    eventsEnabled: boolean
+    platformEnabled: boolean
+    faqEnabled: boolean
+    mediaEnabled: boolean
+    supportEnabled: boolean
+  }
   pressUpdatedAt?: string
   donateUrl?: string
   volunteerUrl?: string

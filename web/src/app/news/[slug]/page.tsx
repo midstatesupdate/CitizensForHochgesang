@@ -7,7 +7,7 @@ import {ArticleContent} from '@/components/article-content'
 import {ArticleSceneObserver} from '@/components/article-scene-observer'
 import {formatDate} from '@/lib/cms/format'
 import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-visuals'
-import {getAllPosts, getPageVisualSettings, getPostBySlug} from '@/lib/cms/repository'
+import {getAllPosts, getPageVisualSettings, getPostBySlug, getSiteSettings, isPageEnabled} from '@/lib/cms/repository'
 
 type PostPageProps = {
   params: Promise<{slug: string}>
@@ -36,6 +36,12 @@ export async function generateMetadata({params}: PostPageProps): Promise<Metadat
 
 export default async function PostPage({params}: PostPageProps) {
   const {slug} = await params
+
+  const settings = await getSiteSettings()
+  if (!isPageEnabled(settings, 'news')) {
+    notFound()
+  }
+
   const [post, pageVisualSettings] = await Promise.all([
     getPostBySlug(slug),
     getPageVisualSettings('news-detail'),

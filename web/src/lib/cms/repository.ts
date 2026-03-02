@@ -134,6 +134,14 @@ export async function getSiteSettings(): Promise<SiteSettings> {
       icon,
       ctaLabel
     }, []),
+    "pageSettings": {
+      "newsEnabled": coalesce(newsEnabled, false),
+      "eventsEnabled": coalesce(eventsEnabled, false),
+      "platformEnabled": coalesce(platformEnabled, false),
+      "faqEnabled": coalesce(faqEnabled, false),
+      "mediaEnabled": coalesce(mediaEnabled, false),
+      "supportEnabled": coalesce(supportEnabled, false)
+    },
     pressUpdatedAt,
     donateUrl,
     volunteerUrl,
@@ -159,6 +167,25 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     homeFocusItems: settings.homeFocusItems?.length ? settings.homeFocusItems : mockSiteSettings.homeFocusItems,
     homeSectionCards: settings.homeSectionCards?.length ? settings.homeSectionCards : mockSiteSettings.homeSectionCards,
   }
+}
+
+export function isPageEnabled(settings: SiteSettings, pageKey: 'news' | 'events' | 'platform' | 'faq' | 'media' | 'support'): boolean {
+  // If pageSettings is missing (e.g. legacy data without this field), default to enabled
+  // so existing deployments are not accidentally broken.
+  if (!settings.pageSettings) {
+    return true
+  }
+
+  const fieldMap = {
+    news: settings.pageSettings.newsEnabled,
+    events: settings.pageSettings.eventsEnabled,
+    platform: settings.pageSettings.platformEnabled,
+    faq: settings.pageSettings.faqEnabled,
+    media: settings.pageSettings.mediaEnabled,
+    support: settings.pageSettings.supportEnabled,
+  }
+
+  return fieldMap[pageKey] ?? true
 }
 
 export async function getAllPosts(): Promise<PostSummary[]> {

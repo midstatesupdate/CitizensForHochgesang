@@ -175,6 +175,14 @@ export const mockSiteSettings: SiteSettings = {
     {label: 'Facebook', url: 'https://www.facebook.com/bradhochesangforindianastatesenate'},
     {label: 'YouTube', url: 'https://www.youtube.com/'},
   ],
+  pageSettings: {
+    newsEnabled: true,
+    eventsEnabled: true,
+    platformEnabled: true,
+    faqEnabled: true,
+    mediaEnabled: true,
+    supportEnabled: true,
+  },
 }
 
 export const mockPosts: PostDetail[] = [

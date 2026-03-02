@@ -58,7 +58,8 @@ Primary frontend source area for the public campaign site.
 - Route-level visuals are CMS-driven from `pageVisualSettings` and mapped through `lib/cms/page-visuals.ts`.
 - Homepage hero composition is CMS-driven from `siteSettings.homeHeroLayout` (`clean-split`, `portrait-left`, `immersive-overlay`).
 - Header brand lockup is CMS-driven from HTML in `siteSettings.homeLinkMarkup`.
-- Header nav items are CMS-driven from `siteSettings.headerNavItems` (label, link, icon).
+- Header nav items are CMS-driven from `siteSettings.headerNavItems` (label, link, icon). Nav items for disabled pages are automatically hidden from the navigation bar.
+- **Page visibility**: Each non-home page (`news`, `events`, `platform`, `faq`, `media`, `support`) has an enable/disable toggle in the `Site Settings → Page Visibility` group in Sanity Studio. Disabled pages return a 404 (via Next.js `notFound()`), their nav items are hidden, and all child routes (e.g. `/news/[slug]` when news is disabled) also return 404. Defaults to disabled (`false`) in Sanity so new pages can be staged before publishing. Mock data defaults all pages to enabled so local development is unaffected. The utility `isPageEnabled(settings, pageKey)` in `lib/cms/repository.ts` encapsulates this check and defaults to `true` when `pageSettings` is absent (backward compatibility for existing documents).
 - Header logo circle uses Sanity crop/hotspot-aware image URLs to keep face/logo framing aligned with Studio image settings.
 - Header logo source prioritizes `siteSettings.headerLogoSmall` (for optimized small-format branding), then falls back to `siteSettings.campaignLogo`.
 - Homepage hero supports CMS control of district label, summary copy, action buttons (label/link/icon/style), bubble badges with placement (`text`/`media`/`proof`), focus list items, candidate portrait caption, and large section cards via `siteSettings`.

@@ -17,6 +17,7 @@ import {
   getSiteSettings,
   getAboutPriorities,
   getPageVisualSettings,
+  isPageEnabled,
 } from './repository'
 import {
   mockPosts,
@@ -27,6 +28,7 @@ import {
   mockAboutPriorities,
 } from './mockData'
 import { getDefaultPageVisual } from './page-visuals'
+import type { SiteSettings } from './types'
 
 const mockQuery = vi.mocked(sanityQuery)
 
@@ -329,6 +331,23 @@ describe('getSiteSettings', () => {
     const settings = await getSiteSettings()
     expect(settings.homeSectionCards).toEqual(mockSiteSettings.homeSectionCards)
   })
+
+  it('includes pageSettings from live data', async () => {
+    const liveSettings = {
+      ...mockSiteSettings,
+      pageSettings: {
+        newsEnabled: false,
+        eventsEnabled: true,
+        platformEnabled: false,
+        faqEnabled: true,
+        mediaEnabled: false,
+        supportEnabled: true,
+      },
+    }
+    mockQuery.mockResolvedValueOnce(liveSettings)
+    const settings = await getSiteSettings()
+    expect(settings.pageSettings).toEqual(liveSettings.pageSettings)
+  })
 })
 
 // ---------------------------------------------------------------------------
@@ -431,6 +450,86 @@ describe('getPageVisualSettings', () => {
       mockQuery.mockResolvedValueOnce(null)
       const settings = await getPageVisualSettings(key)
       expect(settings.pageKey).toBe(key)
+    }
+  })
+})
+
+// ---------------------------------------------------------------------------
+// isPageEnabled
+// ---------------------------------------------------------------------------
+describe('isPageEnabled', () => {
+  const baseSettings: SiteSettings = {
+    ...mockSiteSettings,
+    pageSettings: {
+      newsEnabled: true,
+      eventsEnabled: true,
+      platformEnabled: true,
+      faqEnabled: true,
+      mediaEnabled: true,
+      supportEnabled: true,
+    },
+  }
+
+  it('returns true for each page when all enabled', () => {
+    const keys = ['news', 'events', 'platform', 'faq', 'media', 'support'] as const
+    for (const key of keys) {
+      expect(isPageEnabled(baseSettings, key)).toBe(true)
+    }
+  })
+
+  it('returns false for a page when its toggle is false', () => {
+    const settings: SiteSettings = {
+      ...baseSettings,
+      pageSettings: {
+        ...baseSettings.pageSettings!,
+        newsEnabled: false,
+      },
+    }
+    expect(isPageEnabled(settings, 'news')).toBe(false)
+  })
+
+  it('returns true for pages that are still enabled when one is disabled', () => {
+    const settings: SiteSettings = {
+      ...baseSettings,
+      pageSettings: {
+        ...baseSettings.pageSettings!,
+        newsEnabled: false,
+      },
+    }
+    expect(isPageEnabled(settings, 'events')).toBe(true)
+    expect(isPageEnabled(settings, 'platform')).toBe(true)
+  })
+
+  it('returns true for all pages when pageSettings is undefined (backward compatibility)', () => {
+    const settings: SiteSettings = { ...baseSettings, pageSettings: undefined }
+    const keys = ['news', 'events', 'platform', 'faq', 'media', 'support'] as const
+    for (const key of keys) {
+      expect(isPageEnabled(settings, key)).toBe(true)
+    }
+  })
+
+  it('returns false for all pages when all toggles are false', () => {
+    const settings: SiteSettings = {
+      ...baseSettings,
+      pageSettings: {
+        newsEnabled: false,
+        eventsEnabled: false,
+        platformEnabled: false,
+        faqEnabled: false,
+        mediaEnabled: false,
+        supportEnabled: false,
+      },
+    }
+    const keys = ['news', 'events', 'platform', 'faq', 'media', 'support'] as const
+    for (const key of keys) {
+      expect(isPageEnabled(settings, key)).toBe(false)
+    }
+  })
+
+  it('mock settings have all pages enabled', () => {
+    const keys = ['news', 'events', 'platform', 'faq', 'media', 'support'] as const
+    for (const key of keys) {
+      expect(isPageEnabled(mockSiteSettings, key)).toBe(true)
     }
   })
 })

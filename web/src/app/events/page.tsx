@@ -1,6 +1,8 @@
+import {notFound} from 'next/navigation'
+
 import {EventsFeed} from '@/components/events-feed'
 import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-visuals'
-import {getPageVisualSettings, getUpcomingEvents} from '@/lib/cms/repository'
+import {getPageVisualSettings, getSiteSettings, getUpcomingEvents, isPageEnabled} from '@/lib/cms/repository'
 
 export const metadata = {
   title: 'Events | Brad Hochgesang for State Senate',
@@ -8,6 +10,11 @@ export const metadata = {
 }
 
 export default async function EventsPage() {
+  const settings = await getSiteSettings()
+  if (!isPageEnabled(settings, 'events')) {
+    notFound()
+  }
+
   const [events, pageVisualSettings] = await Promise.all([getUpcomingEvents(), getPageVisualSettings('events')])
 
   return (

@@ -1,7 +1,9 @@
+import {notFound} from 'next/navigation'
+
 import {CmsLink} from '@/components/cms-link'
 import {VoterActionHub} from '@/components/voter-action-hub'
 import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-visuals'
-import {getFundraisingLinks, getPageVisualSettings, getSiteSettings} from '@/lib/cms/repository'
+import {getFundraisingLinks, getPageVisualSettings, getSiteSettings, isPageEnabled} from '@/lib/cms/repository'
 import Image from 'next/image'
 import {FaEnvelope, FaHandsHelping, FaVoteYea} from 'react-icons/fa'
 
@@ -11,8 +13,12 @@ export const metadata = {
 }
 
 export default async function SupportPage() {
-  const [settings, links, pageVisualSettings] = await Promise.all([
-    getSiteSettings(),
+  const settings = await getSiteSettings()
+  if (!isPageEnabled(settings, 'support')) {
+    notFound()
+  }
+
+  const [links, pageVisualSettings] = await Promise.all([
     getFundraisingLinks(),
     getPageVisualSettings('support'),
   ])

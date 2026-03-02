@@ -1,12 +1,13 @@
 import type {Metadata} from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
+import {notFound} from 'next/navigation'
 
 import {ArticleContent} from '@/components/article-content'
 import {CmsLink} from '@/components/cms-link'
 import {formatDateTime} from '@/lib/cms/format'
 import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-visuals'
-import {getPageVisualSettings, getUpcomingEvents} from '@/lib/cms/repository'
+import {getPageVisualSettings, getSiteSettings, getUpcomingEvents, isPageEnabled} from '@/lib/cms/repository'
 
 export const metadata: Metadata = {
   title: 'Event Details | Brad Hochgesang for State Senate',
@@ -14,6 +15,11 @@ export const metadata: Metadata = {
 }
 
 export default async function EventDetailsPage() {
+  const settings = await getSiteSettings()
+  if (!isPageEnabled(settings, 'events')) {
+    notFound()
+  }
+
   const [events, pageVisualSettings] = await Promise.all([
     getUpcomingEvents(),
     getPageVisualSettings('events-detail'),

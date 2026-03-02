@@ -2,11 +2,23 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 import {getSanityImageUrl} from '@/lib/cms/image-url'
+import {isPageEnabled} from '@/lib/cms/repository'
 import type {SiteSettings} from '@/lib/cms/types'
 import {SiteNav} from '@/components/site-nav'
 
 type SiteHeaderProps = {
   settings: SiteSettings
+}
+
+// Maps nav href prefixes to their corresponding page key for visibility checks.
+const hrefToPageKey: Record<string, Parameters<typeof isPageEnabled>[1]> = {
+  '/news': 'news',
+  '/events': 'events',
+  '/platform': 'platform',
+  '/faq': 'faq',
+  '/media': 'media',
+  '/press': 'media',
+  '/support': 'support',
 }
 
 function sanitizeHeaderMarkup(markup: string): string {
@@ -26,6 +38,11 @@ export function SiteHeader({settings}: SiteHeaderProps) {
     settings.headerLogoSmallUrl ??
     getSanityImageUrl(settings.campaignLogo, {width: 128, height: 128}) ??
     settings.campaignLogoUrl
+
+  const visibleNavItems = settings.headerNavItems.filter((item) => {
+    const pageKey = hrefToPageKey[item.href]
+    return pageKey === undefined || isPageEnabled(settings, pageKey)
+  })
 
   return (
     <header className="relative z-[80] border-b border-[color:var(--color-border)] bg-[color:var(--color-surface)]/85 backdrop-blur supports-[backdrop-filter]:bg-[color:var(--color-surface)]/75">
@@ -49,7 +66,7 @@ export function SiteHeader({settings}: SiteHeaderProps) {
           />
         </Link>
 
-        <SiteNav items={settings.headerNavItems} />
+        <SiteNav items={visibleNavItems} />
       </div>
     </header>
   )
