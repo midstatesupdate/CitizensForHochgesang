@@ -1,6 +1,6 @@
 import {NewsFeed} from '@/components/news-feed'
 import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-visuals'
-import {getAllPosts, getPageVisualSettings} from '@/lib/cms/repository'
+import {assertPageEnabled, getAllPosts, getPageVisualSettings} from '@/lib/cms/repository'
 
 export const metadata = {
   title: 'News | Brad Hochgesang for State Senate',
@@ -8,6 +8,7 @@ export const metadata = {
 }
 
 export default async function NewsPage() {
+  await assertPageEnabled('news')
   const [posts, pageVisualSettings] = await Promise.all([getAllPosts(), getPageVisualSettings('news')])
 
   return (

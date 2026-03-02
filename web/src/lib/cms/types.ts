@@ -3,6 +3,23 @@ export type SocialLink = {
   url: string
 }
 
+export type PageVisibilityKey = 'news' | 'events' | 'faq' | 'platform' | 'media' | 'support'
+
+export type PageVisibility = {
+  [K in PageVisibilityKey]?: boolean
+}
+
+/**
+ * Returns true when a page is enabled.
+ * Falls back to `true` when visibility settings have not been configured yet,
+ * so the site keeps working before the editor has saved an explicit value.
+ */
+export function isPageEnabled(visibility: PageVisibility | undefined, key: PageVisibilityKey): boolean {
+  if (!visibility) return true
+  const value = visibility[key]
+  return value === undefined ? true : value
+}
+
 export type IconName =
   | 'balance-scale'
   | 'bicycle'
@@ -145,6 +162,7 @@ export type SiteSettings = {
   volunteerUrl?: string
   contactEmail?: string
   socialLinks: SocialLink[]
+  pageVisibility?: PageVisibility
 }
 
 export type PageVisualPageKey =

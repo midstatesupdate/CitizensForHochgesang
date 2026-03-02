@@ -1,7 +1,7 @@
 import type {Metadata} from 'next'
 import {FaqAccordion} from '@/components/faq-accordion'
 import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-visuals'
-import {getPageVisualSettings} from '@/lib/cms/repository'
+import {assertPageEnabled, getPageVisualSettings} from '@/lib/cms/repository'
 
 export const metadata: Metadata = {
   title: 'FAQ',
@@ -46,6 +46,7 @@ const faqItems = [
 ]
 
 export default async function FaqPage() {
+  await assertPageEnabled('faq')
   const pageVisualSettings = await getPageVisualSettings('faq')
 
   return (

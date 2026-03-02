@@ -6,6 +6,12 @@ vi.mock('./client', () => ({
   sanityQuery: vi.fn(),
 }))
 
+// Mock next/navigation so assertPageEnabled can call notFound() without crashing
+const mockNotFound = vi.fn(() => { throw new Error('NEXT_NOT_FOUND') })
+vi.mock('next/navigation', () => ({
+  notFound: () => mockNotFound(),
+}))
+
 import { sanityQuery } from './client'
 import {
   getAllPosts,
@@ -17,7 +23,9 @@ import {
   getSiteSettings,
   getAboutPriorities,
   getPageVisualSettings,
+  assertPageEnabled,
 } from './repository'
+import { isPageEnabled } from './types'
 import {
   mockPosts,
   mockEvents,
@@ -329,6 +337,19 @@ describe('getSiteSettings', () => {
     const settings = await getSiteSettings()
     expect(settings.homeSectionCards).toEqual(mockSiteSettings.homeSectionCards)
   })
+
+  it('includes pageVisibility in returned settings when present in live data', async () => {
+    const liveSettings = { ...mockSiteSettings, pageVisibility: {news: false, events: true} }
+    mockQuery.mockResolvedValueOnce(liveSettings)
+    const settings = await getSiteSettings()
+    expect(settings.pageVisibility).toEqual({news: false, events: true})
+  })
+
+  it('returns mockSiteSettings pageVisibility when sanityQuery returns null', async () => {
+    mockQuery.mockResolvedValueOnce(null)
+    const settings = await getSiteSettings()
+    expect(settings.pageVisibility).toEqual(mockSiteSettings.pageVisibility)
+  })
 })
 
 // ---------------------------------------------------------------------------
@@ -432,5 +453,84 @@ describe('getPageVisualSettings', () => {
       const settings = await getPageVisualSettings(key)
       expect(settings.pageKey).toBe(key)
     }
+  })
+})
+
+// ---------------------------------------------------------------------------
+// isPageEnabled
+// ---------------------------------------------------------------------------
+describe('isPageEnabled', () => {
+  it('returns true for all pages when visibility is undefined', () => {
+    const keys = ['news', 'events', 'faq', 'platform', 'media', 'support'] as const
+    for (const key of keys) {
+      expect(isPageEnabled(undefined, key)).toBe(true)
+    }
+  })
+
+  it('returns true when visibility key is undefined (not yet set)', () => {
+    expect(isPageEnabled({}, 'news')).toBe(true)
+  })
+
+  it('returns true when visibility key is explicitly true', () => {
+    expect(isPageEnabled({news: true}, 'news')).toBe(true)
+  })
+
+  it('returns false when visibility key is explicitly false', () => {
+    expect(isPageEnabled({news: false}, 'news')).toBe(false)
+  })
+
+  it('does not affect other keys when one is disabled', () => {
+    const visibility = {news: false, events: true}
+    expect(isPageEnabled(visibility, 'news')).toBe(false)
+    expect(isPageEnabled(visibility, 'events')).toBe(true)
+    // faq not set → defaults to true
+    expect(isPageEnabled(visibility, 'faq')).toBe(true)
+  })
+
+  it('handles all pages being disabled', () => {
+    const visibility = {news: false, events: false, faq: false, platform: false, media: false, support: false}
+    const keys = ['news', 'events', 'faq', 'platform', 'media', 'support'] as const
+    for (const key of keys) {
+      expect(isPageEnabled(visibility, key)).toBe(false)
+    }
+  })
+
+  it('handles all pages being enabled', () => {
+    const visibility = {news: true, events: true, faq: true, platform: true, media: true, support: true}
+    const keys = ['news', 'events', 'faq', 'platform', 'media', 'support'] as const
+    for (const key of keys) {
+      expect(isPageEnabled(visibility, key)).toBe(true)
+    }
+  })
+})
+
+// ---------------------------------------------------------------------------
+// assertPageEnabled
+// ---------------------------------------------------------------------------
+describe('assertPageEnabled', () => {
+  beforeEach(() => {
+    mockNotFound.mockClear()
+  })
+
+  it('resolves without calling notFound() when the page is enabled', async () => {
+    const settings = {...mockSiteSettings, pageVisibility: {news: true}}
+    mockQuery.mockResolvedValueOnce(settings)
+    await expect(assertPageEnabled('news')).resolves.toBeUndefined()
+    expect(mockNotFound).not.toHaveBeenCalled()
+  })
+
+  it('calls notFound() when the page is explicitly disabled', async () => {
+    const settings = {...mockSiteSettings, pageVisibility: {news: false}}
+    mockQuery.mockResolvedValueOnce(settings)
+    await expect(assertPageEnabled('news')).rejects.toThrow('NEXT_NOT_FOUND')
+    expect(mockNotFound).toHaveBeenCalledOnce()
+  })
+
+  it('resolves without calling notFound() when pageVisibility is undefined (default enabled)', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const {pageVisibility: _, ...settingsWithoutVisibility} = mockSiteSettings
+    mockQuery.mockResolvedValueOnce(settingsWithoutVisibility)
+    await expect(assertPageEnabled('events')).resolves.toBeUndefined()
+    expect(mockNotFound).not.toHaveBeenCalled()
   })
 })

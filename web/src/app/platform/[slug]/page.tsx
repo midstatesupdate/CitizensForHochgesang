@@ -5,7 +5,7 @@ import {notFound} from 'next/navigation'
 import {ArticleContent} from '@/components/article-content'
 import {CmsLink} from '@/components/cms-link'
 import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-visuals'
-import {getAboutPriorities, getPageVisualSettings} from '@/lib/cms/repository'
+import {assertPageEnabled, getAboutPriorities, getPageVisualSettings} from '@/lib/cms/repository'
 
 type PriorityDetailPageProps = {
   params: Promise<{slug: string}>
@@ -34,6 +34,7 @@ export async function generateMetadata({params}: PriorityDetailPageProps): Promi
 }
 
 export default async function PriorityDetailPage({params}: PriorityDetailPageProps) {
+  await assertPageEnabled('platform')
   const {slug} = await params
   const [about, pageVisualSettings] = await Promise.all([
     getAboutPriorities(),

@@ -85,6 +85,7 @@ export const siteSettings = defineType({
   groups: [
     {name: 'header', title: 'Header', default: true},
     {name: 'navigation', title: 'Navigation'},
+    {name: 'pages', title: 'Page Visibility'},
     {name: 'hero', title: 'Home Hero'},
     {name: 'homeCards', title: 'Home Cards'},
     {name: 'campaignMeta', title: 'Campaign Meta'},
@@ -165,6 +166,58 @@ export const siteSettings = defineType({
             },
           },
         },
+      ],
+    }),
+    defineField({
+      name: 'pageVisibility',
+      title: 'Page Visibility',
+      type: 'object',
+      group: 'pages',
+      description:
+        'Enable or disable each page section. Disabled pages return 404 and are hidden from navigation. Home page is always visible.',
+      fields: [
+        defineField({
+          name: 'news',
+          title: 'News',
+          type: 'boolean',
+          initialValue: false,
+          description: 'Show the /news page and all individual news articles.',
+        }),
+        defineField({
+          name: 'events',
+          title: 'Events',
+          type: 'boolean',
+          initialValue: false,
+          description: 'Show the /events page and event detail pages.',
+        }),
+        defineField({
+          name: 'faq',
+          title: 'FAQ',
+          type: 'boolean',
+          initialValue: false,
+          description: 'Show the /faq page.',
+        }),
+        defineField({
+          name: 'platform',
+          title: 'About & Priorities',
+          type: 'boolean',
+          initialValue: false,
+          description: 'Show the /platform page and priority detail pages.',
+        }),
+        defineField({
+          name: 'media',
+          title: 'Media & Press',
+          type: 'boolean',
+          initialValue: false,
+          description: 'Show the /media page.',
+        }),
+        defineField({
+          name: 'support',
+          title: 'Support',
+          type: 'boolean',
+          initialValue: false,
+          description: 'Show the /support page.',
+        }),
       ],
     }),
     defineField({

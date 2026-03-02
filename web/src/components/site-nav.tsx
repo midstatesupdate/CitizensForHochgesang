@@ -7,12 +7,24 @@ import {FaBars, FaNewspaper, FaTimes} from 'react-icons/fa'
 import {CmsLink} from '@/components/cms-link'
 import {ThemeToggle} from '@/components/theme-toggle'
 import {resolveCmsIcon} from '@/lib/cms/icon-map'
-import type {IconName} from '@/lib/cms/types'
+import type {IconName, PageVisibility, PageVisibilityKey} from '@/lib/cms/types'
+import {isPageEnabled} from '@/lib/cms/types'
 
 type NavItem = {
   href: string
   label: string
   icon?: IconName
+}
+
+/** Maps known internal page hrefs to their PageVisibilityKey. */
+const PAGE_VISIBILITY_HREF_MAP: Record<string, PageVisibilityKey> = {
+  '/news': 'news',
+  '/events': 'events',
+  '/faq': 'faq',
+  '/platform': 'platform',
+  '/media': 'media',
+  '/press': 'media',
+  '/support': 'support',
 }
 
 const defaultNavItems: NavItem[] = [
@@ -26,6 +38,7 @@ const defaultNavItems: NavItem[] = [
 
 type SiteNavProps = {
   items?: NavItem[]
+  pageVisibility?: PageVisibility
 }
 
 function isActivePath(pathname: string, href: string) {
@@ -70,10 +83,22 @@ function normalizeNavItems(items: NavItem[]): NavItem[] {
   return normalized
 }
 
-export function SiteNav({items}: SiteNavProps) {
+export function filterNavByVisibility(items: NavItem[], pageVisibility?: PageVisibility): NavItem[] {
+  if (!pageVisibility) return items
+  return items.filter((item) => {
+    const key = PAGE_VISIBILITY_HREF_MAP[item.href]
+    if (!key) return true
+    return isPageEnabled(pageVisibility, key)
+  })
+}
+
+export function SiteNav({items, pageVisibility}: SiteNavProps) {
   const pathname = usePathname() ?? '/'
   const [mobileOpen, setMobileOpen] = useState(false)
-  const navItems = normalizeNavItems(items && items.length > 0 ? items : defaultNavItems)
+  const navItems = filterNavByVisibility(
+    normalizeNavItems(items && items.length > 0 ? items : defaultNavItems),
+    pageVisibility,
+  )
 
   return (
     <nav aria-label="Primary" className="site-nav z-[90] text-sm font-semibold">

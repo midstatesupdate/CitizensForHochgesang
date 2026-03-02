@@ -12,12 +12,14 @@ import type {
   CampaignEvent,
   FundraisingLink,
   MediaLink,
+  PageVisibilityKey,
   PageVisualPageKey,
   PageVisualSettings,
   PostDetail,
   PostSummary,
   SiteSettings,
 } from './types'
+import {isPageEnabled} from './types'
 import {getDefaultPageVisual} from './page-visuals'
 
 function sortByDateDesc<T extends {publishedAt?: string}>(items: T[]): T[] {
@@ -141,7 +143,15 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     "socialLinks": coalesce(socialLinks[]{
       label,
       url
-    }, [])
+    }, []),
+    "pageVisibility": pageVisibility{
+      news,
+      events,
+      faq,
+      platform,
+      media,
+      support
+    }
   }`
 
   const settings = await sanityQuery<SiteSettings>(query, undefined, {revalidateSeconds: 0})
@@ -352,4 +362,16 @@ export async function getPageVisualSettings(pageKey: PageVisualPageKey): Promise
 
   const settings = await sanityQuery<PageVisualSettings>(query, {pageKey}, {revalidateSeconds: 0})
   return settings ?? getDefaultPageVisual(pageKey)
+}
+
+/**
+ * Fetches site settings and calls Next.js `notFound()` if the given page key
+ * is disabled. Call this at the top of every non-home server page component.
+ */
+export async function assertPageEnabled(pageKey: PageVisibilityKey): Promise<void> {
+  const {notFound} = await import('next/navigation')
+  const settings = await getSiteSettings()
+  if (!isPageEnabled(settings.pageVisibility, pageKey)) {
+    notFound()
+  }
 }

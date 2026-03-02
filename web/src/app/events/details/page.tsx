@@ -6,7 +6,7 @@ import {ArticleContent} from '@/components/article-content'
 import {CmsLink} from '@/components/cms-link'
 import {formatDateTime} from '@/lib/cms/format'
 import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-visuals'
-import {getPageVisualSettings, getUpcomingEvents} from '@/lib/cms/repository'
+import {assertPageEnabled, getPageVisualSettings, getUpcomingEvents} from '@/lib/cms/repository'
 
 export const metadata: Metadata = {
   title: 'Event Details | Brad Hochgesang for State Senate',
@@ -14,6 +14,7 @@ export const metadata: Metadata = {
 }
 
 export default async function EventDetailsPage() {
+  await assertPageEnabled('events')
   const [events, pageVisualSettings] = await Promise.all([
     getUpcomingEvents(),
     getPageVisualSettings('events-detail'),
