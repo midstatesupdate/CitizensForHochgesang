@@ -6,6 +6,7 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { StickyActionBar } from "@/components/sticky-action-bar";
+import { SiteNav } from "@/components/site-nav";
 import { ScrollDynamics } from "@/components/scroll-dynamics";
 import { getSiteSettings } from "@/lib/cms/repository";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
@@ -117,7 +118,9 @@ export default async function RootLayout({
         />
         <ScrollDynamics />
         <div className="flex min-h-screen flex-col">
-          <StickyActionBar donateUrl={settings.donateUrl} volunteerUrl={settings.volunteerUrl} />
+          <StickyActionBar donateUrl={settings.donateUrl} volunteerUrl={settings.volunteerUrl}>
+            <SiteNav items={settings.headerNavItems} pageVisibility={settings.pageVisibility} />
+          </StickyActionBar>
           <SiteHeader settings={settings} />
           <Breadcrumbs />
           <div id="main-content" className="flex-1">

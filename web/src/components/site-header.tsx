@@ -3,7 +3,6 @@ import Link from 'next/link'
 
 import {getSanityImageUrl} from '@/lib/cms/image-url'
 import type {SiteSettings} from '@/lib/cms/types'
-import {SiteNav} from '@/components/site-nav'
 
 type SiteHeaderProps = {
   settings: SiteSettings
@@ -29,7 +28,7 @@ export function SiteHeader({settings}: SiteHeaderProps) {
 
   return (
     <header className="relative z-[80] border-b border-[color:var(--color-border)] bg-[color:var(--color-surface)]/85 backdrop-blur supports-[backdrop-filter]:bg-[color:var(--color-surface)]/75">
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-2 px-4 py-1 sm:gap-4 sm:px-6 sm:py-2">
+      <div className="mx-auto flex w-full max-w-6xl items-center gap-2 px-4 py-1 sm:gap-4 sm:px-6 sm:py-2">
         <Link className="home-link flex shrink-0 items-center gap-2 text-base font-semibold text-[color:var(--color-ink)] sm:gap-3 sm:text-lg" href="/">
           {campaignLogoUrl ? (
             <Image
@@ -48,8 +47,6 @@ export function SiteHeader({settings}: SiteHeaderProps) {
             }}
           />
         </Link>
-
-        <SiteNav items={settings.headerNavItems} pageVisibility={settings.pageVisibility} />
       </div>
     </header>
   )
