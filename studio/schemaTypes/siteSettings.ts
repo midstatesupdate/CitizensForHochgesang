@@ -646,11 +646,42 @@ export const siteSettings = defineType({
               ],
             }),
             defineField({
+              name: 'expiredTitle',
+              title: 'Expired Title',
+              type: 'string',
+              validation: (Rule) => Rule.max(80),
+              description:
+                'Heading shown once the target date passes (replaces the timer heading). E.g. "Polls Are Open!"',
+            }),
+            defineField({
               name: 'expiredBody',
               title: 'Expired Message',
               type: 'array',
               description:
                 'Rich text shown when the target date has passed but the timer has not expired. E.g. "The event has started!" or "Polls are open — go vote!"',
+              of: [
+                {type: 'block'},
+                {type: 'htmlEmbed'},
+                {type: 'videoEmbed'},
+                {type: 'ctaButton'},
+                {type: 'pullQuote'},
+                {type: 'infoBox'},
+              ],
+            }),
+            defineField({
+              name: 'postExpiredTitle',
+              title: 'Post-Expired Title',
+              type: 'string',
+              validation: (Rule) => Rule.max(80),
+              description:
+                'Heading shown only if this is the LAST remaining timer after all others have expired. E.g. "Thank You for Voting!"',
+            }),
+            defineField({
+              name: 'postExpiredBody',
+              title: 'Post-Expired Body',
+              type: 'array',
+              description:
+                'Rich text shown only if this is the LAST remaining timer after all others have expired.',
               of: [
                 {type: 'block'},
                 {type: 'htmlEmbed'},

@@ -208,7 +208,7 @@ function RichBody({value, className}: {value: unknown[]; className?: string}) {
 // SingleClock — renders one flip clock + body for a given timer
 // ---------------------------------------------------------------------------
 
-function SingleClock({timer}: {timer: ResolvedTimer}) {
+function SingleClock({timer, isLast}: {timer: ResolvedTimer; isLast: boolean}) {
   const [timeLeft, setTimeLeft] = useState<TimeLeft>(() => computeTimeLeft(timer._target))
   const [mounted, setMounted] = useState(false)
 
@@ -224,23 +224,49 @@ function SingleClock({timer}: {timer: ResolvedTimer}) {
   const isPast = mounted && timeLeft.total <= 0
   const hasBody = timer.body && timer.body.length > 0
   const hasExpiredBody = timer.expiredBody && timer.expiredBody.length > 0
+  const hasPostExpiredBody = timer.postExpiredBody && timer.postExpiredBody.length > 0
 
-  // Target passed but timer not expired → show expired message
-  if (isPast && hasExpiredBody) {
-    return (
-      <div className="countdown-expired-state">
-        <RichBody value={timer.expiredBody!} className="election-countdown-body countdown-expired-body" />
-      </div>
-    )
+  // Target passed — show expired or post-expired state
+  if (isPast) {
+    // Post-expired: only when this is the last timer
+    if (isLast && (timer.postExpiredTitle || hasPostExpiredBody)) {
+      return (
+        <div className="countdown-expired-state">
+          {timer.postExpiredTitle && (
+            <h2 className="election-countdown-heading">{timer.postExpiredTitle}</h2>
+          )}
+          {hasPostExpiredBody && (
+            <RichBody value={timer.postExpiredBody!} className="election-countdown-body countdown-expired-body" />
+          )}
+        </div>
+      )
+    }
+
+    // Normal expired state
+    if (timer.expiredTitle || hasExpiredBody) {
+      return (
+        <div className="countdown-expired-state">
+          {timer.expiredTitle && (
+            <h2 className="election-countdown-heading">{timer.expiredTitle}</h2>
+          )}
+          {hasExpiredBody && (
+            <RichBody value={timer.expiredBody!} className="election-countdown-body countdown-expired-body" />
+          )}
+        </div>
+      )
+    }
+
+    // No expired content → nothing to show
+    return null
   }
-
-  // Target passed, no expired body → nothing to show
-  if (isPast) return null
 
   const daysStr = padValue(display.days, display.days >= 100 ? 3 : 2)
 
   return (
     <>
+      {timer.heading && (
+        <h2 className="election-countdown-heading">{timer.heading}</h2>
+      )}
       <div className="flip-clock" role="timer">
         <FlipGroup value={daysStr} label="Days" />
         <span className="flip-separator" aria-hidden="true">:</span>
@@ -285,11 +311,6 @@ export function ElectionCountdown({timers = [], className}: ElectionCountdownCon
   return (
     <section className={`election-countdown ${className ?? ''}`} aria-label="Countdown timers">
       <div className="election-countdown-inner">
-        {/* Timer heading */}
-        {current.heading && (
-          <h2 className="election-countdown-heading">{current.heading}</h2>
-        )}
-
         {/* Selector pills (only when multiple timers) */}
         {showSelector && (
           <nav className="countdown-selector" aria-label="Select countdown timer">
@@ -307,7 +328,7 @@ export function ElectionCountdown({timers = [], className}: ElectionCountdownCon
         )}
 
         {/* Active clock */}
-        <SingleClock key={current._index} timer={current} />
+        <SingleClock key={current._index} timer={current} isLast={visible.length === 1} />
       </div>
     </section>
   )

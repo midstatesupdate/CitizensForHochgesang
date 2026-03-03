@@ -156,7 +156,10 @@ export async function getSiteSettings(): Promise<SiteSettings> {
       targetDate,
       expireDate,
       body[]{ ... },
-      expiredBody[]{ ... }
+      expiredTitle,
+      expiredBody[]{ ... },
+      postExpiredTitle,
+      postExpiredBody[]{ ... }
     }, []),
     pressUpdatedAt,
     donateUrl,

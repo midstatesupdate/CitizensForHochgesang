@@ -123,7 +123,10 @@ export type CountdownTimer = {
   targetDate?: string | null
   expireDate?: string | null
   body?: PostBodyNode[]
+  expiredTitle?: string
   expiredBody?: PostBodyNode[]
+  postExpiredTitle?: string
+  postExpiredBody?: PostBodyNode[]
 }
 
 export type SiteSettings = {
