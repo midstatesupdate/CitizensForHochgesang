@@ -334,7 +334,7 @@
 /* Reusable patterns */
 @layer components {
   .page-shell {
-    @apply relative mx-auto flex min-h-screen max-w-6xl flex-col gap-12 px-4 py-10 sm:gap-16 sm:px-6 sm:py-16;
+    @apply relative mx-auto flex min-h-screen max-w-6xl flex-col gap-12 px-4 pt-4 pb-10 sm:gap-16 sm:px-6 sm:pt-8 sm:pb-16;
     isolation: isolate;
   }
 
@@ -558,7 +558,7 @@
 
   .campaign-hero-clean-split,
   .campaign-hero-portrait-left {
-    @apply md:grid-cols-[1.05fr_0.95fr] md:items-center;
+    @apply md:grid-cols-[1.05fr_0.95fr] md:items-start;
   }
 
   .campaign-hero-text {
@@ -592,17 +592,24 @@
     @apply flex flex-wrap gap-3;
   }
 
+  /* Both layouts: focus and proof span full width below the main columns */
+  .campaign-hero-clean-split .campaign-hero-focus,
+  .campaign-hero-portrait-left .campaign-hero-focus {
+    @apply md:col-span-2 md:grid-cols-2;
+  }
+
   .campaign-hero-clean-split .campaign-proof-strip,
   .campaign-hero-portrait-left .campaign-proof-strip {
     @apply md:col-span-2;
   }
 
-  .campaign-hero-portrait-left .campaign-hero-text {
-    @apply md:order-2;
+  /* portrait-left: photo in left col, text in right col */
+  .campaign-hero-portrait-left .campaign-hero-media {
+    @apply md:col-start-1 md:row-start-1;
   }
 
-  .campaign-hero-portrait-left .campaign-hero-media {
-    @apply md:order-1;
+  .campaign-hero-portrait-left .campaign-hero-text {
+    @apply md:col-start-2 md:row-start-1;
   }
 
   .campaign-hero-immersive-frame .campaign-hero-immersive-overlay {
@@ -1231,10 +1238,6 @@
   .breadcrumbs-list-active {
     @apply px-1 py-1;
     margin-bottom: -0.9rem;
-  }
-
-  .breadcrumbs-shell-empty {
-    opacity: 0.6;
   }
 
   .breadcrumbs-item {

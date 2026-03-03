@@ -186,11 +186,6 @@ export default async function Home() {
                   )
                 })}
               </div>
-              <ul className="campaign-focus-list">
-                {campaignFocusItems.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
             </div>
 
             <div className="campaign-hero-media">
@@ -237,6 +232,13 @@ export default async function Home() {
                 </CmsLink>
               ) : null}
             </div>
+            {campaignFocusItems.length > 0 ? (
+              <ul className="campaign-focus-list campaign-hero-focus">
+                {campaignFocusItems.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            ) : null}
           </>
         )}
 

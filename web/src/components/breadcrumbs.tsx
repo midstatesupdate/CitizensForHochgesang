@@ -117,7 +117,7 @@ export function Breadcrumbs() {
   }, [slug, articleTitles])
 
   if (crumbs.length <= 1) {
-    return <div aria-hidden className="breadcrumbs-shell breadcrumbs-shell-empty" />
+    return null
   }
 
   return (
