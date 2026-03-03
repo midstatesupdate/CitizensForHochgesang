@@ -18,6 +18,7 @@ import {
   getRecentPosts,
   getPostBySlug,
   getUpcomingEvents,
+  getAllEvents,
   getMediaLinks,
   getFundraisingLinks,
   getSiteSettings,
@@ -131,6 +132,9 @@ describe('getPostBySlug', () => {
 // ---------------------------------------------------------------------------
 // getUpcomingEvents — also tests sortByDateAsc indirectly
 // ---------------------------------------------------------------------------
+// Note: the GROQ filter `coalesce(endDate, startDate) > now()` is evaluated
+// server-side by Sanity and cannot be tested against a mock. The tests below
+// verify the client-side normalisation and sort behaviour only.
 describe('getUpcomingEvents', () => {
   it('returns sorted mock events when sanityQuery returns null', async () => {
     mockQuery.mockResolvedValueOnce(null)
@@ -169,6 +173,59 @@ describe('getUpcomingEvents', () => {
     ]
     mockQuery.mockResolvedValueOnce(rawEvents)
     const events = await getUpcomingEvents()
+    expect(events[0].title).toBe('Earlier')
+    expect(events[1].title).toBe('Later')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// getAllEvents — returns past AND upcoming events (no date filter)
+// ---------------------------------------------------------------------------
+describe('getAllEvents', () => {
+  it('returns sorted mock events when sanityQuery returns null', async () => {
+    mockQuery.mockResolvedValueOnce(null)
+    const events = await getAllEvents()
+    expect(events.length).toBe(mockEvents.length)
+    for (let i = 0; i < events.length - 1; i++) {
+      expect(Date.parse(events[i].startDate)).toBeLessThanOrEqual(Date.parse(events[i + 1].startDate))
+    }
+  })
+
+  it('returns sorted mock events when sanityQuery returns an empty array', async () => {
+    mockQuery.mockResolvedValueOnce([])
+    const events = await getAllEvents()
+    expect(events.length).toBe(mockEvents.length)
+  })
+
+  it('maps _id to id and strips _id from the result', async () => {
+    const rawEvents = [
+      { _id: 'past-event', title: 'Past Event', slug: 'past', startDate: '2020-01-01T00:00:00Z', location: 'Town Hall', tags: [] },
+    ]
+    mockQuery.mockResolvedValueOnce(rawEvents)
+    const events = await getAllEvents()
+    expect(events[0].id).toBe('past-event')
+    expect('_id' in events[0]).toBe(false)
+  })
+
+  it('includes past-dated events (no server-side date filter applied client-side)', async () => {
+    const rawEvents = [
+      { _id: 'e-past', title: 'Old Town Hall', slug: 'old', startDate: '2020-06-01T00:00:00Z', location: 'X', tags: [] },
+      { _id: 'e-future', title: 'Upcoming Rally', slug: 'new', startDate: '2099-06-01T00:00:00Z', location: 'Y', tags: [] },
+    ]
+    mockQuery.mockResolvedValueOnce(rawEvents)
+    const events = await getAllEvents()
+    expect(events).toHaveLength(2)
+    expect(events[0].id).toBe('e-past')   // earliest first
+    expect(events[1].id).toBe('e-future')
+  })
+
+  it('sorts live events by startDate ascending', async () => {
+    const rawEvents = [
+      { _id: 'e1', title: 'Later', slug: 'later', startDate: '2026-06-01T00:00:00Z', location: 'X', tags: [] },
+      { _id: 'e2', title: 'Earlier', slug: 'earlier', startDate: '2020-03-01T00:00:00Z', location: 'Y', tags: [] },
+    ]
+    mockQuery.mockResolvedValueOnce(rawEvents)
+    const events = await getAllEvents()
     expect(events[0].title).toBe('Earlier')
     expect(events[1].title).toBe('Later')
   })

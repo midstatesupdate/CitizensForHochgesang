@@ -41,6 +41,17 @@ type EventsFeedProps = {
   events: CampaignEvent[]
 }
 
+type PreparedEvent = CampaignEvent & {
+  ratio: {width: number; height: number; className: string}
+  layout: string
+  animation: string
+  scheduleImageUrl?: string
+  isWidescreen: boolean
+  isTallPortrait: boolean
+  previewText: string | null
+  isPassed: boolean
+}
+
 function toEasternComparableMs(input: string): number {
   const date = new Date(input)
   if (Number.isNaN(date.getTime())) {
@@ -106,41 +117,8 @@ export function EventsFeed({events}: EventsFeedProps) {
     setVisibleCount(6)
   }
 
-  const tagCounts = useMemo(() => {
-    const counts = new Map<string, number>()
-    for (const event of events) {
-      for (const tag of event.tags ?? []) {
-        const normalized = tag.trim()
-        if (!normalized) {
-          continue
-        }
-
-        counts.set(normalized, (counts.get(normalized) ?? 0) + 1)
-      }
-    }
-
-    return Array.from(counts.entries())
-      .sort((a, b) => {
-        if (b[1] !== a[1]) {
-          return b[1] - a[1]
-        }
-
-        return a[0].localeCompare(b[0])
-      })
-      .map(([tag, count]) => ({tag, count}))
-  }, [events])
-
-  const filteredTagCounts = useMemo(() => {
-    const query = tagQuery.trim().toLowerCase()
-    if (!query) {
-      return tagCounts
-    }
-
-    return tagCounts.filter(({tag}) => tag.toLowerCase().includes(query))
-  }, [tagCounts, tagQuery])
-
   const preparedEvents = useMemo(
-    () => {
+    (): PreparedEvent[] => {
       const nowEasternMs = toEasternComparableMs(new Date().toISOString())
       const nowMs = Date.parse(new Date().toISOString())
 
@@ -173,6 +151,45 @@ export function EventsFeed({events}: EventsFeedProps) {
     [events]
   )
 
+  // Tag counts reflect only upcoming events so the badges match what's visible
+  // by default (past events are hidden until the user expands them).
+  const tagCounts = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const event of preparedEvents) {
+      if (event.isPassed) {
+        continue
+      }
+
+      for (const tag of event.tags ?? []) {
+        const normalized = tag.trim()
+        if (!normalized) {
+          continue
+        }
+
+        counts.set(normalized, (counts.get(normalized) ?? 0) + 1)
+      }
+    }
+
+    return Array.from(counts.entries())
+      .sort((a, b) => {
+        if (b[1] !== a[1]) {
+          return b[1] - a[1]
+        }
+
+        return a[0].localeCompare(b[0])
+      })
+      .map(([tag, count]) => ({tag, count}))
+  }, [preparedEvents])
+
+  const filteredTagCounts = useMemo(() => {
+    const query = tagQuery.trim().toLowerCase()
+    if (!query) {
+      return tagCounts
+    }
+
+    return tagCounts.filter(({tag}) => tag.toLowerCase().includes(query))
+  }, [tagCounts, tagQuery])
+
   // Upcoming events — sorted by selected sort mode (default: soonest first)
   const filteredUpcoming = useMemo(() => {
     const filtered = preparedEvents.filter(
@@ -201,6 +218,14 @@ export function EventsFeed({events}: EventsFeedProps) {
     )
     return [...filtered].sort((a, b) => Date.parse(b.startDate) - Date.parse(a.startDate))
   }, [preparedEvents, selectedTag])
+
+  // Collapse the past-events section automatically when the tag filter changes
+  // and the current tag has no past events (avoids an empty open section).
+  useEffect(() => {
+    if (filteredPast.length === 0) {
+      setShowPast(false)
+    }
+  }, [filteredPast.length])
 
   useEffect(() => {
     const sentinel = sentinelRef.current
@@ -251,7 +276,7 @@ export function EventsFeed({events}: EventsFeedProps) {
                 className={`pill-badge ${selectedTag === null ? 'pill-badge-active' : ''}`}
               >
                 <span>All</span>
-                {events.length >= 2 ? <span className="pill-badge-count">{events.length}</span> : null}
+                {filteredUpcoming.length >= 2 ? <span className="pill-badge-count">{filteredUpcoming.length}</span> : null}
               </button>
               {filteredTagCounts.map(({tag, count}) => (
                 <button
@@ -327,23 +352,7 @@ export function EventsFeed({events}: EventsFeedProps) {
 // ---------------------------------------------------------------------------
 
 type EventCardProps = {
-  event: {
-    id: string
-    title: string
-    slug?: string
-    startDate: string
-    location: string
-    rsvpLink?: string
-    ratio: {width: number; height: number; className: string}
-    layout: string
-    animation: string
-    scheduleImageUrl?: string
-    isWidescreen: boolean
-    isTallPortrait: boolean
-    previewText: string | null
-    tags: string[]
-    isPassed: boolean
-  }
+  event: PreparedEvent
   selectedTag: string | null
   onTagClick: (tag: string) => void
 }

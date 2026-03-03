@@ -303,80 +303,65 @@ export async function getPostBySlug(slug: string): Promise<PostDetail | null> {
   return mockPosts.find((item) => item.slug === slug) ?? null
 }
 
-export async function getUpcomingEvents(): Promise<CampaignEvent[]> {
-  const query = `*[_type=="event" && coalesce(endDate, startDate) > now()] | order(startDate asc){
-    "_id": _id,
-    title,
-    "slug": slug.current,
-    startDate,
-    endDate,
-    location,
-    description,
-    "detailBody": coalesce(detailBody[]{
+// Shared GROQ projection for event documents — keeps getUpcomingEvents and
+// getAllEvents in sync without repeating the field list.
+const EVENT_PROJECTION = `{
+  "_id": _id,
+  title,
+  "slug": slug.current,
+  startDate,
+  endDate,
+  location,
+  description,
+  "detailBody": coalesce(detailBody[]{
+    ...,
+    _type == "image" => {
       ...,
-      _type == "image" => {
-        ...,
-        "asset": {
-          "url": asset->url
-        }
+      "asset": {
+        "url": asset->url
       }
-    }, []),
-    "detailLinks": coalesce(detailLinks[]{label, url}, []),
-    scheduleImage,
-    rsvpLink,
-    "scheduleImageUrl": scheduleImage.asset->url,
-    "eventCardLayout": coalesce(eventCardLayout, "stacked"),
-    "eventImageOrientation": coalesce(eventImageOrientation, "landscape"),
-    "eventImageAspectRatio": coalesce(eventImageAspectRatio, "3:2"),
-    "eventCardAnimation": coalesce(eventCardAnimation, "fade-up"),
-    "eventDescriptionPreviewChars": coalesce(eventDescriptionPreviewChars, 2000),
-    "tags": coalesce(tags, [])
-  }`
+    }
+  }, []),
+  "detailLinks": coalesce(detailLinks[]{label, url}, []),
+  scheduleImage,
+  rsvpLink,
+  "scheduleImageUrl": scheduleImage.asset->url,
+  "eventCardLayout": coalesce(eventCardLayout, "stacked"),
+  "eventImageOrientation": coalesce(eventImageOrientation, "landscape"),
+  "eventImageAspectRatio": coalesce(eventImageAspectRatio, "3:2"),
+  "eventCardAnimation": coalesce(eventCardAnimation, "fade-up"),
+  "eventDescriptionPreviewChars": coalesce(eventDescriptionPreviewChars, 2000),
+  "tags": coalesce(tags, [])
+}`
 
-  const events = await sanityQuery<Array<Omit<CampaignEvent, 'id'> & {_id: string}>>(query)
-  if (!events || events.length === 0) {
-    return sortByDateAsc(mockEvents)
-  }
+type RawEvent = Omit<CampaignEvent, 'id'> & {_id: string}
 
+function normalizeEvents(events: RawEvent[]): CampaignEvent[] {
   return sortByDateAsc(events.map(({_id, ...event}) => ({id: _id, ...event})))
 }
 
-export async function getAllEvents(): Promise<CampaignEvent[]> {
-  const query = `*[_type=="event"] | order(startDate asc){
-    "_id": _id,
-    title,
-    "slug": slug.current,
-    startDate,
-    endDate,
-    location,
-    description,
-    "detailBody": coalesce(detailBody[]{
-      ...,
-      _type == "image" => {
-        ...,
-        "asset": {
-          "url": asset->url
-        }
-      }
-    }, []),
-    "detailLinks": coalesce(detailLinks[]{label, url}, []),
-    scheduleImage,
-    rsvpLink,
-    "scheduleImageUrl": scheduleImage.asset->url,
-    "eventCardLayout": coalesce(eventCardLayout, "stacked"),
-    "eventImageOrientation": coalesce(eventImageOrientation, "landscape"),
-    "eventImageAspectRatio": coalesce(eventImageAspectRatio, "3:2"),
-    "eventCardAnimation": coalesce(eventCardAnimation, "fade-up"),
-    "eventDescriptionPreviewChars": coalesce(eventDescriptionPreviewChars, 2000),
-    "tags": coalesce(tags, [])
-  }`
+/** Returns only events that have not yet ended — used on the homepage. */
+export async function getUpcomingEvents(): Promise<CampaignEvent[]> {
+  const query = `*[_type=="event" && coalesce(endDate, startDate) > now()] | order(startDate asc)${EVENT_PROJECTION}`
 
-  const events = await sanityQuery<Array<Omit<CampaignEvent, 'id'> & {_id: string}>>(query)
+  const events = await sanityQuery<RawEvent[]>(query)
   if (!events || events.length === 0) {
     return sortByDateAsc(mockEvents)
   }
 
-  return sortByDateAsc(events.map(({_id, ...event}) => ({id: _id, ...event})))
+  return normalizeEvents(events)
+}
+
+/** Returns all events (past and upcoming) — used on the /events page. */
+export async function getAllEvents(): Promise<CampaignEvent[]> {
+  const query = `*[_type=="event"] | order(startDate asc)${EVENT_PROJECTION}`
+
+  const events = await sanityQuery<RawEvent[]>(query)
+  if (!events || events.length === 0) {
+    return sortByDateAsc(mockEvents)
+  }
+
+  return normalizeEvents(events)
 }
 
 export async function getMediaLinks(limit?: number): Promise<MediaLink[]> {

@@ -9,12 +9,15 @@ export const metadata = {
   description: 'Campaign media coverage, press resources, and direct contact details.',
 }
 
+const MEDIA_TYPE_LABELS: Record<string, string> = {
+  youtube: 'YouTube',
+  facebook: 'Facebook',
+  audio: 'Audio',
+  other: 'Press / News',
+}
+
 function getTypeLabel(mediaType: string): string {
-  if (mediaType === 'youtube') return 'YouTube'
-  if (mediaType === 'facebook') return 'Facebook'
-  if (mediaType === 'audio') return 'Audio'
-  if (mediaType === 'other') return 'Press / News'
-  return 'Media'
+  return MEDIA_TYPE_LABELS[mediaType] ?? 'Media'
 }
 
 export default async function MediaPage() {
