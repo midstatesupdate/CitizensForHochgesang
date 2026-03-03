@@ -92,6 +92,7 @@ export const siteSettings = defineType({
     {name: 'countdown', title: 'Election Countdown'},
     {name: 'campaignMeta', title: 'Campaign Meta'},
     {name: 'contact', title: 'Contact & Social'},
+    {name: 'media', title: 'Media & Press Page'},
   ],
   fields: [
     defineField({
@@ -710,6 +711,84 @@ export const siteSettings = defineType({
             {name: 'label', title: 'Label', type: 'string'},
             {name: 'url', title: 'URL', type: 'url'},
           ],
+        },
+      ],
+    }),
+
+    // ── Media & Press Page ──────────────────────────────────────────────────
+
+    defineField({
+      name: 'mediaPageHeading',
+      title: 'Media Page Heading',
+      type: 'string',
+      group: 'media',
+      description: 'Main h1 on the Media & Press page.',
+      placeholder: 'Media coverage and press resources',
+    }),
+    defineField({
+      name: 'mediaPageIntro',
+      title: 'Media Page Introduction',
+      type: 'text',
+      rows: 2,
+      group: 'media',
+      description: 'Short paragraph shown below the Media page heading.',
+    }),
+    defineField({
+      name: 'mediaContactIntro',
+      title: 'Media Contact Description',
+      type: 'text',
+      rows: 2,
+      group: 'media',
+      description: 'Text shown under the "Media contact" card heading.',
+      initialValue: 'For interviews, deadlines, and publication requests.',
+    }),
+    defineField({
+      name: 'mediaContactName',
+      title: 'Media Contact Name',
+      type: 'string',
+      group: 'media',
+    }),
+    defineField({
+      name: 'mediaContactTitle',
+      title: 'Media Contact Title / Role',
+      type: 'string',
+      group: 'media',
+      placeholder: 'Communications Director',
+    }),
+    defineField({
+      name: 'mediaContactPhone',
+      title: 'Media Contact Phone',
+      type: 'string',
+      group: 'media',
+    }),
+    defineField({
+      name: 'pressAssetLinks',
+      title: 'Press Asset Download Links',
+      type: 'array',
+      group: 'media',
+      description: 'Download links shown in the Press Assets card (short bio, logo usage, etc.).',
+      of: [
+        {
+          type: 'object',
+          name: 'pressAssetLink',
+          fields: [
+            defineField({
+              name: 'label',
+              title: 'Label',
+              type: 'string',
+              validation: (Rule) => Rule.required().max(80),
+            }),
+            defineField({
+              name: 'url',
+              title: 'URL',
+              type: 'string',
+              description: 'Can be an absolute URL or a relative path (e.g. /press-kit/bio.pdf).',
+              validation: (Rule) => Rule.required(),
+            }),
+          ],
+          preview: {
+            select: {title: 'label', subtitle: 'url'},
+          },
         },
       ],
     }),

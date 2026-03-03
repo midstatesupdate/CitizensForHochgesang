@@ -30,20 +30,30 @@ export default async function MediaPage() {
     getPageVisualSettings('media'),
   ])
 
+  const pageHeading = settings.mediaPageHeading?.trim() || 'Media coverage and press resources'
+  const pageIntro = settings.mediaPageIntro?.trim() || 'Watch and share campaign coverage, access official assets, and contact the team for media requests.'
+  const contactIntro = settings.mediaContactIntro?.trim() || 'For interviews, deadlines, and publication requests.'
+
   return (
     <main className={getPageShellClasses(pageVisualSettings)} {...getPageShellDataAttributes(pageVisualSettings)}>
       <section className="flex flex-col gap-4">
         <p className="eyebrow">Media & Press</p>
-        <h1 className="section-title">Media coverage and press resources</h1>
-        <p className="max-w-3xl text-sm text-[color:var(--color-muted)]">
-          Watch and share campaign coverage, access official assets, and contact the team for media requests.
-        </p>
+        <h1 className="section-title">{pageHeading}</h1>
+        <p className="max-w-3xl text-sm text-[color:var(--color-muted)]">{pageIntro}</p>
       </section>
 
       <section className="grid gap-6 lg:grid-cols-2">
         <article className="card article-card flex flex-col gap-4">
           <h2 className="text-xl font-semibold text-[color:var(--color-ink)]">Media contact</h2>
-          <p className="text-sm text-[color:var(--color-muted)]">For interviews, deadlines, and publication requests.</p>
+          <p className="text-sm text-[color:var(--color-muted)]">{contactIntro}</p>
+          {settings.mediaContactName ? (
+            <p className="text-sm font-semibold text-[color:var(--color-ink)]">
+              {settings.mediaContactName}
+              {settings.mediaContactTitle ? (
+                <span className="ml-1 font-normal text-[color:var(--color-muted)]">— {settings.mediaContactTitle}</span>
+              ) : null}
+            </p>
+          ) : null}
           {settings.contactEmail ? (
             <>
               <CmsLink className="link-pill link-pill-media" href={`mailto:${settings.contactEmail}`}>
@@ -54,6 +64,9 @@ export default async function MediaPage() {
           ) : (
             <p className="text-sm text-[color:var(--color-muted)]">Contact email pending publication in Site Settings.</p>
           )}
+          {settings.mediaContactPhone ? (
+            <p className="text-sm text-[color:var(--color-muted)]">{settings.mediaContactPhone}</p>
+          ) : null}
           <p className="text-sm text-[color:var(--color-muted)]">Please include your deadline and publication details in the initial request.</p>
         </article>
 
@@ -74,58 +87,55 @@ export default async function MediaPage() {
               <CmsLink className="link-pill link-pill-media" href={settings.campaignLogoUrl}>
                 Download campaign logo
               </CmsLink>
-              <div className="grid gap-2 text-sm">
-                <CmsLink className="link-soft" href="/press-kit/candidate-bio-short.md">
-                  Download short bio
-                </CmsLink>
-                <CmsLink className="link-soft" href="/press-kit/media-contact.txt">
-                  Download media contact sheet
-                </CmsLink>
-                <CmsLink className="link-soft" href="/press-kit/logo-usage.md">
-                  Download logo usage guidance
-                </CmsLink>
-              </div>
             </>
           ) : (
             <p className="text-sm text-[color:var(--color-muted)]">Campaign logo not published in site settings yet.</p>
           )}
+          {settings.pressAssetLinks.length > 0 ? (
+            <div className="grid gap-2 text-sm">
+              {settings.pressAssetLinks.map((link) => (
+                <CmsLink key={link.url} className="link-soft" href={link.url}>
+                  {link.label}
+                </CmsLink>
+              ))}
+            </div>
+          ) : null}
         </article>
       </section>
 
-      <section className="grid gap-6 md:grid-cols-2">
-        <h2 className="section-title md:col-span-2">Interviews, videos, and social updates</h2>
-        {mediaLinks.map((item) => (
-          <article key={item.id} className="card article-card flex flex-col gap-4">
-            {item.thumbnailUrl ? (
-              <div className="card-media">
-                <Image
-                  src={item.thumbnailUrl}
-                  alt={`${item.title} thumbnail`}
-                  width={1200}
-                  height={630}
-                  className="h-52 w-full object-cover"
-                  unoptimized
-                />
+      {mediaLinks.length > 0 ? (
+        <section className="grid gap-6 md:grid-cols-2">
+          <h2 className="section-title md:col-span-2">Interviews, videos, and social updates</h2>
+          {mediaLinks.map((item) => (
+            <article key={item.id} className="card article-card flex flex-col gap-4">
+              {item.thumbnailUrl ? (
+                <div className="card-media">
+                  <Image
+                    src={item.thumbnailUrl}
+                    alt={`${item.title} thumbnail`}
+                    width={1200}
+                    height={630}
+                    className="h-52 w-full object-cover"
+                    unoptimized
+                  />
+                </div>
+              ) : null}
+              <p className="article-meta text-xs font-semibold uppercase tracking-[0.3em] text-[color:var(--color-muted)]">
+                {getTypeLabel(item.mediaType)}
+              </p>
+              <h2 className="article-title text-xl font-semibold text-[color:var(--color-ink)]">{item.title}</h2>
+              {item.publishedAt ? (
+                <p className="text-sm text-[color:var(--color-muted)]">Published {formatDate(item.publishedAt)}</p>
+              ) : null}
+              <div>
+                <CmsLink className="article-cta link-pill link-pill-media" href={item.url}>
+                  Open media
+                </CmsLink>
               </div>
-            ) : null}
-            <p className="article-meta text-xs font-semibold uppercase tracking-[0.3em] text-[color:var(--color-muted)]">
-              {getTypeLabel(item.mediaType)}
-            </p>
-            <h2 className="article-title text-xl font-semibold text-[color:var(--color-ink)]">{item.title}</h2>
-            {item.publishedAt ? (
-              <p className="text-sm text-[color:var(--color-muted)]">Published {formatDate(item.publishedAt)}</p>
-            ) : null}
-            <div>
-              <CmsLink
-                className="article-cta link-pill link-pill-media"
-                href={item.url}
-              >
-                Open media
-              </CmsLink>
-            </div>
-          </article>
-        ))}
-      </section>
+            </article>
+          ))}
+        </section>
+      ) : null}
 
       <section className="grid gap-6 lg:grid-cols-2">
         <article className="card article-card flex flex-col gap-4">

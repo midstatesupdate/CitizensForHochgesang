@@ -185,6 +185,14 @@ export type SiteSettings = {
   contactEmail?: string
   socialLinks: SocialLink[]
   pageVisibility?: PageVisibility
+  // Media & Press page
+  mediaPageHeading?: string
+  mediaPageIntro?: string
+  mediaContactIntro?: string
+  mediaContactName?: string
+  mediaContactTitle?: string
+  mediaContactPhone?: string
+  pressAssetLinks: Array<{label: string; url: string}>
 }
 
 export type PageVisualPageKey =

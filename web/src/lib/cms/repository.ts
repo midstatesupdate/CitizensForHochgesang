@@ -166,6 +166,13 @@ export async function getSiteSettings(): Promise<SiteSettings> {
       label,
       url
     }, []),
+    mediaPageHeading,
+    mediaPageIntro,
+    mediaContactIntro,
+    mediaContactName,
+    mediaContactTitle,
+    mediaContactPhone,
+    "pressAssetLinks": coalesce(pressAssetLinks[]{label, url}, []),
     "pageVisibility": coalesce(
       pageVisibility{
         news,
@@ -200,6 +207,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     homeHeroBadges: settings.homeHeroBadges?.length ? settings.homeHeroBadges : mockSiteSettings.homeHeroBadges,
     homeFocusItems: settings.homeFocusItems?.length ? settings.homeFocusItems : mockSiteSettings.homeFocusItems,
     homeSectionCards: settings.homeSectionCards?.length ? settings.homeSectionCards : mockSiteSettings.homeSectionCards,
+    pressAssetLinks: settings.pressAssetLinks ?? [],
   }
 }
 
