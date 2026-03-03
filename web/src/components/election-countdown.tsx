@@ -4,7 +4,7 @@ import {useEffect, useMemo, useRef, useState} from 'react'
 import {PortableText, type PortableTextComponents} from '@portabletext/react'
 import {CmsLink} from '@/components/cms-link'
 import {sharedBlockTypes} from '@/components/portable-block-types'
-import type {CountdownTimer} from '@/lib/cms/types'
+import type {CountdownTimer, PostBodyNode} from '@/lib/cms/types'
 
 // ---------------------------------------------------------------------------
 // Pure helpers — exported for testing
@@ -50,7 +50,6 @@ function safeDate(v: string | Date | null | undefined): Date | null {
 export type ResolvedTimer = CountdownTimer & {
   _index: number
   _target: Date
-  _expire: Date
 }
 
 /**
@@ -59,8 +58,7 @@ export type ResolvedTimer = CountdownTimer & {
  * Rules:
  * - Disabled timers (enabled === false) are excluded.
  * - Timers without a valid targetDate are excluded.
- * - expireDate defaults to targetDate when absent.
- * - Timers whose expireDate is in the past are excluded.
+ * - Timers whose targetDate is in the past are excluded.
  * - Sorted by targetDate ascending.
  */
 export function resolveTimers(timers: CountdownTimer[], now: Date = new Date()): ResolvedTimer[] {
@@ -73,10 +71,9 @@ export function resolveTimers(timers: CountdownTimer[], now: Date = new Date()):
     const target = safeDate(t.targetDate)
     if (!target) continue
 
-    const expire = safeDate(t.expireDate) ?? target
-    if (expire.getTime() < now.getTime()) continue
+    if (target.getTime() < now.getTime()) continue
 
-    resolved.push({...t, _index: i, _target: target, _expire: expire})
+    resolved.push({...t, _index: i, _target: target})
   }
 
   resolved.sort((a, b) => a._target.getTime() - b._target.getTime())
@@ -85,17 +82,11 @@ export function resolveTimers(timers: CountdownTimer[], now: Date = new Date()):
 
 /**
  * Pick the default timer to display.
- * Prefers the timer with the nearest non-expired *expire* date.
+ * Returns the earliest timer (index 0) since resolveTimers sorts ascending.
  */
 export function pickDefault(timers: ResolvedTimer[]): number {
   if (timers.length === 0) return -1
-  let best = 0
-  for (let i = 1; i < timers.length; i++) {
-    if (timers[i]._expire.getTime() < timers[best]._expire.getTime()) {
-      best = i
-    }
-  }
-  return best
+  return 0
 }
 
 // ---------------------------------------------------------------------------
@@ -208,7 +199,7 @@ function RichBody({value, className}: {value: unknown[]; className?: string}) {
 // SingleClock — renders one flip clock + body for a given timer
 // ---------------------------------------------------------------------------
 
-function SingleClock({timer, isLast}: {timer: ResolvedTimer; isLast: boolean}) {
+function SingleClock({timer}: {timer: ResolvedTimer}) {
   const [timeLeft, setTimeLeft] = useState<TimeLeft>(() => computeTimeLeft(timer._target))
   const [mounted, setMounted] = useState(false)
 
@@ -223,42 +214,10 @@ function SingleClock({timer, isLast}: {timer: ResolvedTimer; isLast: boolean}) {
   const display = mounted ? timeLeft : ZERO_TIME
   const isPast = mounted && timeLeft.total <= 0
   const hasBody = timer.body && timer.body.length > 0
-  const hasExpiredBody = timer.expiredBody && timer.expiredBody.length > 0
-  const hasPostExpiredBody = timer.postExpiredBody && timer.postExpiredBody.length > 0
 
-  // Target passed — show expired or post-expired state
-  if (isPast) {
-    // Post-expired: only when this is the last timer
-    if (isLast && (timer.postExpiredTitle || hasPostExpiredBody)) {
-      return (
-        <div className="countdown-expired-state">
-          {timer.postExpiredTitle && (
-            <h2 className="election-countdown-heading">{timer.postExpiredTitle}</h2>
-          )}
-          {hasPostExpiredBody && (
-            <RichBody value={timer.postExpiredBody!} className="election-countdown-body countdown-expired-body" />
-          )}
-        </div>
-      )
-    }
-
-    // Normal expired state
-    if (timer.expiredTitle || hasExpiredBody) {
-      return (
-        <div className="countdown-expired-state">
-          {timer.expiredTitle && (
-            <h2 className="election-countdown-heading">{timer.expiredTitle}</h2>
-          )}
-          {hasExpiredBody && (
-            <RichBody value={timer.expiredBody!} className="election-countdown-body countdown-expired-body" />
-          )}
-        </div>
-      )
-    }
-
-    // No expired content → nothing to show
-    return null
-  }
+  // Target passed → this timer hides; the next timer takes over.
+  // When ALL timers are gone, ElectionCountdown shows the all-done message.
+  if (isPast) return null
 
   const daysStr = padValue(display.days, display.days >= 100 ? 3 : 2)
 
@@ -292,6 +251,30 @@ export type ElectionCountdownConfig = {
   className?: string
 }
 
+/**
+ * Find the "all-done" message from the timer array.
+ * Scans all enabled timers with a valid target date and returns the
+ * expiredTitle / expiredBody from the one with the latest target.
+ */
+export function findAllDoneMessage(
+  timers: CountdownTimer[],
+): {expiredTitle?: string; expiredBody?: PostBodyNode[]} | null {
+  let best: {target: number; expiredTitle?: string; expiredBody?: PostBodyNode[]} | null = null
+
+  for (const t of timers) {
+    if (t.enabled === false) continue
+    const td = t.targetDate ? new Date(t.targetDate) : null
+    if (!td || isNaN(td.getTime())) continue
+    if (!t.expiredTitle && (!t.expiredBody || t.expiredBody.length === 0)) continue
+
+    if (!best || td.getTime() > best.target) {
+      best = {target: td.getTime(), expiredTitle: t.expiredTitle, expiredBody: t.expiredBody}
+    }
+  }
+
+  return best ? {expiredTitle: best.expiredTitle, expiredBody: best.expiredBody} : null
+}
+
 export function ElectionCountdown({timers = [], className}: ElectionCountdownConfig) {
   const visible = useMemo(() => resolveTimers(timers), [timers])
   const defaultIdx = useMemo(() => pickDefault(visible), [visible])
@@ -302,7 +285,33 @@ export function ElectionCountdown({timers = [], className}: ElectionCountdownCon
     setActive(defaultIdx)
   }, [defaultIdx])
 
-  if (visible.length === 0) return null
+  // All targets passed → show all-done message with zeroed clock, or hide entirely
+  if (visible.length === 0) {
+    const done = findAllDoneMessage(timers)
+    if (!done) return null
+
+    return (
+      <section className={`election-countdown ${className ?? ''}`} aria-label="Countdown complete">
+        <div className="election-countdown-inner">
+          {done.expiredTitle && (
+            <h2 className="election-countdown-heading">{done.expiredTitle}</h2>
+          )}
+          <div className="flip-clock" role="timer">
+            <FlipGroup value="00" label="Days" />
+            <span className="flip-separator" aria-hidden="true">:</span>
+            <FlipGroup value="00" label="Hours" />
+            <span className="flip-separator" aria-hidden="true">:</span>
+            <FlipGroup value="00" label="Minutes" />
+            <span className="flip-separator" aria-hidden="true">:</span>
+            <FlipGroup value="00" label="Seconds" />
+          </div>
+          {done.expiredBody && done.expiredBody.length > 0 && (
+            <RichBody value={done.expiredBody} className="election-countdown-body countdown-expired-body" />
+          )}
+        </div>
+      </section>
+    )
+  }
 
   const safeActive = active >= 0 && active < visible.length ? active : 0
   const current = visible[safeActive]
@@ -328,7 +337,7 @@ export function ElectionCountdown({timers = [], className}: ElectionCountdownCon
         )}
 
         {/* Active clock */}
-        <SingleClock key={current._index} timer={current} isLast={visible.length === 1} />
+        <SingleClock key={current._index} timer={current} />
       </div>
     </section>
   )

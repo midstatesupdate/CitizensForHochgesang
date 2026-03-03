@@ -625,22 +625,6 @@ export const siteSettings = defineType({
               description: 'The date/time to count down to.',
             }),
             defineField({
-              name: 'expireDate',
-              title: 'Expire Date',
-              type: 'datetime',
-              description:
-                'Timer disappears after this date. If blank, expires when the target date passes. Set a later date to show the "expired" message after the target.',
-              validation: (Rule) =>
-                Rule.custom((expireDate, context) => {
-                  if (!expireDate) return true
-                  const parent = context?.parent as {targetDate?: string} | undefined
-                  if (!parent?.targetDate) return true
-                  return new Date(expireDate) >= new Date(parent.targetDate)
-                    ? true
-                    : 'Expire date must be on or after the target date.'
-                }),
-            }),
-            defineField({
               name: 'body',
               title: 'Body',
               type: 'array',
@@ -656,41 +640,18 @@ export const siteSettings = defineType({
             }),
             defineField({
               name: 'expiredTitle',
-              title: 'Expired Title',
+              title: 'All-Done Title',
               type: 'string',
               validation: (Rule) => Rule.max(80),
               description:
-                'Heading shown once the target date passes (replaces the timer heading). E.g. "Polls Are Open!"',
+                'Heading shown (no clock) after ALL countdown timers have passed. Only set this on the last timer. E.g. "Thank You for Voting!"',
             }),
             defineField({
               name: 'expiredBody',
-              title: 'Expired Message',
+              title: 'All-Done Message',
               type: 'array',
               description:
-                'Rich text shown when the target date has passed but the timer has not expired. E.g. "The event has started!" or "Polls are open — go vote!"',
-              of: [
-                {type: 'block'},
-                {type: 'htmlEmbed'},
-                {type: 'videoEmbed'},
-                {type: 'ctaButton'},
-                {type: 'pullQuote'},
-                {type: 'infoBox'},
-              ],
-            }),
-            defineField({
-              name: 'postExpiredTitle',
-              title: 'Post-Expired Title',
-              type: 'string',
-              validation: (Rule) => Rule.max(80),
-              description:
-                'Heading shown only if this is the LAST remaining timer after all others have expired. E.g. "Thank You for Voting!"',
-            }),
-            defineField({
-              name: 'postExpiredBody',
-              title: 'Post-Expired Body',
-              type: 'array',
-              description:
-                'Rich text shown only if this is the LAST remaining timer after all others have expired.',
+                'Rich text shown (no clock) after ALL countdown timers have passed. Only set this on the last timer.',
               of: [
                 {type: 'block'},
                 {type: 'htmlEmbed'},

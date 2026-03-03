@@ -121,12 +121,9 @@ export type CountdownTimer = {
   enabled?: boolean
   heading?: string
   targetDate?: string | null
-  expireDate?: string | null
   body?: PostBodyNode[]
   expiredTitle?: string
   expiredBody?: PostBodyNode[]
-  postExpiredTitle?: string
-  postExpiredBody?: PostBodyNode[]
 }
 
 export type SiteSettings = {
