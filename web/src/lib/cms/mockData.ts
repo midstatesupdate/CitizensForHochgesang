@@ -171,6 +171,15 @@ export const mockSiteSettings: SiteSettings = {
   donateUrl: 'https://secure.actblue.com/donate/brad-hochgesang-1',
   volunteerUrl: 'https://www.ngpvan.com/',
   contactEmail: 'team@citizensforhochgesang.com',
+  homeWhyRunningHeading: "Why I'm Running",
+  homeWhyRunningBody: [],
+  homeWhyRunningImageUrl: undefined,
+  homeProofHeading: "I didn't wait to run for office to start fighting for you.",
+  homeProofStats: [],
+  homeProofBody: '',
+  homeMidCtaHeading: 'Ready to help?',
+  homeMidCtaCopy:
+    'This campaign runs on people, not PACs. Every dollar and every door knock makes a difference.',
   socialLinks: [
     {label: 'Facebook', url: 'https://www.facebook.com/bradhochesangforindianastatesenate'},
     {label: 'YouTube', url: 'https://www.youtube.com/'},

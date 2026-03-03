@@ -136,6 +136,20 @@ export async function getSiteSettings(): Promise<SiteSettings> {
       icon,
       ctaLabel
     }, []),
+    homeWhyRunningHeading,
+    "homeWhyRunningBody": coalesce(homeWhyRunningBody[]{
+      ...,
+      _type == "image" => {
+        ...,
+        "asset": { "url": asset->url }
+      }
+    }, []),
+    "homeWhyRunningImageUrl": homeWhyRunningImage.asset->url,
+    homeProofHeading,
+    "homeProofStats": coalesce(homeProofStats[]{ value, label }, []),
+    homeProofBody,
+    homeMidCtaHeading,
+    homeMidCtaCopy,
     pressUpdatedAt,
     donateUrl,
     volunteerUrl,

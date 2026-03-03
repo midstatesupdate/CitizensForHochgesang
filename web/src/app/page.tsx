@@ -3,9 +3,13 @@ import Image from 'next/image'
 import {FaBullhorn, FaCalendarAlt, FaHandsHelping, FaNewspaper, FaVideo, FaVoteYea} from 'react-icons/fa'
 
 import {CmsLink} from '@/components/cms-link'
+import {MidPageCta} from '@/components/mid-page-cta'
+import {ProofSection} from '@/components/proof-section'
+import {WhyRunningSection} from '@/components/why-running-section'
 import {formatDate, formatDateTime} from '@/lib/cms/format'
 import {resolveCmsIcon} from '@/lib/cms/icon-map'
 import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-visuals'
+import {isPageEnabled} from '@/lib/cms/types'
 import {
   getFundraisingLinks,
   getMediaLinks,
@@ -76,8 +80,13 @@ export default async function Home() {
   const proofBadges = settings.homeHeroBadges.filter((item) => item.placement === 'proof')
   const heroActions = settings.homeHeroActions
 
+  const showNews = isPageEnabled(settings.pageVisibility, 'news') && posts.length > 0
+  const showEvents = isPageEnabled(settings.pageVisibility, 'events') && events.length > 0
+  const showMedia = isPageEnabled(settings.pageVisibility, 'media') && mediaLinks.length > 0
+
   return (
     <main className={getPageShellClasses(pageVisualSettings)} {...getPageShellDataAttributes(pageVisualSettings)}>
+      {/* ── 1. Hero Section ── */}
       <section className={`campaign-hero campaign-hero-${homeHeroLayout}`}>
         {homeHeroLayout === 'immersive-overlay' ? (
           <>
@@ -254,123 +263,138 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-3">
-        {homeSectionCards.map((item) => {
-          const SectionIcon = resolveCmsIcon(item.icon, FaNewspaper)
+      {/* ── 2. "Why I'm Running" Section ── */}
+      <WhyRunningSection
+        heading={settings.homeWhyRunningHeading}
+        body={settings.homeWhyRunningBody}
+        imageUrl={settings.homeWhyRunningImageUrl}
+      />
 
-          return (
-          <div key={item.title} className="card">
-            <h2 className="text-xl font-semibold text-[color:var(--color-ink)]">
-              <SectionIcon aria-hidden className="mr-2 inline-block" />
-              {item.title}
-            </h2>
-            <p className="mt-3 text-sm text-[color:var(--color-muted)]">
-              {item.copy}
-            </p>
-            <div className="mt-4">
-              <Link className="btn btn-outline" href={item.href}>
-                {item.ctaLabel || `View ${item.title}`}
-              </Link>
+      {/* ── 3. Priority Cards ── */}
+      {homeSectionCards.length > 0 ? (
+        <section className="priority-cards-section">
+          <div className="priority-cards-grid">
+            {homeSectionCards.map((item) => {
+              const SectionIcon = resolveCmsIcon(item.icon, FaNewspaper)
+
+              return (
+                <div key={item.title} className="card priority-card">
+                  <h2 className="text-xl font-semibold text-[color:var(--color-ink)]">
+                    <SectionIcon aria-hidden className="mr-2 inline-block text-[color:var(--color-accent)]" />
+                    {item.title}
+                  </h2>
+                  <p className="mt-3 text-sm text-[color:var(--color-muted)]">
+                    {item.copy}
+                  </p>
+                  <div className="mt-4">
+                    <Link className="btn btn-outline" href={item.href}>
+                      {item.ctaLabel || `View ${item.title}`}
+                    </Link>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </section>
+      ) : null}
+
+      {/* ── 4. "Proof / Credibility" Section ── */}
+      <ProofSection
+        heading={settings.homeProofHeading}
+        stats={settings.homeProofStats}
+        body={settings.homeProofBody}
+      />
+
+      {/* ── 5. Mid-Page CTA ── */}
+      <MidPageCta
+        heading={settings.homeMidCtaHeading}
+        copy={settings.homeMidCtaCopy}
+        donateUrl={settings.donateUrl}
+        volunteerUrl={settings.volunteerUrl}
+      />
+
+      {/* ── 6. News / Updates ── */}
+      {showNews ? (
+        <section className="homepage-feed-section">
+          <div className="card flex flex-col gap-6">
+            <div className="flex flex-col gap-3">
+              <p className="eyebrow">Recent news</p>
+              <h2 className="section-title">Latest updates</h2>
+              <p className="text-sm text-[color:var(--color-muted)]">
+                Read the latest campaign posts and issue-focused announcements.
+              </p>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {posts.map((post) => (
+                <article key={post.slug} className="article-card rounded-2xl border border-[color:var(--color-border)] px-4 py-4">
+                  <p className="article-meta text-xs font-semibold uppercase tracking-[0.3em] text-[color:var(--color-muted)]">
+                    {formatDate(post.publishedAt)}
+                  </p>
+                  <p className="article-title mt-2 text-base font-semibold text-[color:var(--color-ink)]">{post.title}</p>
+                  {post.excerpt ? (
+                    <p className="mt-2 text-sm text-[color:var(--color-muted)]">{post.excerpt}</p>
+                  ) : null}
+                  <div className="mt-3">
+                    <Link className="article-cta btn btn-outline" href={`/news/${post.slug}`}>
+                      Read post
+                    </Link>
+                  </div>
+                </article>
+              ))}
             </div>
           </div>
-          )
-        })}
-      </section>
+        </section>
+      ) : null}
 
-      <section className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
-        <div className="card flex flex-col gap-6">
-          <div className="flex flex-col gap-3">
-            <p className="eyebrow">Recent news</p>
-            <h2 className="section-title">Latest updates</h2>
-            <p className="text-sm text-[color:var(--color-muted)]">
-              Read the latest campaign posts and issue-focused announcements.
-            </p>
-          </div>
-          <div className="grid gap-4">
-            {posts.map((post) => (
-              <article key={post.slug} className="article-card rounded-2xl border border-[color:var(--color-border)] px-4 py-4">
-                <p className="article-meta text-xs font-semibold uppercase tracking-[0.3em] text-[color:var(--color-muted)]">
-                  {formatDate(post.publishedAt)}
-                </p>
-                <p className="article-title mt-2 text-base font-semibold text-[color:var(--color-ink)]">{post.title}</p>
-                {post.excerpt ? (
-                  <p className="mt-2 text-sm text-[color:var(--color-muted)]">{post.excerpt}</p>
-                ) : null}
-                <div className="mt-3">
-                  <Link className="article-cta btn btn-outline" href={`/news/${post.slug}`}>
-                    Read post
-                  </Link>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-
-        <div className="card flex flex-col gap-6">
-          <p className="eyebrow">Upcoming events</p>
-          <h2 className="section-title">Meet us in the district</h2>
-          <div className="grid gap-4">
-            {events.slice(0, 2).map((event) => (
-              <article key={event.id} className="article-card rounded-2xl border border-[color:var(--color-border)] px-4 py-4">
-                <p className="article-meta text-xs font-semibold uppercase tracking-[0.3em] text-[color:var(--color-muted)]">
-                  {formatDateTime(event.startDate)}
-                </p>
-                <p className="article-title mt-2 text-base font-semibold text-[color:var(--color-ink)]">{event.title}</p>
-                <p className="mt-2 text-sm text-[color:var(--color-muted)]">{event.location}</p>
-              </article>
-            ))}
-          </div>
-          <Link className="btn btn-outline" href="/events">
-            <FaCalendarAlt aria-hidden />
-            View all events
-          </Link>
-        </div>
-      </section>
-
-      <section className="grid gap-6 lg:grid-cols-2">
-        <div className="card flex flex-col gap-4">
-          <p className="eyebrow">Recent media</p>
-          <h2 className="section-title">Watch and share</h2>
-          <div className="grid gap-3">
-            {mediaLinks.map((item) => (
-              <CmsLink
-                key={item.id}
-                href={item.url}
-                className="rounded-2xl border border-[color:var(--color-border)] px-4 py-3 text-sm font-semibold text-[color:var(--color-accent)] transition hover:bg-[color:var(--color-highlight)]"
-              >
-                {item.title}
-              </CmsLink>
-            ))}
-          </div>
-          <Link className="btn btn-outline" href="/media">
-            <FaVideo aria-hidden />
-            Browse media
-          </Link>
-        </div>
-
-        <div className="card flex flex-col gap-4">
-          <p className="eyebrow">Support the campaign</p>
-          <h2 className="section-title">Contribute and volunteer</h2>
-          <p className="text-sm text-[color:var(--color-muted)]">
-            Help fuel voter outreach, field organization, and campaign events.
-          </p>
-          <div className="flex flex-wrap gap-3">
-            <Link className="btn btn-primary" href="/support">
-              <FaHandsHelping aria-hidden />
-              Volunteer
+      {/* ── 7. Events ── */}
+      {showEvents ? (
+        <section className="homepage-feed-section">
+          <div className="card flex flex-col gap-6">
+            <p className="eyebrow">Upcoming events</p>
+            <h2 className="section-title">Meet us in the district</h2>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {events.slice(0, 2).map((event) => (
+                <article key={event.id} className="article-card rounded-2xl border border-[color:var(--color-border)] px-4 py-4">
+                  <p className="article-meta text-xs font-semibold uppercase tracking-[0.3em] text-[color:var(--color-muted)]">
+                    {formatDateTime(event.startDate)}
+                  </p>
+                  <p className="article-title mt-2 text-base font-semibold text-[color:var(--color-ink)]">{event.title}</p>
+                  <p className="mt-2 text-sm text-[color:var(--color-muted)]">{event.location}</p>
+                </article>
+              ))}
+            </div>
+            <Link className="btn btn-outline" href="/events">
+              <FaCalendarAlt aria-hidden />
+              View all events
             </Link>
-            {topFundraisingLink ? (
-              <CmsLink
-                className="btn btn-accent"
-                href={topFundraisingLink.url}
-              >
-                <FaVoteYea aria-hidden />
-                Donate now
-              </CmsLink>
-            ) : null}
           </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
+
+      {/* ── 8. Media ── */}
+      {showMedia ? (
+        <section className="homepage-feed-section">
+          <div className="card flex flex-col gap-4">
+            <p className="eyebrow">Recent media</p>
+            <h2 className="section-title">Watch and share</h2>
+            <div className="grid gap-3">
+              {mediaLinks.map((item) => (
+                <CmsLink
+                  key={item.id}
+                  href={item.url}
+                  className="rounded-2xl border border-[color:var(--color-border)] px-4 py-3 text-sm font-semibold text-[color:var(--color-accent)] transition hover:bg-[color:var(--color-highlight)]"
+                >
+                  {item.title}
+                </CmsLink>
+              ))}
+            </div>
+            <Link className="btn btn-outline" href="/media">
+              <FaVideo aria-hidden />
+              Browse media
+            </Link>
+          </div>
+        </section>
+      ) : null}
     </main>
-  );
+  )
 }

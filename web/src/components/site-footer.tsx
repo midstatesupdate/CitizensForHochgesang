@@ -1,6 +1,6 @@
 import {CmsLink} from '@/components/cms-link'
 import type {SiteSettings} from '@/lib/cms/types'
-import {FaFacebook, FaGlobe, FaYoutube} from 'react-icons/fa'
+import {FaDonate, FaFacebook, FaGlobe, FaHandsHelping, FaYoutube} from 'react-icons/fa'
 
 type SiteFooterProps = {
   settings: SiteSettings
@@ -16,6 +16,20 @@ export function SiteFooter({settings}: SiteFooterProps) {
           <p className="font-semibold text-[color:var(--color-ink)]">{settings.siteTitle}</p>
           <p>{settings.tagline}</p>
           {settings.contactEmail ? <p>Contact: {settings.contactEmail}</p> : null}
+          <div className="flex flex-wrap gap-3 pt-2">
+            {settings.donateUrl ? (
+              <CmsLink className="btn btn-accent btn-sm" href={settings.donateUrl}>
+                <FaDonate aria-hidden />
+                Donate
+              </CmsLink>
+            ) : null}
+            {settings.volunteerUrl ? (
+              <CmsLink className="btn btn-primary btn-sm" href={settings.volunteerUrl}>
+                <FaHandsHelping aria-hidden />
+                Volunteer
+              </CmsLink>
+            ) : null}
+          </div>
         </div>
 
         <div className="space-y-2">
@@ -62,6 +76,11 @@ export function SiteFooter({settings}: SiteFooterProps) {
             ))}
           </ul>
         </div>
+      </div>
+
+      {/* Legal disclaimer — required by Indiana campaign finance law */}
+      <div className="border-t border-[color:var(--color-border)] py-4 text-center text-xs text-[color:var(--color-muted)]">
+        Paid for by Citizens For Hochgesang
       </div>
     </footer>
   )

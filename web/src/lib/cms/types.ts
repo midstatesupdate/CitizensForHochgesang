@@ -157,6 +157,17 @@ export type SiteSettings = {
     href: string
     icon?: IconName
   }>
+  // "Why I'm Running" section
+  homeWhyRunningHeading?: string
+  homeWhyRunningBody?: PostBodyNode[]
+  homeWhyRunningImageUrl?: string
+  // "Proof / Credibility" section
+  homeProofHeading?: string
+  homeProofStats?: Array<{ value: string; label: string }>
+  homeProofBody?: string
+  // Mid-page CTA
+  homeMidCtaHeading?: string
+  homeMidCtaCopy?: string
   pressUpdatedAt?: string
   donateUrl?: string
   volunteerUrl?: string

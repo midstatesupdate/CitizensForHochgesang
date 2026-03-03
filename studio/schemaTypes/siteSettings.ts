@@ -88,6 +88,7 @@ export const siteSettings = defineType({
     {name: 'pages', title: 'Page Visibility'},
     {name: 'hero', title: 'Home Hero'},
     {name: 'homeCards', title: 'Home Cards'},
+    {name: 'proof', title: 'Proof & Credibility'},
     {name: 'campaignMeta', title: 'Campaign Meta'},
     {name: 'contact', title: 'Contact & Social'},
   ],
@@ -402,7 +403,6 @@ export const siteSettings = defineType({
               options: {
                 list: iconOptions,
                 layout: 'dropdown',
-                layout: 'dropdown',
               },
             }),
             defineField({
@@ -431,6 +431,98 @@ export const siteSettings = defineType({
       of: [{type: 'string'}],
       description: 'Bullet list shown with the hero text.',
       validation: (Rule) => Rule.max(8),
+    }),
+    // --- "Why I'm Running" section ---
+    defineField({
+      name: 'homeWhyRunningHeading',
+      title: '"Why I\'m Running" Heading',
+      type: 'string',
+      group: 'hero',
+      initialValue: "Why I'm Running",
+      validation: (Rule) => Rule.max(80),
+    }),
+    defineField({
+      name: 'homeWhyRunningBody',
+      title: '"Why I\'m Running" Body',
+      type: 'array',
+      group: 'hero',
+      description: 'Personal narrative section shown below hero. Supports rich text.',
+      of: [{type: 'block'}, {type: 'image', options: {hotspot: true}}],
+    }),
+    defineField({
+      name: 'homeWhyRunningImage',
+      title: '"Why I\'m Running" Image',
+      type: 'image',
+      group: 'hero',
+      options: {hotspot: true},
+      description: 'Optional photo for the Why I\'m Running section.',
+    }),
+    // --- "Proof / Credibility" section ---
+    defineField({
+      name: 'homeProofHeading',
+      title: 'Proof Section Heading',
+      type: 'string',
+      group: 'proof',
+      initialValue: "I didn't wait to run for office to start fighting for you.",
+      validation: (Rule) => Rule.max(160),
+    }),
+    defineField({
+      name: 'homeProofStats',
+      title: 'Proof Stats',
+      type: 'array',
+      group: 'proof',
+      description: 'Up to 4 stat callouts (e.g. "81%" / "of Dubois County voters oppose MSC").',
+      validation: (Rule) => Rule.max(4),
+      of: [
+        {
+          type: 'object',
+          fields: [
+            defineField({
+              name: 'value',
+              title: 'Value',
+              type: 'string',
+              validation: (Rule) => Rule.required().max(16),
+            }),
+            defineField({
+              name: 'label',
+              title: 'Label',
+              type: 'string',
+              validation: (Rule) => Rule.required().max(120),
+            }),
+          ],
+          preview: {
+            select: {title: 'value', subtitle: 'label'},
+          },
+        },
+      ],
+    }),
+    defineField({
+      name: 'homeProofBody',
+      title: 'Proof Supporting Paragraph',
+      type: 'text',
+      group: 'proof',
+      rows: 4,
+      description: 'Supporting paragraph below the stats.',
+      validation: (Rule) => Rule.max(500),
+    }),
+    // --- Mid-page CTA ---
+    defineField({
+      name: 'homeMidCtaHeading',
+      title: 'Mid-Page CTA Heading',
+      type: 'string',
+      group: 'homeCards',
+      initialValue: 'Ready to help?',
+      validation: (Rule) => Rule.max(80),
+    }),
+    defineField({
+      name: 'homeMidCtaCopy',
+      title: 'Mid-Page CTA Copy',
+      type: 'text',
+      group: 'homeCards',
+      rows: 2,
+      initialValue:
+        'This campaign runs on people, not PACs. Every dollar and every door knock makes a difference.',
+      validation: (Rule) => Rule.max(200),
     }),
     defineField({
       name: 'homeSectionCards',

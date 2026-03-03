@@ -82,27 +82,7 @@ export function SiteNav({items, pageVisibility}: SiteNavProps) {
 
   return (
     <nav aria-label="Primary" className="site-nav z-[90] text-sm font-semibold">
-      <div className="hidden items-center gap-3 lg:flex">
-        {navItems.map((item) => {
-          const active = isActivePath(pathname, item.href)
-          const Icon = resolveCmsIcon(item.icon, FaNewspaper)
-
-          return (
-            <CmsLink
-              key={item.href}
-              href={item.href}
-              className={`nav-link ${active ? 'nav-link-active' : ''}`}
-              aria-current={active ? 'page' : undefined}
-            >
-              <Icon aria-hidden className="mr-1 inline-block" />
-              {item.label}
-            </CmsLink>
-          )
-        })}
-        <ThemeToggle />
-      </div>
-
-      <div className="flex items-center gap-2 lg:hidden">
+      <div className="flex items-center gap-2">
         <ThemeToggle />
         <button
           type="button"
@@ -118,7 +98,7 @@ export function SiteNav({items, pageVisibility}: SiteNavProps) {
       </div>
 
       {mobileOpen ? (
-        <div id="mobile-primary-nav" className="site-nav-mobile-panel lg:hidden">
+        <div id="mobile-primary-nav" className="site-nav-mobile-panel">
           {navItems.map((item) => {
             const active = isActivePath(pathname, item.href)
             const Icon = resolveCmsIcon(item.icon, FaNewspaper)
