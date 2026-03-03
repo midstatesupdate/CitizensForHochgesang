@@ -20,7 +20,8 @@
     "seed:news-layout-samples": "sanity exec scripts/seed-news-layout-samples.ts --with-user-token",
     "normalize:site-settings": "sanity exec scripts/normalize-site-settings.ts --with-user-token",
     "set:temp-portrait": "sanity exec scripts/set-temp-portrait.ts --with-user-token",
-    "seed:homepage-blueprint": "sanity exec scripts/seed-homepage-blueprint.ts --with-user-token"
+    "seed:homepage-blueprint": "sanity exec scripts/seed-homepage-blueprint.ts --with-user-token",
+    "seed:production": "sanity exec scripts/seed-production-content.ts --with-user-token"
   },
   "keywords": [
     "sanity"

@@ -20,6 +20,7 @@ export const mediaLink = defineType({
           {title: 'YouTube', value: 'youtube'},
           {title: 'Facebook', value: 'facebook'},
           {title: 'Audio', value: 'audio'},
+          {title: 'Press / News Article', value: 'other'},
         ],
         layout: 'radio',
       },

@@ -93,6 +93,7 @@ export function EventsFeed({events}: EventsFeedProps) {
   const [tagQuery, setTagQuery] = useState('')
   const [sortMode, setSortMode] = useState<SortMode>('soonest')
   const [visibleCount, setVisibleCount] = useState(6)
+  const [showPast, setShowPast] = useState(false)
   const sentinelRef = useRef<HTMLDivElement | null>(null)
 
   const applyTagFilter = (tag: string | null) => {
@@ -172,10 +173,13 @@ export function EventsFeed({events}: EventsFeedProps) {
     [events]
   )
 
-  const filteredAndSortedEvents = useMemo(() => {
-    const filtered = selectedTag
-      ? preparedEvents.filter((event) => event.tags.some((tag) => tag.toLowerCase() === selectedTag.toLowerCase()))
-      : preparedEvents
+  // Upcoming events — sorted by selected sort mode (default: soonest first)
+  const filteredUpcoming = useMemo(() => {
+    const filtered = preparedEvents.filter(
+      (event) =>
+        !event.isPassed &&
+        (!selectedTag || event.tags.some((tag) => tag.toLowerCase() === selectedTag.toLowerCase())),
+    )
 
     const sorted = [...filtered]
     if (sortMode === 'soonest') {
@@ -185,9 +189,18 @@ export function EventsFeed({events}: EventsFeedProps) {
     } else {
       sorted.sort((a, b) => a.title.localeCompare(b.title))
     }
-
     return sorted
   }, [preparedEvents, selectedTag, sortMode])
+
+  // Past events — always most-recent-first
+  const filteredPast = useMemo(() => {
+    const filtered = preparedEvents.filter(
+      (event) =>
+        event.isPassed &&
+        (!selectedTag || event.tags.some((tag) => tag.toLowerCase() === selectedTag.toLowerCase())),
+    )
+    return [...filtered].sort((a, b) => Date.parse(b.startDate) - Date.parse(a.startDate))
+  }, [preparedEvents, selectedTag])
 
   useEffect(() => {
     const sentinel = sentinelRef.current
@@ -195,7 +208,7 @@ export function EventsFeed({events}: EventsFeedProps) {
       return
     }
 
-    if (visibleCount >= filteredAndSortedEvents.length) {
+    if (visibleCount >= filteredUpcoming.length) {
       return
     }
 
@@ -203,7 +216,7 @@ export function EventsFeed({events}: EventsFeedProps) {
       (entries) => {
         const [entry] = entries
         if (entry?.isIntersecting) {
-          setVisibleCount((current) => Math.min(current + 4, filteredAndSortedEvents.length))
+          setVisibleCount((current) => Math.min(current + 4, filteredUpcoming.length))
         }
       },
       {rootMargin: '240px 0px'}
@@ -211,12 +224,13 @@ export function EventsFeed({events}: EventsFeedProps) {
 
     observer.observe(sentinel)
     return () => observer.disconnect()
-  }, [filteredAndSortedEvents.length, visibleCount])
+  }, [filteredUpcoming.length, visibleCount])
 
-  const visibleEvents = filteredAndSortedEvents.slice(0, visibleCount)
+  const visibleUpcoming = filteredUpcoming.slice(0, visibleCount)
 
   return (
     <section className="grid gap-6">
+      {/* Filter / sort bar */}
       <div className="flex items-start gap-3 rounded-2xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)]/70 p-4">
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
           <span className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--color-muted)]">Filter tags</span>
@@ -268,103 +282,160 @@ export function EventsFeed({events}: EventsFeedProps) {
         </label>
       </div>
 
-      {visibleEvents.map((event) => {
-        const layoutClass = LAYOUT_CLASSNAMES[event.layout] ?? LAYOUT_CLASSNAMES.stacked
-        const animationClass = ANIMATION_CLASSNAMES[event.animation] ?? ANIMATION_CLASSNAMES['fade-up']
-        const showMedia = event.layout !== 'no-photo' && !!event.scheduleImageUrl
-        // Prefer the event details anchor route so each card has a drill-down destination.
-        const detailHref = event.slug ? `/events/details#${encodeURIComponent(event.slug)}` : null
-        // Fall back to RSVP-only behavior if no slug is available.
-        const primaryHref = detailHref ?? event.rsvpLink ?? null
+      {/* Upcoming events */}
+      {filteredUpcoming.length === 0 ? (
+        <p className="text-sm text-[color:var(--color-muted)]">No upcoming events{selectedTag ? ` tagged "${selectedTag}"` : ''}.</p>
+      ) : (
+        visibleUpcoming.map((event) => <EventCard key={event.id} event={event} selectedTag={selectedTag} onTagClick={applyTagFilter} />)
+      )}
 
-        return (
-          <article key={event.id} className={`card article-card news-card ${layoutClass} ${animationClass}`}>
-            <div className="news-card-content-wrap">
-              {showMedia ? (
-                primaryHref ? (
-                  <CmsLink
-                    href={primaryHref}
-                    className={`card-media news-card-media ${event.ratio.className} ${event.isWidescreen ? 'news-card-media-widescreen' : ''} ${event.isTallPortrait ? 'news-card-media-tall-portrait' : ''}`}
-                    aria-label={`View ${event.title}`}
-                  >
-                    <Image
-                      src={event.scheduleImageUrl!}
-                      alt={`${event.title} event image`}
-                      width={event.ratio.width}
-                      height={event.ratio.height}
-                      className="h-full w-full object-cover"
-                      unoptimized
-                    />
-                  </CmsLink>
-                ) : (
-                  <div
-                    className={`card-media news-card-media ${event.ratio.className} ${event.isWidescreen ? 'news-card-media-widescreen' : ''} ${event.isTallPortrait ? 'news-card-media-tall-portrait' : ''}`}
-                  >
-                    <Image
-                      src={event.scheduleImageUrl!}
-                      alt={`${event.title} event image`}
-                      width={event.ratio.width}
-                      height={event.ratio.height}
-                      className="h-full w-full object-cover"
-                      unoptimized
-                    />
-                  </div>
-                )
-              ) : null}
-
-              <div className="news-card-copy">
-                <p className="article-meta text-xs font-semibold uppercase tracking-[0.3em] text-[color:var(--color-muted)]">
-                  {formatDateTime(event.startDate)}
-                </p>
-                {event.isPassed ? (
-                  <p className="event-status-badge" aria-label="This event has passed">
-                    Passed
-                  </p>
-                ) : null}
-                <h2 className="article-title text-2xl font-semibold text-[color:var(--color-ink)]">
-                  {primaryHref ? (
-                    <CmsLink className="article-title-link" href={primaryHref}>
-                      {event.title}
-                    </CmsLink>
-                  ) : (
-                    event.title
-                  )}
-                </h2>
-                <p className="text-sm font-semibold text-[color:var(--color-ink)]">{event.location}</p>
-                {event.previewText ? <p className="news-excerpt text-sm text-[color:var(--color-muted)]">{event.previewText}</p> : null}
-
-                {event.tags.length > 0 ? (
-                  <ul className="flex flex-wrap gap-2">
-                    {event.tags.map((tag) => (
-                      <li key={`${event.id}-${tag}`}>
-                        <button
-                          type="button"
-                          onClick={() => applyTagFilter(tag)}
-                          className={`pill-badge ${selectedTag === tag ? 'pill-badge-active' : ''}`}
-                        >
-                          {tag}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                ) : null}
-
-                {event.rsvpLink ? (
-                  <p className="article-inline-cta text-sm font-semibold">
-                    <CmsLink className="article-inline-link" href={event.rsvpLink}>
-                      RSVP →
-                    </CmsLink>
-                  </p>
-                ) : null}
-              </div>
-            </div>
-          </article>
-        )
-      })}
-
-      {visibleCount < filteredAndSortedEvents.length ? (
+      {/* Infinite scroll sentinel for upcoming events */}
+      {visibleCount < filteredUpcoming.length ? (
         <div ref={sentinelRef} className="h-10 w-full" aria-hidden="true" />
       ) : null}
+
+      {/* Past events toggle */}
+      {filteredPast.length > 0 ? (
+        <div className="flex flex-col gap-6">
+          <div className="flex items-center gap-4">
+            <div className="h-px flex-1 bg-[color:var(--color-border)]" />
+            <button
+              type="button"
+              onClick={() => setShowPast((v) => !v)}
+              className="pill-badge shrink-0"
+            >
+              {showPast
+                ? 'Hide past events'
+                : `Show ${filteredPast.length} past event${filteredPast.length === 1 ? '' : 's'}`}
+            </button>
+            <div className="h-px flex-1 bg-[color:var(--color-border)]" />
+          </div>
+
+          {showPast
+            ? filteredPast.map((event) => (
+                <EventCard key={event.id} event={event} selectedTag={selectedTag} onTagClick={applyTagFilter} />
+              ))
+            : null}
+        </div>
+      ) : null}
     </section>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// EventCard — extracted to avoid repetition in both sections
+// ---------------------------------------------------------------------------
+
+type EventCardProps = {
+  event: {
+    id: string
+    title: string
+    slug?: string
+    startDate: string
+    location: string
+    rsvpLink?: string
+    ratio: {width: number; height: number; className: string}
+    layout: string
+    animation: string
+    scheduleImageUrl?: string
+    isWidescreen: boolean
+    isTallPortrait: boolean
+    previewText: string | null
+    tags: string[]
+    isPassed: boolean
+  }
+  selectedTag: string | null
+  onTagClick: (tag: string) => void
+}
+
+function EventCard({event, selectedTag, onTagClick}: EventCardProps) {
+  const layoutClass = LAYOUT_CLASSNAMES[event.layout] ?? LAYOUT_CLASSNAMES.stacked
+  const animationClass = ANIMATION_CLASSNAMES[event.animation] ?? ANIMATION_CLASSNAMES['fade-up']
+  const showMedia = event.layout !== 'no-photo' && !!event.scheduleImageUrl
+  const detailHref = event.slug ? `/events/details#${encodeURIComponent(event.slug)}` : null
+  const primaryHref = detailHref ?? event.rsvpLink ?? null
+
+  return (
+    <article className={`card article-card news-card ${layoutClass} ${animationClass}`}>
+      <div className="news-card-content-wrap">
+        {showMedia ? (
+          primaryHref ? (
+            <CmsLink
+              href={primaryHref}
+              className={`card-media news-card-media ${event.ratio.className} ${event.isWidescreen ? 'news-card-media-widescreen' : ''} ${event.isTallPortrait ? 'news-card-media-tall-portrait' : ''}`}
+              aria-label={`View ${event.title}`}
+            >
+              <Image
+                src={event.scheduleImageUrl!}
+                alt={`${event.title} event image`}
+                width={event.ratio.width}
+                height={event.ratio.height}
+                className="h-full w-full object-cover"
+                unoptimized
+              />
+            </CmsLink>
+          ) : (
+            <div
+              className={`card-media news-card-media ${event.ratio.className} ${event.isWidescreen ? 'news-card-media-widescreen' : ''} ${event.isTallPortrait ? 'news-card-media-tall-portrait' : ''}`}
+            >
+              <Image
+                src={event.scheduleImageUrl!}
+                alt={`${event.title} event image`}
+                width={event.ratio.width}
+                height={event.ratio.height}
+                className="h-full w-full object-cover"
+                unoptimized
+              />
+            </div>
+          )
+        ) : null}
+
+        <div className="news-card-copy">
+          <p className="article-meta text-xs font-semibold uppercase tracking-[0.3em] text-[color:var(--color-muted)]">
+            {formatDateTime(event.startDate)}
+          </p>
+          {event.isPassed ? (
+            <p className="event-status-badge" aria-label="This event has passed">
+              Passed
+            </p>
+          ) : null}
+          <h2 className="article-title text-2xl font-semibold text-[color:var(--color-ink)]">
+            {primaryHref ? (
+              <CmsLink className="article-title-link" href={primaryHref}>
+                {event.title}
+              </CmsLink>
+            ) : (
+              event.title
+            )}
+          </h2>
+          <p className="text-sm font-semibold text-[color:var(--color-ink)]">{event.location}</p>
+          {event.previewText ? <p className="news-excerpt text-sm text-[color:var(--color-muted)]">{event.previewText}</p> : null}
+
+          {event.tags.length > 0 ? (
+            <ul className="flex flex-wrap gap-2">
+              {event.tags.map((tag) => (
+                <li key={`${event.id}-${tag}`}>
+                  <button
+                    type="button"
+                    onClick={() => onTagClick(tag)}
+                    className={`pill-badge ${selectedTag === tag ? 'pill-badge-active' : ''}`}
+                  >
+                    {tag}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+
+          {event.rsvpLink ? (
+            <p className="article-inline-cta text-sm font-semibold">
+              <CmsLink className="article-inline-link" href={event.rsvpLink}>
+                RSVP →
+              </CmsLink>
+            </p>
+          ) : null}
+        </div>
+      </div>
+    </article>
   )
 }

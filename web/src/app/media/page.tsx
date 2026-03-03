@@ -13,6 +13,7 @@ function getTypeLabel(mediaType: string): string {
   if (mediaType === 'youtube') return 'YouTube'
   if (mediaType === 'facebook') return 'Facebook'
   if (mediaType === 'audio') return 'Audio'
+  if (mediaType === 'other') return 'Press / News'
   return 'Media'
 }
 

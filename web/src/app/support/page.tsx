@@ -112,9 +112,12 @@ export default async function SupportPage() {
           <p className="eyebrow">Ways To Help</p>
           <h2 className="section-title">How voters can get involved</h2>
           <ul className="grid gap-2 text-sm text-[color:var(--color-muted)]">
-            <li className="rounded-2xl border border-[color:var(--color-border)] px-4 py-3">Host a neighborhood meet-and-greet</li>
-            <li className="rounded-2xl border border-[color:var(--color-border)] px-4 py-3">Share campaign updates with friends and family</li>
-            <li className="rounded-2xl border border-[color:var(--color-border)] px-4 py-3">Help with event logistics and voter outreach</li>
+            <li className="rounded-2xl border border-[color:var(--color-border)] px-4 py-3">Host a house party or neighborhood meet-and-greet</li>
+            <li className="rounded-2xl border border-[color:var(--color-border)] px-4 py-3">Knock doors or make calls during voter contact drives</li>
+            <li className="rounded-2xl border border-[color:var(--color-border)] px-4 py-3">Share campaign posts and articles with friends and family</li>
+            <li className="rounded-2xl border border-[color:var(--color-border)] px-4 py-3">Attend town halls and county council meetings — numbers matter</li>
+            <li className="rounded-2xl border border-[color:var(--color-border)] px-4 py-3">Help at campaign events — setup, registration, logistics</li>
+            <li className="rounded-2xl border border-[color:var(--color-border)] px-4 py-3">Donate to fund field operations across all six counties</li>
           </ul>
         </article>
       </section>
