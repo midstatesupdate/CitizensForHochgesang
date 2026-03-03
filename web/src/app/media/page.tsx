@@ -1,7 +1,7 @@
 import {CmsLink} from '@/components/cms-link'
 import {formatDate} from '@/lib/cms/format'
 import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-visuals'
-import {getMediaLinks, getPageVisualSettings, getRecentPosts, getSiteSettings, getUpcomingEvents, assertPageEnabled} from '@/lib/cms/repository'
+import {assertPageEnabled, getMediaLinks, getMediaSettings, getPageVisualSettings, getRecentPosts, getSiteSettings, getUpcomingEvents} from '@/lib/cms/repository'
 import Image from 'next/image'
 
 export const metadata = {
@@ -22,17 +22,18 @@ function getTypeLabel(mediaType: string): string {
 
 export default async function MediaPage() {
   await assertPageEnabled('media')
-  const [mediaLinks, settings, posts, events, pageVisualSettings] = await Promise.all([
+  const [mediaLinks, settings, mediaSettings, posts, events, pageVisualSettings] = await Promise.all([
     getMediaLinks(),
     getSiteSettings(),
+    getMediaSettings(),
     getRecentPosts(4),
     getUpcomingEvents(),
     getPageVisualSettings('media'),
   ])
 
-  const pageHeading = settings.mediaPageHeading?.trim() || 'Media coverage and press resources'
-  const pageIntro = settings.mediaPageIntro?.trim() || 'Watch and share campaign coverage, access official assets, and contact the team for media requests.'
-  const contactIntro = settings.mediaContactIntro?.trim() || 'For interviews, deadlines, and publication requests.'
+  const pageHeading = mediaSettings.pageHeading?.trim() || 'Media coverage and press resources'
+  const pageIntro = mediaSettings.pageIntro?.trim() || 'Watch and share campaign coverage, access official assets, and contact the team for media requests.'
+  const contactIntro = mediaSettings.contactIntro?.trim() || 'For interviews, deadlines, and publication requests.'
 
   return (
     <main className={getPageShellClasses(pageVisualSettings)} {...getPageShellDataAttributes(pageVisualSettings)}>
@@ -46,11 +47,11 @@ export default async function MediaPage() {
         <article className="card article-card flex flex-col gap-4">
           <h2 className="text-xl font-semibold text-[color:var(--color-ink)]">Media contact</h2>
           <p className="text-sm text-[color:var(--color-muted)]">{contactIntro}</p>
-          {settings.mediaContactName ? (
+          {mediaSettings.contactName ? (
             <p className="text-sm font-semibold text-[color:var(--color-ink)]">
-              {settings.mediaContactName}
-              {settings.mediaContactTitle ? (
-                <span className="ml-1 font-normal text-[color:var(--color-muted)]">— {settings.mediaContactTitle}</span>
+              {mediaSettings.contactName}
+              {mediaSettings.contactTitle ? (
+                <span className="ml-1 font-normal text-[color:var(--color-muted)]">— {mediaSettings.contactTitle}</span>
               ) : null}
             </p>
           ) : null}
@@ -64,8 +65,8 @@ export default async function MediaPage() {
           ) : (
             <p className="text-sm text-[color:var(--color-muted)]">Contact email pending publication in Site Settings.</p>
           )}
-          {settings.mediaContactPhone ? (
-            <p className="text-sm text-[color:var(--color-muted)]">{settings.mediaContactPhone}</p>
+          {mediaSettings.contactPhone ? (
+            <p className="text-sm text-[color:var(--color-muted)]">{mediaSettings.contactPhone}</p>
           ) : null}
           <p className="text-sm text-[color:var(--color-muted)]">Please include your deadline and publication details in the initial request.</p>
         </article>
@@ -91,9 +92,9 @@ export default async function MediaPage() {
           ) : (
             <p className="text-sm text-[color:var(--color-muted)]">Campaign logo not published in site settings yet.</p>
           )}
-          {settings.pressAssetLinks.length > 0 ? (
+          {mediaSettings.pressAssetLinks.length > 0 ? (
             <div className="grid gap-2 text-sm">
-              {settings.pressAssetLinks.map((link) => (
+              {mediaSettings.pressAssetLinks.map((link) => (
                 <CmsLink key={link.url} className="link-soft" href={link.url}>
                   {link.label}
                 </CmsLink>

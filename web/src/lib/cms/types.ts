@@ -185,13 +185,15 @@ export type SiteSettings = {
   contactEmail?: string
   socialLinks: SocialLink[]
   pageVisibility?: PageVisibility
-  // Media & Press page
-  mediaPageHeading?: string
-  mediaPageIntro?: string
-  mediaContactIntro?: string
-  mediaContactName?: string
-  mediaContactTitle?: string
-  mediaContactPhone?: string
+}
+
+export type MediaSettings = {
+  pageHeading?: string
+  pageIntro?: string
+  contactIntro?: string
+  contactName?: string
+  contactTitle?: string
+  contactPhone?: string
   pressAssetLinks: Array<{label: string; url: string}>
 }
 

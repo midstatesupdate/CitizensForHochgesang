@@ -16,7 +16,21 @@ export const deskStructure: StructureResolver = (S) =>
       S.divider(),
       S.listItem().title('Posts').child(S.documentTypeList('post')),
       S.listItem().title('Events').child(S.documentTypeList('event')),
-      S.listItem().title('Media Links').child(S.documentTypeList('mediaLink')),
+      S.listItem()
+        .title('Media & Press')
+        .child(
+          S.list()
+            .title('Media & Press')
+            .items([
+              S.listItem()
+                .title('Page Settings')
+                .child(S.document().schemaType('mediaSettings').documentId('mediaSettings')),
+              S.divider(),
+              S.listItem()
+                .title('Media Links')
+                .child(S.documentTypeList('mediaLink')),
+            ]),
+        ),
       S.listItem().title('Fundraising Links').child(S.documentTypeList('fundraisingLink')),
       S.divider(),
       S.listItem()
