@@ -13,8 +13,6 @@ type PriorityDetailPageProps = {
 }
 
 export async function generateStaticParams() {
-  const {pageVisibility} = await getSiteSettings()
-  if (!isPageEnabled(pageVisibility, 'platform')) return []
   const about = await getAboutPriorities()
   return about.priorities.map((priority) => ({slug: priority.slug}))
 }

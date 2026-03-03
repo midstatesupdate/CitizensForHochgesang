@@ -15,8 +15,6 @@ type PostPageProps = {
 }
 
 export async function generateStaticParams() {
-  const {pageVisibility} = await getSiteSettings()
-  if (!isPageEnabled(pageVisibility, 'news')) return []
   const posts = await getAllPosts()
   return posts.map((post) => ({slug: post.slug}))
 }
