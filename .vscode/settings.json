@@ -1,6 +1,10 @@
 {
     "chat.tools.terminal.autoApprove": {
         "pnpm": true,
-        "npx sanity": true
+        "npx sanity": true,
+        "git stash": true,
+        "git checkout": true,
+        "Push-Location": true,
+        "Pop-Location": true
     }
 }

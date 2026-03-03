@@ -630,6 +630,15 @@ export const siteSettings = defineType({
               type: 'datetime',
               description:
                 'Timer disappears after this date. If blank, expires when the target date passes. Set a later date to show the "expired" message after the target.',
+              validation: (Rule) =>
+                Rule.custom((expireDate, context) => {
+                  if (!expireDate) return true
+                  const parent = context?.parent as {targetDate?: string} | undefined
+                  if (!parent?.targetDate) return true
+                  return new Date(expireDate) >= new Date(parent.targetDate)
+                    ? true
+                    : 'Expire date must be on or after the target date.'
+                }),
             }),
             defineField({
               name: 'body',
