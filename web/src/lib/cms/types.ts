@@ -117,6 +117,15 @@ export type SanityImageSource = {
   }
 }
 
+export type CountdownTimer = {
+  enabled?: boolean
+  heading?: string
+  targetDate?: string | null
+  expireDate?: string | null
+  body?: PostBodyNode[]
+  expiredBody?: PostBodyNode[]
+}
+
 export type SiteSettings = {
   siteTitle: string
   tagline: string
@@ -168,6 +177,8 @@ export type SiteSettings = {
   // Mid-page CTA
   homeMidCtaHeading?: string
   homeMidCtaCopy?: string
+  // Election Countdown timers
+  countdownTimers: CountdownTimer[]
   pressUpdatedAt?: string
   donateUrl?: string
   volunteerUrl?: string

@@ -150,6 +150,14 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     homeProofBody,
     homeMidCtaHeading,
     homeMidCtaCopy,
+    "countdownTimers": coalesce(countdownTimers[]{
+      enabled,
+      heading,
+      targetDate,
+      expireDate,
+      body[]{ ... },
+      expiredBody[]{ ... }
+    }, []),
     pressUpdatedAt,
     donateUrl,
     volunteerUrl,

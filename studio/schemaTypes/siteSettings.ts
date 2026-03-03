@@ -89,6 +89,7 @@ export const siteSettings = defineType({
     {name: 'hero', title: 'Home Hero'},
     {name: 'homeCards', title: 'Home Cards'},
     {name: 'proof', title: 'Proof & Credibility'},
+    {name: 'countdown', title: 'Election Countdown'},
     {name: 'campaignMeta', title: 'Campaign Meta'},
     {name: 'contact', title: 'Contact & Social'},
   ],
@@ -447,7 +448,15 @@ export const siteSettings = defineType({
       type: 'array',
       group: 'hero',
       description: 'Personal narrative section shown below hero. Supports rich text.',
-      of: [{type: 'block'}, {type: 'image', options: {hotspot: true}}],
+      of: [
+        {type: 'block'},
+        {type: 'image', options: {hotspot: true}},
+        {type: 'htmlEmbed'},
+        {type: 'videoEmbed'},
+        {type: 'ctaButton'},
+        {type: 'pullQuote'},
+        {type: 'infoBox'},
+      ],
     }),
     defineField({
       name: 'homeWhyRunningImage',
@@ -578,6 +587,88 @@ export const siteSettings = defineType({
               initialValue: 'newspaper',
             }),
           ],
+        },
+      ],
+    }),
+    // --- Election Countdown Timers ---
+    defineField({
+      name: 'countdownTimers',
+      title: 'Countdown Timers',
+      type: 'array',
+      group: 'countdown',
+      description:
+        'Add multiple countdown clocks. The timer with the nearest non-expired expire date displays by default. Expired timers show the "expired" message until their expire date passes.',
+      of: [
+        {
+          type: 'object',
+          title: 'Timer',
+          fields: [
+            defineField({
+              name: 'enabled',
+              title: 'Enabled',
+              type: 'boolean',
+              initialValue: true,
+              description: 'Disable to hide this timer without deleting it.',
+            }),
+            defineField({
+              name: 'heading',
+              title: 'Heading',
+              type: 'string',
+              validation: (Rule) => Rule.required().max(80),
+              description: 'Displayed above the clock (e.g. "Election Day", "Rally Countdown").',
+            }),
+            defineField({
+              name: 'targetDate',
+              title: 'Target Date',
+              type: 'datetime',
+              validation: (Rule) => Rule.required(),
+              description: 'The date/time to count down to.',
+            }),
+            defineField({
+              name: 'expireDate',
+              title: 'Expire Date',
+              type: 'datetime',
+              description:
+                'Timer disappears after this date. If blank, expires when the target date passes. Set a later date to show the "expired" message after the target.',
+            }),
+            defineField({
+              name: 'body',
+              title: 'Body',
+              type: 'array',
+              description: 'Rich text below the active clock. Supports links and HTML embeds.',
+              of: [
+                {type: 'block'},
+                {type: 'htmlEmbed'},
+                {type: 'videoEmbed'},
+                {type: 'ctaButton'},
+                {type: 'pullQuote'},
+                {type: 'infoBox'},
+              ],
+            }),
+            defineField({
+              name: 'expiredBody',
+              title: 'Expired Message',
+              type: 'array',
+              description:
+                'Rich text shown when the target date has passed but the timer has not expired. E.g. "The event has started!" or "Polls are open — go vote!"',
+              of: [
+                {type: 'block'},
+                {type: 'htmlEmbed'},
+                {type: 'videoEmbed'},
+                {type: 'ctaButton'},
+                {type: 'pullQuote'},
+                {type: 'infoBox'},
+              ],
+            }),
+          ],
+          preview: {
+            select: {title: 'heading', subtitle: 'targetDate', enabled: 'enabled'},
+            prepare({title, subtitle, enabled}) {
+              const prefix = enabled === false ? '🚫 ' : ''
+              const date = subtitle ? new Date(subtitle).toLocaleDateString() : 'No date'
+              return {title: `${prefix}${title || '(untitled)'}`, subtitle: date}
+            },
+          },
         },
       ],
     }),

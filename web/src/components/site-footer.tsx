@@ -1,6 +1,21 @@
 import {CmsLink} from '@/components/cms-link'
-import type {SiteSettings} from '@/lib/cms/types'
+import {filterNavByVisibility} from '@/components/site-nav-visibility'
+import type {IconName, SiteSettings} from '@/lib/cms/types'
 import {FaDonate, FaFacebook, FaGlobe, FaHandsHelping, FaYoutube} from 'react-icons/fa'
+
+type NavItem = {
+  href: string
+  label: string
+  icon?: IconName
+}
+
+const defaultNavItems: NavItem[] = [
+  {href: '/news', label: 'News'},
+  {href: '/events', label: 'Events'},
+  {href: '/platform', label: 'About & Priorities'},
+  {href: '/media', label: 'Media & Press'},
+  {href: '/support', label: 'Support'},
+]
 
 type SiteFooterProps = {
   settings: SiteSettings
@@ -8,6 +23,11 @@ type SiteFooterProps = {
 
 export function SiteFooter({settings}: SiteFooterProps) {
   const contactHref = settings.contactEmail ? `mailto:${settings.contactEmail}` : '/support'
+  const sourceItems =
+    settings.headerNavItems && settings.headerNavItems.length > 0
+      ? settings.headerNavItems
+      : defaultNavItems
+  const exploreItems = filterNavByVisibility(sourceItems, settings.pageVisibility)
 
   return (
     <footer className="border-t border-[color:var(--color-border)] bg-[color:var(--color-surface)]">
@@ -32,36 +52,25 @@ export function SiteFooter({settings}: SiteFooterProps) {
           </div>
         </div>
 
-        <div className="space-y-2">
-          <p className="font-semibold text-[color:var(--color-ink)]">Explore</p>
-          <ul className="space-y-1">
-            <li>
-              <CmsLink className="link-soft" href="/news">
-                News
-              </CmsLink>
-            </li>
-            <li>
-              <CmsLink className="link-soft" href="/events">
-                Events
-              </CmsLink>
-            </li>
-            <li>
-              <CmsLink className="link-soft" href="/platform">
-                About & Priorities
-              </CmsLink>
-            </li>
-            <li>
-              <CmsLink className="link-soft" href="/media">
-                Media & Press
-              </CmsLink>
-            </li>
-            <li>
-              <CmsLink className="link-soft" href={contactHref}>
-                Contact Us
-              </CmsLink>
-            </li>
-          </ul>
-        </div>
+        {exploreItems.length > 0 && (
+          <div className="space-y-2">
+            <p className="font-semibold text-[color:var(--color-ink)]">Explore</p>
+            <ul className="space-y-1">
+              {exploreItems.map((item) => (
+                <li key={item.href}>
+                  <CmsLink className="link-soft" href={item.href}>
+                    {item.label}
+                  </CmsLink>
+                </li>
+              ))}
+              <li>
+                <CmsLink className="link-soft" href={contactHref}>
+                  Contact Us
+                </CmsLink>
+              </li>
+            </ul>
+          </div>
+        )}
 
         <div className="space-y-2 sm:justify-self-end sm:text-right">
           <p className="font-semibold text-[color:var(--color-ink)]">Follow</p>

@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import {FaBullhorn, FaCalendarAlt, FaHandsHelping, FaNewspaper, FaVideo, FaVoteYea} from 'react-icons/fa'
 
+import {ElectionCountdown} from '@/components/election-countdown'
 import {CmsLink} from '@/components/cms-link'
 import {MidPageCta} from '@/components/mid-page-cta'
 import {ProofSection} from '@/components/proof-section'
@@ -395,6 +396,8 @@ export default async function Home() {
           </div>
         </section>
       ) : null}
+      {/* ── 9. Election Countdown ── */}
+      <ElectionCountdown timers={settings.countdownTimers} />
     </main>
   )
 }

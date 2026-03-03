@@ -180,6 +180,7 @@ export const mockSiteSettings: SiteSettings = {
   homeMidCtaHeading: 'Ready to help?',
   homeMidCtaCopy:
     'This campaign runs on people, not PACs. Every dollar and every door knock makes a difference.',
+  countdownTimers: [],
   socialLinks: [
     {label: 'Facebook', url: 'https://www.facebook.com/bradhochesangforindianastatesenate'},
     {label: 'YouTube', url: 'https://www.youtube.com/'},

@@ -80,21 +80,25 @@ export function SiteNav({items, pageVisibility}: SiteNavProps) {
     pageVisibility,
   )
 
+  const hasItems = navItems.length > 0
+
   return (
     <nav aria-label="Primary" className="site-nav z-[90] text-sm font-semibold">
       <div className="flex items-center gap-2">
         <ThemeToggle />
-        <button
-          type="button"
-          className="icon-btn icon-btn-sm"
-          aria-expanded={mobileOpen}
-          aria-controls="mobile-primary-nav"
-          aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
-          title={mobileOpen ? 'Close menu' : 'Open menu'}
-          onClick={() => setMobileOpen((previous) => !previous)}
-        >
-          {mobileOpen ? <FaTimes aria-hidden /> : <FaBars aria-hidden />}
-        </button>
+        {hasItems && (
+          <button
+            type="button"
+            className="icon-btn icon-btn-sm"
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-primary-nav"
+            aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+            title={mobileOpen ? 'Close menu' : 'Open menu'}
+            onClick={() => setMobileOpen((previous) => !previous)}
+          >
+            {mobileOpen ? <FaTimes aria-hidden /> : <FaBars aria-hidden />}
+          </button>
+        )}
       </div>
 
       {mobileOpen ? (

@@ -2,6 +2,7 @@ import Image from 'next/image'
 import {PortableText, type PortableTextComponents} from '@portabletext/react'
 
 import {CmsLink} from '@/components/cms-link'
+import {sharedBlockTypes} from '@/components/portable-block-types'
 import type {PostBodyNode} from '@/lib/cms/types'
 
 type WhyRunningSectionProps = {
@@ -32,6 +33,13 @@ const whyRunningComponents: PortableTextComponents = {
           {children}
         </CmsLink>
       )
+    },
+  },
+  types: {
+    ...sharedBlockTypes,
+    htmlEmbed: ({value}: {value: {html?: string}}) => {
+      if (!value?.html) return null
+      return <div className="portable-html-embed" dangerouslySetInnerHTML={{__html: value.html}} />
     },
   },
 }

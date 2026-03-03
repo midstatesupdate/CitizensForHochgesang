@@ -839,6 +839,347 @@
     @apply mx-auto max-w-3xl text-sm leading-7 text-[color:var(--color-muted)];
   }
 
+  /* ── Election Countdown / Flip Clock ── */
+  .election-countdown {
+    @apply rounded-3xl py-10;
+    background: color-mix(in srgb, var(--color-surface) 70%, var(--color-canvas));
+    border: 1px solid var(--color-border);
+  }
+
+  .election-countdown-inner {
+    @apply mx-auto max-w-4xl px-6;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+    text-align: center;
+  }
+
+  .election-countdown-heading {
+    @apply text-xl font-semibold text-[color:var(--color-ink)] sm:text-2xl;
+    font-family: var(--font-display);
+  }
+
+  .election-countdown-subtext {
+    @apply text-sm text-[color:var(--color-muted)];
+    max-width: 28rem;
+  }
+
+  .election-countdown-body {
+    @apply text-sm text-[color:var(--color-muted)];
+    max-width: 32rem;
+  }
+
+  .election-countdown-body p {
+    margin: 0;
+  }
+
+  .countdown-link {
+    @apply underline text-[color:var(--color-accent)];
+    transition: opacity 0.15s ease;
+  }
+
+  .countdown-link:hover {
+    opacity: 0.8;
+  }
+
+  .countdown-html {
+    margin-top: 0.25rem;
+  }
+
+  /* ── Timer selector pills ── */
+  .countdown-selector {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.375rem;
+  }
+
+  .countdown-pill {
+    @apply rounded-full text-xs font-medium;
+    padding: 0.3rem 0.85rem;
+    border: 1px solid var(--color-border);
+    background: transparent;
+    color: var(--color-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .countdown-pill::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--color-accent);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .countdown-pill:hover {
+    border-color: var(--color-accent);
+    color: var(--color-ink);
+  }
+
+  .countdown-pill:hover::before {
+    opacity: 0.06;
+  }
+
+  .countdown-pill-active {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+    background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+    font-weight: 600;
+  }
+
+  .countdown-pill-active::before {
+    opacity: 0.08;
+  }
+
+  .countdown-pill-label {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Expired state ── */
+  .countdown-expired-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 0;
+  }
+
+  .countdown-expired-body {
+    @apply text-base text-[color:var(--color-ink)];
+    max-width: 32rem;
+    text-align: center;
+  }
+
+  .countdown-expired-body p {
+    margin: 0;
+  }
+
+  .flip-clock {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  @media (min-width: 640px) {
+    .flip-clock {
+      gap: 0.75rem;
+    }
+  }
+
+  .flip-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .flip-digits {
+    display: flex;
+    gap: 0.2rem;
+  }
+
+  .flip-label {
+    @apply text-[10px] font-semibold uppercase tracking-widest text-[color:var(--color-muted)] sm:text-xs;
+  }
+
+  .flip-separator {
+    @apply text-2xl font-bold text-[color:var(--color-accent)] sm:text-3xl;
+    line-height: 1;
+    margin-bottom: 1.5rem;
+  }
+
+  /* ── Flip digit container ── */
+  .flip-digit {
+    position: relative;
+    display: inline-block;
+    width: 1.75rem;
+    height: 2.5rem;
+    font-family: var(--font-mono);
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+    perspective: 16rem;
+  }
+
+  @media (min-width: 640px) {
+    .flip-digit {
+      width: 2.25rem;
+      height: 3.25rem;
+      font-size: 2rem;
+    }
+  }
+
+  /* ── Shared half-panel base ── */
+  .flip-upper,
+  .flip-lower,
+  .flip-flap-top,
+  .flip-flap-bot {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 50%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    color: var(--color-accent);
+    border: 1px solid var(--color-border);
+  }
+
+  /* ── Static upper half (always shows NEW digit) ── */
+  .flip-upper {
+    top: 0;
+    border-radius: 0.375rem 0.375rem 0 0;
+    border-bottom: none;
+    align-items: flex-end;
+    background: linear-gradient(
+      to bottom,
+      var(--color-surface),
+      color-mix(in srgb, var(--color-surface) 94%, black)
+    );
+  }
+
+  .flip-upper .flip-char {
+    transform: translateY(50%);
+  }
+
+  /* ── Static lower half (OLD digit during flip, NEW when settled) ── */
+  .flip-lower {
+    bottom: 0;
+    border-radius: 0 0 0.375rem 0.375rem;
+    border-top: 1px solid color-mix(in srgb, var(--color-border) 50%, transparent);
+    align-items: flex-start;
+    background: linear-gradient(
+      to top,
+      var(--color-surface),
+      color-mix(in srgb, var(--color-surface) 94%, black)
+    );
+  }
+
+  .flip-lower .flip-char {
+    transform: translateY(-50%);
+  }
+
+  /* ── Decorative hinge line ── */
+  .flip-hinge {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--color-border);
+    z-index: 20;
+    pointer-events: none;
+  }
+
+  /* ── Top flap (OLD digit, peels away to reveal upper half) ── */
+  .flip-flap-top {
+    top: 0;
+    border-radius: 0.375rem 0.375rem 0 0;
+    border-bottom: none;
+    align-items: flex-end;
+    background: linear-gradient(
+      to bottom,
+      var(--color-surface),
+      color-mix(in srgb, var(--color-surface) 94%, black)
+    );
+    transform-origin: bottom center;
+    z-index: 10;
+    will-change: transform;
+    animation: flap-peel 0.3s cubic-bezier(0.35, 0, 0.7, 0.2) forwards;
+  }
+
+  .flip-flap-top .flip-char {
+    transform: translateY(50%);
+  }
+
+  /* ── Bottom flap (NEW digit, folds down into place over lower half) ── */
+  .flip-flap-bot {
+    bottom: 0;
+    border-radius: 0 0 0.375rem 0.375rem;
+    border-top: 1px solid color-mix(in srgb, var(--color-border) 50%, transparent);
+    align-items: flex-start;
+    background: linear-gradient(
+      to top,
+      var(--color-surface),
+      color-mix(in srgb, var(--color-surface) 94%, black)
+    );
+    transform-origin: top center;
+    transform: rotateX(90deg);
+    z-index: 10;
+    will-change: transform;
+    animation: flap-land 0.3s cubic-bezier(0.3, 0.8, 0.65, 1) 0.3s forwards;
+  }
+
+  .flip-flap-bot .flip-char {
+    transform: translateY(-50%);
+  }
+
+  /* ── Flap shadows for 3D depth ── */
+  .flip-flap-top::after,
+  .flip-flap-bot::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
+  .flip-flap-top::after {
+    background: linear-gradient(to bottom, transparent 40%, rgba(0, 0, 0, 0.12));
+    opacity: 0;
+    animation: shadow-grow 0.3s ease-in forwards;
+  }
+
+  .flip-flap-bot::after {
+    background: linear-gradient(to top, transparent 40%, rgba(0, 0, 0, 0.12));
+    opacity: 1;
+    animation: shadow-shrink 0.3s ease-out 0.3s forwards;
+  }
+
+  /* ── Keyframes ── */
+  @keyframes flap-peel {
+    0% {
+      transform: rotateX(0deg);
+    }
+    100% {
+      transform: rotateX(-90deg);
+    }
+  }
+
+  @keyframes flap-land {
+    0% {
+      transform: rotateX(90deg);
+    }
+    100% {
+      transform: rotateX(0deg);
+    }
+  }
+
+  @keyframes shadow-grow {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes shadow-shrink {
+    0% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
   /* ── Mid-Page CTA ── */
   .mid-page-cta {
     @apply py-10;
@@ -1365,6 +1706,138 @@
     @apply overflow-hidden rounded-2xl border border-[color:var(--color-border)] bg-[color:var(--color-canvas)];
   }
 
+  /* ── Inline HTML embed (shared by all PortableText renderers) ── */
+  .portable-html-embed {
+    margin: 0.75rem 0;
+  }
+
+  /* ── Video Embed ── */
+  .video-embed {
+    margin: 1.5rem 0;
+  }
+  .video-embed-wrapper {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 */
+    height: 0;
+    overflow: hidden;
+    border-radius: 0.75rem;
+    background: var(--color-surface);
+  }
+  .video-embed-wrapper iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  .video-embed-link {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    background: var(--color-accent);
+    color: #fff;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .video-embed-caption {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--color-muted);
+    text-align: center;
+  }
+
+  /* ── CTA Button Block ── */
+  .cta-button-block {
+    margin: 1.25rem 0;
+    text-align: center;
+  }
+  .cta-btn {
+    display: inline-block;
+    padding: 0.75rem 2rem;
+    border-radius: 0.5rem;
+    font-weight: 700;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+  }
+  .cta-btn:hover {
+    opacity: 0.88;
+    transform: translateY(-1px);
+  }
+  .cta-btn-primary {
+    background: var(--color-accent);
+    color: #fff;
+  }
+  .cta-btn-outline {
+    background: transparent;
+    color: var(--color-accent);
+    box-shadow: inset 0 0 0 2px var(--color-accent);
+  }
+  .cta-btn-accent {
+    background: var(--color-highlight);
+    color: var(--color-ink);
+  }
+
+  /* ── Pull Quote ── */
+  .pull-quote {
+    margin: 2rem 0;
+    padding: 1.25rem 1.5rem;
+    border-left: 4px solid var(--color-accent);
+    background: var(--color-highlight);
+    border-radius: 0 0.75rem 0.75rem 0;
+  }
+  .pull-quote-text {
+    font-size: 1.15rem;
+    font-style: italic;
+    line-height: 1.7;
+    color: var(--color-ink);
+    margin: 0;
+  }
+  .pull-quote-attribution {
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-muted);
+  }
+
+  /* ── Info Box ── */
+  .info-box {
+    margin: 1.5rem 0;
+    padding: 1rem 1.25rem;
+    border-radius: 0.75rem;
+    border-left: 4px solid;
+  }
+  .info-box-heading {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-size: 0.95rem;
+  }
+  .info-box-body {
+    margin: 0;
+    font-size: 0.92rem;
+    line-height: 1.6;
+  }
+  .info-box-info {
+    border-color: #3b82f6;
+    background: #3b82f610;
+    color: var(--color-ink);
+  }
+  .info-box-tip {
+    border-color: #22c55e;
+    background: #22c55e10;
+    color: var(--color-ink);
+  }
+  .info-box-warning {
+    border-color: #f59e0b;
+    background: #f59e0b10;
+    color: var(--color-ink);
+  }
+  .info-box-note {
+    border-color: var(--color-muted);
+    background: var(--color-surface);
+    color: var(--color-ink);
+  }
+
   .story-scene {
     @apply rounded-2xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)]/90 p-5;
     opacity: 0;
@@ -1685,7 +2158,11 @@
   .icon-btn,
   .pill-badge,
   .loading-bar,
-  .reveal {
+  .reveal,
+  .flip-flap-top,
+  .flip-flap-bot,
+  .flip-flap-top::after,
+  .flip-flap-bot::after {
     animation: none !important;
     transition: none !important;
   }
