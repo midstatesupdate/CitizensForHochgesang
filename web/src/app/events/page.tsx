@@ -1,6 +1,6 @@
 import {EventsFeed} from '@/components/events-feed'
 import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-visuals'
-import {assertPageEnabled, getPageVisualSettings, getUpcomingEvents} from '@/lib/cms/repository'
+import {assertPageEnabled, getAllEvents, getPageVisualSettings} from '@/lib/cms/repository'
 
 export const metadata = {
   title: 'Events | Brad Hochgesang for State Senate',
@@ -9,7 +9,7 @@ export const metadata = {
 
 export default async function EventsPage() {
   await assertPageEnabled('events')
-  const [events, pageVisualSettings] = await Promise.all([getUpcomingEvents(), getPageVisualSettings('events')])
+  const [events, pageVisualSettings] = await Promise.all([getAllEvents(), getPageVisualSettings('events')])
 
   return (
     <main className={getPageShellClasses(pageVisualSettings)} {...getPageShellDataAttributes(pageVisualSettings)}>

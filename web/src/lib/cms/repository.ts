@@ -304,6 +304,44 @@ export async function getPostBySlug(slug: string): Promise<PostDetail | null> {
 }
 
 export async function getUpcomingEvents(): Promise<CampaignEvent[]> {
+  const query = `*[_type=="event" && coalesce(endDate, startDate) > now()] | order(startDate asc){
+    "_id": _id,
+    title,
+    "slug": slug.current,
+    startDate,
+    endDate,
+    location,
+    description,
+    "detailBody": coalesce(detailBody[]{
+      ...,
+      _type == "image" => {
+        ...,
+        "asset": {
+          "url": asset->url
+        }
+      }
+    }, []),
+    "detailLinks": coalesce(detailLinks[]{label, url}, []),
+    scheduleImage,
+    rsvpLink,
+    "scheduleImageUrl": scheduleImage.asset->url,
+    "eventCardLayout": coalesce(eventCardLayout, "stacked"),
+    "eventImageOrientation": coalesce(eventImageOrientation, "landscape"),
+    "eventImageAspectRatio": coalesce(eventImageAspectRatio, "3:2"),
+    "eventCardAnimation": coalesce(eventCardAnimation, "fade-up"),
+    "eventDescriptionPreviewChars": coalesce(eventDescriptionPreviewChars, 2000),
+    "tags": coalesce(tags, [])
+  }`
+
+  const events = await sanityQuery<Array<Omit<CampaignEvent, 'id'> & {_id: string}>>(query)
+  if (!events || events.length === 0) {
+    return sortByDateAsc(mockEvents)
+  }
+
+  return sortByDateAsc(events.map(({_id, ...event}) => ({id: _id, ...event})))
+}
+
+export async function getAllEvents(): Promise<CampaignEvent[]> {
   const query = `*[_type=="event"] | order(startDate asc){
     "_id": _id,
     title,
