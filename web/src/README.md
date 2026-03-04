@@ -29,7 +29,7 @@ Primary frontend source area for the public campaign site.
 - [`app/media/page.tsx`](app/media/page.tsx): Combined Media & Press hub (media links, press assets, contact, and newsroom context).
 - [`app/support/page.tsx`](app/support/page.tsx): Volunteer, voter tools, district map, and fundraising CTAs.
 - [`components/cms-link.tsx`](components/cms-link.tsx): Smart internal/external link renderer for CMS URLs.
-- [`components/site-header.tsx`](components/site-header.tsx): Primary navigation header.
+- [`components/site-header.tsx`](components/site-header.tsx): Unified responsive header — fixed top bar on desktop, brand row + fixed bottom bar on mobile.
 - [`components/site-footer.tsx`](components/site-footer.tsx): Footer with contact/social links.
 - [`components/route-loading.tsx`](components/route-loading.tsx): Reusable loading skeleton UI.
 - [`components/theme-toggle.tsx`](components/theme-toggle.tsx): Browser-persistent dark/light mode selector.
@@ -76,7 +76,10 @@ Primary frontend source area for the public campaign site.
 	- Plain-text anchors (non-pill/non-button/non-nav controls) inherit the same `link-soft`-style animation automatically.
 	- `link-pill` + variants (`link-pill-news`, `link-pill-events`, `link-pill-media`, `link-pill-support`): stronger pill-style link animations.
 - Route tone classes (`tone-news`, `tone-events`, `tone-media`, `tone-support`) provide subtle section variety while preserving shared tokens.
-- Site header and global spacing are tuned for large desktop, tablet, and phone orientations, including an earlier hamburger transition (`components/site-nav.tsx`, below `lg`), a fixed two-line brand lockup, and an icon-only theme toggle.
+- Site header and global spacing are tuned for large desktop, tablet, and phone orientations.
+  - **Desktop (md+):** Single fixed top bar with logo, Donate/Volunteer badges, and hamburger menu.
+  - **Mobile (<md):** Logo/brand row scrolls with the page; Donate/Menu/Volunteer cluster is pulled to a fixed bottom bar (app-like tab bar pattern) via CSS repositioning of `.site-header-controls`. Nav panel opens upward from the bottom bar.
+  - `SiteNav` (`components/site-nav.tsx`) provides the hamburger menu at all breakpoints; nav panel direction flips via media queries.
 
 ## Extension Guidance
 - Put new routes under `app/` using App Router conventions.

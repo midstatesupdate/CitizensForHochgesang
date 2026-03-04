@@ -1,31 +1,29 @@
 import {describe, it, expect} from 'vitest'
 
 /**
- * StickyActionBar is a simple server component that conditionally renders
- * based on the presence of donateUrl and volunteerUrl. The render logic
- * is straightforward (null when both are missing), so we test the
- * conditional visibility predicate here as a pure function.
+ * The unified SiteHeader always renders (it always shows the logo), but the
+ * action buttons (Donate / Volunteer) are conditionally included based on
+ * CMS-provided URLs. This predicate mirrors the inline `{url ? <btn> : null}`
+ * logic inside the header controls cluster.
+ *
+ * Renamed from the former StickyActionBar visibility test — the underlying
+ * requirement is identical, just hosted in SiteHeader now.
  */
 
-function shouldShowStickyActionBar(donateUrl?: string, volunteerUrl?: string): boolean {
-  return Boolean(donateUrl) || Boolean(volunteerUrl)
+function shouldShowActionButton(url?: string): boolean {
+  return Boolean(url)
 }
 
-describe('shouldShowStickyActionBar', () => {
-  it('returns false when both URLs are missing', () => {
-    expect(shouldShowStickyActionBar(undefined, undefined)).toBe(false)
-    expect(shouldShowStickyActionBar('', '')).toBe(false)
+describe('shouldShowActionButton (unified header)', () => {
+  it('returns false when URL is undefined', () => {
+    expect(shouldShowActionButton(undefined)).toBe(false)
   })
 
-  it('returns true when donateUrl is provided', () => {
-    expect(shouldShowStickyActionBar('https://donate.example.com', undefined)).toBe(true)
+  it('returns false when URL is empty string', () => {
+    expect(shouldShowActionButton('')).toBe(false)
   })
 
-  it('returns true when volunteerUrl is provided', () => {
-    expect(shouldShowStickyActionBar(undefined, 'https://volunteer.example.com')).toBe(true)
-  })
-
-  it('returns true when both URLs are provided', () => {
-    expect(shouldShowStickyActionBar('https://donate.example.com', 'https://volunteer.example.com')).toBe(true)
+  it('returns true when URL is provided', () => {
+    expect(shouldShowActionButton('https://donate.example.com')).toBe(true)
   })
 })

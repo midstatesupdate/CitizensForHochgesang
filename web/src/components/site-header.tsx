@@ -1,11 +1,16 @@
+import type {ReactNode} from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import {FaDonate, FaHandsHelping} from 'react-icons/fa'
 
+import {CmsLink} from '@/components/cms-link'
 import {getSanityImageUrl} from '@/lib/cms/image-url'
 import type {SiteSettings} from '@/lib/cms/types'
 
 type SiteHeaderProps = {
   settings: SiteSettings
+  /** Slot for <SiteNav> — rendered inline on desktop, repositioned to mobile bottom bar via CSS */
+  children?: ReactNode
 }
 
 function sanitizeHeaderMarkup(markup: string): string {
@@ -16,7 +21,14 @@ function sanitizeHeaderMarkup(markup: string): string {
     .replace(/javascript:/gi, '')
 }
 
-export function SiteHeader({settings}: SiteHeaderProps) {
+/**
+ * Unified site header.
+ *
+ * Desktop (md+): single fixed top bar — Logo | spacer | Donate | Volunteer | Menu.
+ * Mobile (<md): brand row scrolls with page; Donate | Menu | Volunteer cluster is
+ * repositioned to a fixed bottom bar via `.site-header-controls` CSS.
+ */
+export function SiteHeader({settings, children}: SiteHeaderProps) {
   const homeLinkMarkup =
     settings.homeLinkMarkup?.trim() ||
     '<span class="home-link-line">Brad Hochgesang</span><span class="home-link-line">For State Senate</span>'
@@ -26,17 +38,23 @@ export function SiteHeader({settings}: SiteHeaderProps) {
     getSanityImageUrl(settings.campaignLogo, {width: 128, height: 128}) ??
     settings.campaignLogoUrl
 
+  const {donateUrl, volunteerUrl} = settings
+
   return (
-    <header className="relative z-[80] border-b border-[color:var(--color-border)] bg-[color:var(--color-surface)]/85 backdrop-blur supports-[backdrop-filter]:bg-[color:var(--color-surface)]/75">
-      <div className="mx-auto flex w-full max-w-6xl items-center gap-2 px-4 py-1 sm:gap-4 sm:px-6 sm:py-2">
-        <Link className="home-link flex shrink-0 items-center gap-2 text-base font-semibold text-[color:var(--color-ink)] sm:gap-3 sm:text-lg" href="/">
+    <header className="site-header-bar">
+      <div className="site-header-bar-inner">
+        {/* Brand / logo — always visible at top */}
+        <Link
+          className="home-link flex shrink-0 items-center gap-2 text-base font-semibold text-[color:var(--color-ink)] sm:gap-3 sm:text-lg"
+          href="/"
+        >
           {campaignLogoUrl ? (
             <Image
               src={campaignLogoUrl}
               alt={settings.campaignLogoAlt ?? settings.siteTitle}
               width={64}
               height={64}
-              className="h-14 w-14 shrink-0 rounded-full border border-[color:var(--color-border)] bg-[color:var(--color-surface)] object-contain p-0.5 sm:h-16 sm:w-16"
+              className="site-header-logo shrink-0 rounded-full border border-[color:var(--color-border)] bg-[color:var(--color-surface)] object-contain p-0.5"
               unoptimized
             />
           ) : null}
@@ -47,6 +65,28 @@ export function SiteHeader({settings}: SiteHeaderProps) {
             }}
           />
         </Link>
+
+        {/* Action controls: Donate · Menu · Volunteer
+            Desktop (md+): inline in the top bar right side.
+            Mobile (<md): CSS pulls this div to a fixed bottom bar. */}
+        <div className="site-header-controls" aria-label="Site actions">
+          {donateUrl ? (
+            <CmsLink className="sticky-action-btn sticky-action-btn-accent" href={donateUrl}>
+              <FaDonate aria-hidden className="text-xs" />
+              <span>Donate</span>
+            </CmsLink>
+          ) : null}
+
+          {/* Nav (hamburger) — center slot on mobile bottom bar */}
+          {children}
+
+          {volunteerUrl ? (
+            <CmsLink className="sticky-action-btn sticky-action-btn-primary" href={volunteerUrl}>
+              <FaHandsHelping aria-hidden className="text-xs" />
+              <span>Volunteer</span>
+            </CmsLink>
+          ) : null}
+        </div>
       </div>
     </header>
   )

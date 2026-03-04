@@ -1,6 +1,6 @@
 'use client'
 
-import {useState} from 'react'
+import {useState, useEffect, useRef} from 'react'
 import {usePathname} from 'next/navigation'
 import {FaBars, FaNewspaper, FaTimes} from 'react-icons/fa'
 
@@ -75,15 +75,34 @@ function normalizeNavItems(items: NavItem[]): NavItem[] {
 export function SiteNav({items, pageVisibility}: SiteNavProps) {
   const pathname = usePathname() ?? '/'
   const [mobileOpen, setMobileOpen] = useState(false)
+  const navRef = useRef<HTMLElement>(null)
   const navItems = filterNavByVisibility(
     normalizeNavItems(items && items.length > 0 ? items : defaultNavItems),
     pageVisibility,
   )
 
+  // Close menu when clicking outside the nav
+  useEffect(() => {
+    if (!mobileOpen) return
+
+    function handleClickOutside(event: MouseEvent | TouchEvent) {
+      if (navRef.current && !navRef.current.contains(event.target as Node)) {
+        setMobileOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener('touchstart', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('touchstart', handleClickOutside)
+    }
+  }, [mobileOpen])
+
   const hasItems = navItems.length > 0
 
   return (
-    <nav aria-label="Primary" className="site-nav z-[90] text-sm font-semibold">
+    <nav ref={navRef} aria-label="Primary" className="site-nav z-[90] text-sm font-semibold">
       <div className="flex items-center gap-2">
         {hasItems && (
           <button
