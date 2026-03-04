@@ -249,6 +249,27 @@
   html {
     color: var(--color-ink);
     background: var(--color-canvas);
+    /* Bump base font for mobile readability (16px → 17px).
+       Desktop keeps the standard 16px via the media query below. */
+    font-size: 106.25%; /* 17px */
+
+    /* Raise Tailwind's small-text floor on mobile so nothing reads < ~15px.
+       text-xs 0.75→0.875rem ≈ 15px, text-sm 0.875→0.9375rem ≈ 16px. */
+    --text-xs: 0.875rem;
+    --text-xs--line-height: 1.25rem;
+    --text-sm: 0.9375rem;
+    --text-sm--line-height: 1.375rem;
+  }
+
+  @media (min-width: 768px) {
+    html {
+      font-size: 100%; /* back to 16px on desktop */
+      /* Restore default Tailwind scale on desktop */
+      --text-xs: 0.75rem;
+      --text-xs--line-height: 1rem;
+      --text-sm: 0.875rem;
+      --text-sm--line-height: 1.25rem;
+    }
   }
 
   body {
@@ -1094,7 +1115,7 @@
   }
 
   .flip-label {
-    @apply text-[10px] font-semibold uppercase tracking-widest text-[color:var(--color-muted)] sm:text-xs;
+    @apply text-xs font-semibold uppercase tracking-widest text-[color:var(--color-muted)];
   }
 
   .flip-separator {
@@ -1845,7 +1866,7 @@
   }
   .video-embed-caption {
     margin-top: 0.5rem;
-    font-size: 0.85rem;
+    font-size: 0.9375rem;
     color: var(--color-muted);
     text-align: center;
   }
@@ -1899,7 +1920,7 @@
   }
   .pull-quote-attribution {
     margin-top: 0.75rem;
-    font-size: 0.9rem;
+    font-size: 0.9375rem;
     font-weight: 600;
     color: var(--color-muted);
   }
@@ -1918,7 +1939,7 @@
   }
   .info-box-body {
     margin: 0;
-    font-size: 0.92rem;
+    font-size: 0.9375rem;
     line-height: 1.6;
   }
   .info-box-info {
