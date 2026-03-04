@@ -686,16 +686,17 @@
     position: relative;
     z-index: 80;
     border-bottom: 1px solid var(--color-border);
-    background: var(--color-surface);
+    background: color-mix(in srgb, var(--color-surface) 68%, transparent);
+    backdrop-filter: blur(14px);
   }
 
   /* Desktop gets the frosted-glass blur; on mobile we must NOT use
      backdrop-filter here because it creates a containing block that
      traps position:fixed children (the bottom-bar controls). */
-  @media (min-width: 768px) {
+  @media (max-width: 767px) {
     .site-header-bar {
-      background: color-mix(in srgb, var(--color-surface) 85%, transparent);
-      backdrop-filter: blur(12px);
+      background: var(--color-surface);
+      backdrop-filter: none;
     }
   }
 
@@ -737,9 +738,10 @@
       height: var(--bottom-bar-height, 56px);
       padding: 0;
       padding-bottom: env(safe-area-inset-bottom, 0px);
-      background: color-mix(in srgb, var(--color-canvas) 92%, transparent);
-      backdrop-filter: blur(16px);
+      background: color-mix(in srgb, var(--color-canvas) 68%, transparent);
+      backdrop-filter: blur(14px);
       border-top: 1px solid var(--color-border);
+      border-radius: 1.25rem 1.25rem 0 0;
       box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.12);
     }
 
