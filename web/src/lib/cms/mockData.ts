@@ -2,6 +2,7 @@ import {
   type AboutPriorities,
   type CampaignEvent,
   type FundraisingLink,
+  type HomePageSettings,
   type MediaLink,
   type PostDetail,
   type SiteSettings,
@@ -114,13 +115,9 @@ export const mockAboutPriorities: AboutPriorities = {
 export const mockSiteSettings: SiteSettings = {
   siteTitle: 'Citizens For Hochgesang',
   tagline: 'Practical leadership for Indiana State Senate District 48.',
-  homeDistrictLabel: 'Indiana State Senate District 48',
-  homeHeroSummary: 'Practical leadership for Indiana State Senate District 48.',
   homeLinkMarkup:
     '<span class="home-link-line">Brad Hochgesang</span><span class="home-link-line">For State Senate</span>',
   campaignLogoAlt: 'Brad Hochgesang for State Senate campaign logo',
-  candidatePortraitCaption: 'Listening to neighbors and building practical solutions for District 48.',
-  homeHeroLayout: 'clean-split',
   headerNavItems: [
     {label: 'News', href: '/news', icon: 'newspaper'},
     {label: 'Events', href: '/events', icon: 'calendar'},
@@ -129,23 +126,45 @@ export const mockSiteSettings: SiteSettings = {
     {label: 'Media & Press', href: '/media', icon: 'video'},
     {label: 'Support', href: '/support', icon: 'hands-helping'},
   ],
-  homeHeroActions: [
+  donateUrl: 'https://secure.actblue.com/donate/brad-hochgesang-1',
+  volunteerUrl: 'https://www.ngpvan.com/',
+  contactEmail: 'team@citizensforhochgesang.com',
+  socialLinks: [
+    {label: 'Facebook', url: 'https://www.facebook.com/bradhochesangforindianastatesenate'},
+    {label: 'YouTube', url: 'https://www.youtube.com/'},
+  ],
+  pageVisibility: {
+    news: false,
+    events: false,
+    faq: false,
+    platform: false,
+    media: false,
+    support: false,
+  },
+}
+
+export const mockHomePageSettings: HomePageSettings = {
+  heroLayout: 'clean-split',
+  districtLabel: 'Indiana State Senate District 48',
+  heroSummary: 'Practical leadership for Indiana State Senate District 48.',
+  candidatePortraitCaption: 'Listening to neighbors and building practical solutions for District 48.',
+  heroActions: [
     {label: 'Volunteer', url: '/support', icon: 'hands-helping', style: 'primary'},
     {label: 'Donate', url: 'https://secure.actblue.com/donate/brad-hochgesang-1', icon: 'vote-yea', style: 'outline'},
   ],
-  homeHeroBadges: [
+  heroBadges: [
     {label: 'Community-first platform', icon: 'bullhorn', placement: 'text'},
     {label: 'Transparent updates', icon: 'newspaper', placement: 'text'},
     {label: 'District listening sessions', placement: 'proof'},
     {label: 'Neighborhood town halls', placement: 'proof'},
     {label: 'Volunteer-powered outreach', placement: 'proof'},
   ],
-  homeFocusItems: [
+  focusItems: [
     'Strengthening local jobs, small businesses, and workforce training.',
     'Supporting safe communities through partnerships and smart policy.',
     'Protecting quality education and practical pathways for families.',
   ],
-  homeSectionCards: [
+  sectionCards: [
     {
       title: 'News & Updates',
       copy: 'Campaign announcements and policy updates.',
@@ -168,31 +187,16 @@ export const mockSiteSettings: SiteSettings = {
       ctaLabel: 'View Media',
     },
   ],
-  donateUrl: 'https://secure.actblue.com/donate/brad-hochgesang-1',
-  volunteerUrl: 'https://www.ngpvan.com/',
-  contactEmail: 'team@citizensforhochgesang.com',
-  homeWhyRunningHeading: "Why I'm Running",
-  homeWhyRunningBody: [],
-  homeWhyRunningImageUrl: undefined,
-  homeProofHeading: "I didn't wait to run for office to start fighting for you.",
-  homeProofStats: [],
-  homeProofBody: '',
-  homeMidCtaHeading: 'Ready to help?',
-  homeMidCtaCopy:
+  whyRunningHeading: "Why I'm Running",
+  whyRunningBody: [],
+  whyRunningImageUrl: undefined,
+  proofHeading: "I didn't wait to run for office to start fighting for you.",
+  proofStats: [],
+  proofBody: '',
+  midCtaHeading: 'Ready to help?',
+  midCtaCopy:
     'This campaign runs on people, not PACs. Every dollar and every door knock makes a difference.',
   countdownTimers: [],
-  socialLinks: [
-    {label: 'Facebook', url: 'https://www.facebook.com/bradhochesangforindianastatesenate'},
-    {label: 'YouTube', url: 'https://www.youtube.com/'},
-  ],
-  pageVisibility: {
-    news: false,
-    events: false,
-    faq: false,
-    platform: false,
-    media: false,
-    support: false,
-  },
 }
 
 export const mockPosts: PostDetail[] = [

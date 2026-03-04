@@ -22,6 +22,7 @@ import {
   getMediaLinks,
   getFundraisingLinks,
   getSiteSettings,
+  getHomePageSettings,
   getAboutPriorities,
   getPageVisualSettings,
   assertPageEnabled,
@@ -32,6 +33,7 @@ import {
   mockMediaLinks,
   mockFundraisingLinks,
   mockSiteSettings,
+  mockHomePageSettings,
   mockAboutPriorities,
 } from './mockData'
 import { getDefaultPageVisual } from './page-visuals'
@@ -373,27 +375,6 @@ describe('getSiteSettings', () => {
     expect(settings.headerNavItems).toEqual(mockSiteSettings.headerNavItems)
   })
 
-  it('falls back to mock homeHeroActions when live settings return empty array', async () => {
-    const liveSettings = { ...mockSiteSettings, homeHeroActions: [] }
-    mockQuery.mockResolvedValueOnce(liveSettings)
-    const settings = await getSiteSettings()
-    expect(settings.homeHeroActions).toEqual(mockSiteSettings.homeHeroActions)
-  })
-
-  it('falls back to mock homeFocusItems when live settings return empty array', async () => {
-    const liveSettings = { ...mockSiteSettings, homeFocusItems: [] }
-    mockQuery.mockResolvedValueOnce(liveSettings)
-    const settings = await getSiteSettings()
-    expect(settings.homeFocusItems).toEqual(mockSiteSettings.homeFocusItems)
-  })
-
-  it('falls back to mock homeSectionCards when live settings return empty array', async () => {
-    const liveSettings = { ...mockSiteSettings, homeSectionCards: [] }
-    mockQuery.mockResolvedValueOnce(liveSettings)
-    const settings = await getSiteSettings()
-    expect(settings.homeSectionCards).toEqual(mockSiteSettings.homeSectionCards)
-  })
-
   it('includes pageVisibility in returned settings when present in live data', async () => {
     const liveSettings = { ...mockSiteSettings, pageVisibility: {news: false, events: true} }
     mockQuery.mockResolvedValueOnce(liveSettings)
@@ -405,6 +386,45 @@ describe('getSiteSettings', () => {
     mockQuery.mockResolvedValueOnce(null)
     const settings = await getSiteSettings()
     expect(settings.pageVisibility).toEqual(mockSiteSettings.pageVisibility)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// getHomePageSettings
+// ---------------------------------------------------------------------------
+describe('getHomePageSettings', () => {
+  it('returns mockHomePageSettings when sanityQuery returns null', async () => {
+    mockQuery.mockResolvedValueOnce(null)
+    const home = await getHomePageSettings()
+    expect(home).toEqual(mockHomePageSettings)
+  })
+
+  it('merges live home settings over mock defaults', async () => {
+    const liveHome = { ...mockHomePageSettings, heroLayout: 'immersive-overlay' as const }
+    mockQuery.mockResolvedValueOnce(liveHome)
+    const home = await getHomePageSettings()
+    expect(home.heroLayout).toBe('immersive-overlay')
+  })
+
+  it('falls back to mock heroActions when live settings return empty array', async () => {
+    const liveHome = { ...mockHomePageSettings, heroActions: [] }
+    mockQuery.mockResolvedValueOnce(liveHome)
+    const home = await getHomePageSettings()
+    expect(home.heroActions).toEqual(mockHomePageSettings.heroActions)
+  })
+
+  it('falls back to mock focusItems when live settings return empty array', async () => {
+    const liveHome = { ...mockHomePageSettings, focusItems: [] }
+    mockQuery.mockResolvedValueOnce(liveHome)
+    const home = await getHomePageSettings()
+    expect(home.focusItems).toEqual(mockHomePageSettings.focusItems)
+  })
+
+  it('falls back to mock sectionCards when live settings return empty array', async () => {
+    const liveHome = { ...mockHomePageSettings, sectionCards: [] }
+    mockQuery.mockResolvedValueOnce(liveHome)
+    const home = await getHomePageSettings()
+    expect(home.sectionCards).toEqual(mockHomePageSettings.sectionCards)
   })
 })
 

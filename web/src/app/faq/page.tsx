@@ -1,5 +1,6 @@
 import type {Metadata} from 'next'
 import {FaqAccordion} from '@/components/faq-accordion'
+import {PageEffects} from '@/components/page-effects'
 import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-visuals'
 import {assertPageEnabled, getPageVisualSettings} from '@/lib/cms/repository'
 
@@ -51,6 +52,7 @@ export default async function FaqPage() {
 
   return (
     <main className={getPageShellClasses(pageVisualSettings)} {...getPageShellDataAttributes(pageVisualSettings)}>
+      <PageEffects visuals={pageVisualSettings} />
       <section className="reveal flex flex-col gap-4">
         <p className="eyebrow">FAQ</p>
         <h1 className="section-title">Frequently asked questions</h1>

@@ -4,6 +4,7 @@ import Link from 'next/link'
 
 import {ArticleContent} from '@/components/article-content'
 import {CmsLink} from '@/components/cms-link'
+import {PageEffects} from '@/components/page-effects'
 import {formatDateTime} from '@/lib/cms/format'
 import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-visuals'
 import {assertPageEnabled, getPageVisualSettings, getUpcomingEvents} from '@/lib/cms/repository'
@@ -22,6 +23,7 @@ export default async function EventDetailsPage() {
 
   return (
     <main className={getPageShellClasses(pageVisualSettings)} {...getPageShellDataAttributes(pageVisualSettings)}>
+      <PageEffects visuals={pageVisualSettings} />
       <section className="flex flex-col gap-4">
         <Link className="text-sm font-semibold text-[color:var(--color-accent)] hover:underline" href="/events">
           ← Back to Events

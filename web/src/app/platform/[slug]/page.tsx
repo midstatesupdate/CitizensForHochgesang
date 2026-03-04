@@ -4,6 +4,7 @@ import {notFound} from 'next/navigation'
 
 import {ArticleContent} from '@/components/article-content'
 import {CmsLink} from '@/components/cms-link'
+import {PageEffects} from '@/components/page-effects'
 import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-visuals'
 import {assertPageEnabled, getAboutPriorities, getPageVisualSettings, getSiteSettings} from '@/lib/cms/repository'
 import {isPageEnabled} from '@/lib/cms/types'
@@ -56,6 +57,7 @@ export default async function PriorityDetailPage({params}: PriorityDetailPagePro
 
   return (
     <main className={getPageShellClasses(pageVisualSettings)} {...getPageShellDataAttributes(pageVisualSettings)}>
+      <PageEffects visuals={pageVisualSettings} />
       <article className="card mx-auto w-full max-w-4xl">
         <div className="flex flex-col gap-5">
           <Link className="text-sm font-semibold text-[color:var(--color-accent)] hover:underline" href="/platform">

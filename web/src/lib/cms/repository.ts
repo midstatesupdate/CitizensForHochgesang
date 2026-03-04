@@ -3,6 +3,7 @@ import {
   mockAboutPriorities,
   mockEvents,
   mockFundraisingLinks,
+  mockHomePageSettings,
   mockMediaLinks,
   mockPosts,
   mockSiteSettings,
@@ -11,6 +12,7 @@ import type {
   AboutPriorities,
   CampaignEvent,
   FundraisingLink,
+  HomePageSettings,
   MediaLink,
   MediaSettings,
   PageVisibilityKey,
@@ -100,64 +102,16 @@ export async function getSiteSettings(): Promise<SiteSettings> {
   const query = `*[_type=="siteSettings"][0]{
     "siteTitle": coalesce(siteTitle, "Citizens For Hochgesang"),
     "tagline": coalesce(tagline, "Practical leadership for Indiana State Senate District 48."),
-    "homeDistrictLabel": coalesce(homeDistrictLabel, "Indiana State Senate District 48"),
-    homeHeroSummary,
     "homeLinkMarkup": coalesce(homeLinkMarkup, "<span class='home-link-line'>Brad Hochgesang</span><span class='home-link-line'>For State Senate</span>"),
     campaignLogo,
     headerLogoSmall,
     "campaignLogoUrl": campaignLogo.asset->url,
     "headerLogoSmallUrl": headerLogoSmall.asset->url,
     "campaignLogoAlt": campaignLogoAlt,
-    "candidatePortraitUrl": candidatePortrait.asset->url,
-    "candidatePortraitAlt": candidatePortraitAlt,
-    candidatePortraitCaption,
-    "homeHeroLayout": coalesce(homeHeroLayout, "clean-split"),
     "headerNavItems": coalesce(headerNavItems[]{
       label,
       href,
       icon
-    }, []),
-    "homeHeroActions": coalesce(homeHeroActions[]{
-      label,
-      url,
-      icon,
-      style
-    }, []),
-    "homeHeroBadges": coalesce(homeHeroBadges[]{
-      label,
-      url,
-      icon,
-      placement
-    }, []),
-    "homeFocusItems": coalesce(homeFocusItems, []),
-    "homeSectionCards": coalesce(homeSectionCards[]{
-      title,
-      copy,
-      href,
-      icon,
-      ctaLabel
-    }, []),
-    homeWhyRunningHeading,
-    "homeWhyRunningBody": coalesce(homeWhyRunningBody[]{
-      ...,
-      _type == "image" => {
-        ...,
-        "asset": { "url": asset->url }
-      }
-    }, []),
-    "homeWhyRunningImageUrl": homeWhyRunningImage.asset->url,
-    homeProofHeading,
-    "homeProofStats": coalesce(homeProofStats[]{ value, label }, []),
-    homeProofBody,
-    homeMidCtaHeading,
-    homeMidCtaCopy,
-    "countdownTimers": coalesce(countdownTimers[]{
-      enabled,
-      heading,
-      targetDate,
-      body[]{ ... },
-      expiredTitle,
-      expiredBody[]{ ... }
     }, []),
     pressUpdatedAt,
     donateUrl,
@@ -197,10 +151,69 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     ...settings,
     socialLinks: settings.socialLinks?.length ? settings.socialLinks : mockSiteSettings.socialLinks,
     headerNavItems: settings.headerNavItems?.length ? settings.headerNavItems : mockSiteSettings.headerNavItems,
-    homeHeroActions: settings.homeHeroActions?.length ? settings.homeHeroActions : mockSiteSettings.homeHeroActions,
-    homeHeroBadges: settings.homeHeroBadges?.length ? settings.homeHeroBadges : mockSiteSettings.homeHeroBadges,
-    homeFocusItems: settings.homeFocusItems?.length ? settings.homeFocusItems : mockSiteSettings.homeFocusItems,
-    homeSectionCards: settings.homeSectionCards?.length ? settings.homeSectionCards : mockSiteSettings.homeSectionCards,
+  }
+}
+
+/** GROQ projection shared by the visual settings fields. */
+const VISUALS_PROJECTION = `{
+  "backgroundVariant": coalesce(backgroundVariant, "stately-gradient"),
+  "containerVariant": coalesce(containerVariant, "standard"),
+  "toneVariant": coalesce(toneVariant, "default"),
+  "motionPreset": coalesce(motionPreset, "balanced"),
+  "textLinkAnimation": coalesce(textLinkAnimation, "sweep"),
+  "pageBackgroundAnimation": coalesce(pageBackgroundAnimation, "drift"),
+  "scrollRevealAnimation": coalesce(scrollRevealAnimation, "soft"),
+  "scrollProgressBar": coalesce(scrollProgressBar, false),
+  "magneticButtons": coalesce(magneticButtons, false)
+}`
+
+export async function getHomePageSettings(): Promise<HomePageSettings> {
+  const query = `*[_type=="homePageSettings"][0]{
+    "heroLayout": coalesce(heroLayout, "clean-split"),
+    "candidatePortraitUrl": candidatePortrait.asset->url,
+    candidatePortraitAlt,
+    candidatePortraitCaption,
+    "districtLabel": coalesce(districtLabel, "Indiana State Senate District 48"),
+    heroSummary,
+    "enableDistrictMap": coalesce(enableDistrictMap, true),
+    "heroActions": coalesce(heroActions[]{ label, url, icon, style }, []),
+    "heroBadges": coalesce(heroBadges[]{ label, url, icon, placement }, []),
+    "focusItems": coalesce(focusItems, []),
+    whyRunningHeading,
+    "whyRunningBody": coalesce(whyRunningBody[]{
+      ...,
+      _type == "image" => { ..., "asset": { "url": asset->url } }
+    }, []),
+    "whyRunningImageUrl": whyRunningImage.asset->url,
+    proofHeading,
+    "proofStats": coalesce(proofStats[]{ value, label }, []),
+    proofBody,
+    midCtaHeading,
+    midCtaCopy,
+    "sectionCards": coalesce(sectionCards[]{ title, copy, href, icon, ctaLabel }, []),
+    "countdownTimers": coalesce(countdownTimers[]{
+      enabled,
+      heading,
+      targetDate,
+      body[]{ ... },
+      expiredTitle,
+      expiredBody[]{ ... }
+    }, []),
+    "visuals": visuals${VISUALS_PROJECTION}
+  }`
+
+  const home = await sanityQuery<HomePageSettings>(query, undefined, {revalidateSeconds: 0})
+  if (!home) {
+    return mockHomePageSettings
+  }
+
+  return {
+    ...mockHomePageSettings,
+    ...home,
+    heroActions: home.heroActions?.length ? home.heroActions : mockHomePageSettings.heroActions,
+    heroBadges: home.heroBadges?.length ? home.heroBadges : mockHomePageSettings.heroBadges,
+    focusItems: home.focusItems?.length ? home.focusItems : mockHomePageSettings.focusItems,
+    sectionCards: home.sectionCards?.length ? home.sectionCards : mockHomePageSettings.sectionCards,
   }
 }
 
@@ -419,20 +432,46 @@ export async function getFundraisingLinks(): Promise<FundraisingLink[]> {
     .sort((a, b) => b.priority - a.priority)
 }
 
+/**
+ * Maps page keys to their Sanity document type and visual field paths.
+ * Detail pages read `detailVisuals` first, falling back to `visuals`.
+ */
+const PAGE_VISUALS_MAP: Record<
+  PageVisualPageKey,
+  { docType: string; primary: string; fallback?: string }
+> = {
+  home: {docType: 'homePageSettings', primary: 'visuals'},
+  news: {docType: 'newsPageSettings', primary: 'visuals'},
+  'news-detail': {docType: 'newsPageSettings', primary: 'detailVisuals', fallback: 'visuals'},
+  events: {docType: 'eventsPageSettings', primary: 'visuals'},
+  'events-detail': {docType: 'eventsPageSettings', primary: 'detailVisuals', fallback: 'visuals'},
+  platform: {docType: 'platformPageSettings', primary: 'visuals'},
+  'platform-detail': {docType: 'platformPageSettings', primary: 'detailVisuals', fallback: 'visuals'},
+  media: {docType: 'mediaPageSettings', primary: 'visuals'},
+  press: {docType: 'mediaPageSettings', primary: 'visuals'},
+  support: {docType: 'supportPageSettings', primary: 'visuals'},
+  faq: {docType: 'faqPageSettings', primary: 'visuals'},
+}
+
 export async function getPageVisualSettings(pageKey: PageVisualPageKey): Promise<PageVisualSettings> {
-  const query = `*[_type=="pageVisualSettings" && pageKey==$pageKey][0]{
-    pageKey,
-    "backgroundVariant": coalesce(backgroundVariant, "stately-gradient"),
-    "containerVariant": coalesce(containerVariant, "standard"),
-    "toneVariant": coalesce(toneVariant, "default"),
-    "motionPreset": coalesce(motionPreset, "balanced"),
-    "textLinkAnimation": coalesce(textLinkAnimation, "sweep"),
-    "pageBackgroundAnimation": coalesce(pageBackgroundAnimation, "drift"),
-    "scrollRevealAnimation": coalesce(scrollRevealAnimation, "soft")
+  const mapping = PAGE_VISUALS_MAP[pageKey]
+  const query = `*[_type==$docType][0]{
+    "primary": ${mapping.primary}${VISUALS_PROJECTION},
+    ${mapping.fallback ? `"fallback": ${mapping.fallback}${VISUALS_PROJECTION}` : ''}
   }`
 
-  const settings = await sanityQuery<PageVisualSettings>(query, {pageKey}, {revalidateSeconds: 0})
-  return settings ?? getDefaultPageVisual(pageKey)
+  const result = await sanityQuery<{
+    primary?: PageVisualSettings | null
+    fallback?: PageVisualSettings | null
+  }>(query, {docType: mapping.docType}, {revalidateSeconds: 0})
+
+  // Prefer primary (e.g. detailVisuals), then fallback (visuals), then hardcoded defaults
+  const visuals = result?.primary ?? result?.fallback ?? null
+  if (!visuals) {
+    return getDefaultPageVisual(pageKey)
+  }
+
+  return {...getDefaultPageVisual(pageKey), ...visuals, pageKey}
 }
 
 /**

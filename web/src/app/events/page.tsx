@@ -1,4 +1,5 @@
 import {EventsFeed} from '@/components/events-feed'
+import {PageEffects} from '@/components/page-effects'
 import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-visuals'
 import {assertPageEnabled, getAllEvents, getPageVisualSettings} from '@/lib/cms/repository'
 
@@ -13,6 +14,7 @@ export default async function EventsPage() {
 
   return (
     <main className={getPageShellClasses(pageVisualSettings)} {...getPageShellDataAttributes(pageVisualSettings)}>
+      <PageEffects visuals={pageVisualSettings} />
       <section className="flex flex-col gap-4">
         <p className="eyebrow">Events</p>
         <h1 className="section-title">Upcoming campaign events</h1>

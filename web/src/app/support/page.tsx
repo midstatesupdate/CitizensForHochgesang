@@ -1,4 +1,5 @@
 import {CmsLink} from '@/components/cms-link'
+import {PageEffects} from '@/components/page-effects'
 import {VoterActionHub} from '@/components/voter-action-hub'
 import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-visuals'
 import {getFundraisingLinks, getPageVisualSettings, getSiteSettings, assertPageEnabled} from '@/lib/cms/repository'
@@ -20,6 +21,7 @@ export default async function SupportPage() {
 
   return (
     <main className={getPageShellClasses(pageVisualSettings)} {...getPageShellDataAttributes(pageVisualSettings)}>
+      <PageEffects visuals={pageVisualSettings} />
       <section className="flex flex-col gap-4">
         <p className="eyebrow">Support</p>
         <h1 className="section-title">Volunteer and contribute</h1>

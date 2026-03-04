@@ -5,6 +5,18 @@
         "git stash": true,
         "git checkout": true,
         "Push-Location": true,
-        "Pop-Location": true
+        "Pop-Location": true,
+        "/^node scripts/find-sldu-layer\\.mjs$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^node scripts/fetch-sldu56\\.mjs$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^node scripts/generate-final-svg\\.mjs$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
     }
 }

@@ -1,83 +1,11 @@
 import {defineField, defineType} from 'sanity'
+import {iconOptions} from './iconOptions'
 
-const iconOptions = [
-  {title: 'Balance Scale (policy, justice)', value: 'balance-scale'},
-  {title: 'Bicycle (transportation)', value: 'bicycle'},
-  {title: 'Book (education)', value: 'book'},
-  {title: 'Book Open (curriculum)', value: 'book-open'},
-  {title: 'Briefcase (jobs)', value: 'briefcase'},
-  {title: 'Bullhorn', value: 'bullhorn'},
-  {title: 'Bullseye (priorities)', value: 'bullseye'},
-  {title: 'Bus (transit)', value: 'bus'},
-  {title: 'Calendar', value: 'calendar'},
-  {title: 'Calendar Check (scheduled)', value: 'calendar-check'},
-  {title: 'Camera (media)', value: 'camera'},
-  {title: 'Chart Bar (metrics)', value: 'chart-bar'},
-  {title: 'Chart Line (growth)', value: 'chart-line'},
-  {title: 'Chart Pie (budget)', value: 'chart-pie'},
-  {title: 'Check Circle (approved)', value: 'check-circle'},
-  {title: 'Chalkboard Teacher (schools)', value: 'chalkboard-teacher'},
-  {title: 'Clipboard Check (accountability)', value: 'clipboard-check'},
-  {title: 'Clock (timelines)', value: 'clock'},
-  {title: 'Cloud Sun (energy/weather)', value: 'cloud-sun'},
-  {title: 'Coins (funding)', value: 'coins'},
-  {title: 'Comment Dots (community input)', value: 'comment-dots'},
-  {title: 'Comments (conversation)', value: 'comments'},
-  {title: 'Dollar Sign (economy)', value: 'dollar-sign'},
-  {title: 'Donate (contribute)', value: 'donate'},
-  {title: 'Envelope (contact)', value: 'envelope'},
-  {title: 'Exclamation Triangle (alert)', value: 'exclamation-triangle'},
-  {title: 'File Alt (documents)', value: 'file-alt'},
-  {title: 'Flag (district, civic)', value: 'flag'},
-  {title: 'Gavel (legislation)', value: 'gavel'},
-  {title: 'Globe Americas (global, trade)', value: 'globe-americas'},
-  {title: 'Graduation Cap (higher ed)', value: 'graduation-cap'},
-  {title: 'Hammer (construction)', value: 'hammer'},
-  {title: 'Hand Holding Heart (care)', value: 'hand-holding-heart'},
-  {title: 'Hands Helping', value: 'hands-helping'},
-  {title: 'Handshake (partnership)', value: 'handshake'},
-  {title: 'Hard Hat (infrastructure)', value: 'hard-hat'},
-  {title: 'Heartbeat (health)', value: 'heartbeat'},
-  {title: 'Home (housing)', value: 'home'},
-  {title: 'Hospital (healthcare)', value: 'hospital'},
-  {title: 'Image (gallery)', value: 'image'},
-  {title: 'Info Circle (information)', value: 'info-circle'},
-  {title: 'Landmark (government)', value: 'landmark'},
-  {title: 'Laptop (technology)', value: 'laptop'},
-  {title: 'Leaf (environment)', value: 'leaf'},
-  {title: 'Lightbulb (ideas)', value: 'lightbulb'},
-  {title: 'Map Marker Alt (location)', value: 'map-marker-alt'},
-  {title: 'Map Marked Alt (district map)', value: 'map-marked-alt'},
-  {title: 'Microphone (speech)', value: 'microphone'},
-  {title: 'Newspaper', value: 'newspaper'},
-  {title: 'Paw (animal welfare)', value: 'paw'},
-  {title: 'Phone (call)', value: 'phone'},
-  {title: 'Piggy Bank (savings)', value: 'piggy-bank'},
-  {title: 'Play Circle (video play)', value: 'play-circle'},
-  {title: 'Podcast (audio)', value: 'podcast'},
-  {title: 'Question Circle', value: 'question-circle'},
-  {title: 'Receipt (expenses)', value: 'receipt'},
-  {title: 'Recycle (sustainability)', value: 'recycle'},
-  {title: 'Newspaper (Outline)', value: 'reg-newspaper'},
-  {title: 'Road (transport)', value: 'road'},
-  {title: 'Route (planning)', value: 'route'},
-  {title: 'School (K-12)', value: 'school'},
-  {title: 'Shield Alt (public safety)', value: 'shield-alt'},
-  {title: 'Solar Panel (clean energy)', value: 'solar-panel'},
-  {title: 'Store (small business)', value: 'store'},
-  {title: 'Tools (maintenance)', value: 'tools'},
-  {title: 'Tree (parks)', value: 'tree'},
-  {title: 'Video', value: 'video'},
-  {title: 'Vote Yea', value: 'vote-yea'},
-  {title: 'Walking (pedestrian)', value: 'walking'},
-  {title: 'Water (utilities)', value: 'water'},
-  {title: 'Wifi (internet access)', value: 'wifi'},
-  {title: 'Wrench (repairs)', value: 'wrench'},
-  {title: 'User Friends (families)', value: 'user-friends'},
-  {title: 'User Graduate (students)', value: 'user-graduate'},
-  {title: 'Users (community)', value: 'users'},
-]
-
+/**
+ * Site-wide settings — branding, navigation, contact, and page visibility.
+ * Home-specific content has moved to `homePageSettings`.
+ * Per-page visual settings are embedded in each page settings document.
+ */
 export const siteSettings = defineType({
   name: 'siteSettings',
   title: 'Site Settings',
@@ -86,10 +14,6 @@ export const siteSettings = defineType({
     {name: 'header', title: 'Header', default: true},
     {name: 'navigation', title: 'Navigation'},
     {name: 'pages', title: 'Page Visibility'},
-    {name: 'hero', title: 'Home Hero'},
-    {name: 'homeCards', title: 'Home Cards'},
-    {name: 'proof', title: 'Proof & Credibility'},
-    {name: 'countdown', title: 'Election Countdown'},
     {name: 'campaignMeta', title: 'Campaign Meta'},
     {name: 'contact', title: 'Contact & Social'},
   ],
@@ -98,14 +22,14 @@ export const siteSettings = defineType({
       name: 'siteTitle',
       title: 'Site Title',
       type: 'string',
-      group: ['header', 'hero', 'campaignMeta'],
+      group: ['header', 'campaignMeta'],
       validation: (Rule) => Rule.required().max(120),
     }),
     defineField({
       name: 'tagline',
       title: 'Tagline',
       type: 'string',
-      group: ['hero', 'campaignMeta'],
+      group: 'campaignMeta',
       validation: (Rule) => Rule.max(160),
     }),
     defineField({
@@ -140,33 +64,23 @@ export const siteSettings = defineType({
               name: 'href',
               title: 'Href',
               type: 'string',
-              validation: (Rule) => Rule.required().custom((value) => {
-                if (!value) {
-                  return 'Href is required'
-                }
-
-                return value.startsWith('/') || value.startsWith('http')
-                  ? true
-                  : 'Use an internal path (/news) or full URL (https://...)'
-              }),
+              validation: (Rule) =>
+                Rule.required().custom((value) => {
+                  if (!value) return 'Href is required'
+                  return value.startsWith('/') || value.startsWith('http')
+                    ? true
+                    : 'Use an internal path (/news) or full URL (https://...)'
+                }),
             }),
             defineField({
               name: 'icon',
               title: 'Icon',
               type: 'string',
-              options: {
-                list: iconOptions,
-                layout: 'dropdown',
-              },
+              options: {list: iconOptions, layout: 'dropdown'},
               initialValue: 'newspaper',
             }),
           ],
-          preview: {
-            select: {
-              title: 'label',
-              subtitle: 'href',
-            },
-          },
+          preview: {select: {title: 'label', subtitle: 'href'}},
         },
       ],
     }),
@@ -178,48 +92,12 @@ export const siteSettings = defineType({
       description:
         'Enable or disable each page section. Disabled pages return 404 and are hidden from navigation. Home page is always visible.',
       fields: [
-        defineField({
-          name: 'news',
-          title: 'News',
-          type: 'boolean',
-          initialValue: false,
-          description: 'Show the /news page and all individual news articles.',
-        }),
-        defineField({
-          name: 'events',
-          title: 'Events',
-          type: 'boolean',
-          initialValue: false,
-          description: 'Show the /events page and event detail pages.',
-        }),
-        defineField({
-          name: 'faq',
-          title: 'FAQ',
-          type: 'boolean',
-          initialValue: false,
-          description: 'Show the /faq page.',
-        }),
-        defineField({
-          name: 'platform',
-          title: 'About & Priorities',
-          type: 'boolean',
-          initialValue: false,
-          description: 'Show the /platform page and priority detail pages.',
-        }),
-        defineField({
-          name: 'media',
-          title: 'Media & Press',
-          type: 'boolean',
-          initialValue: false,
-          description: 'Show the /media page.',
-        }),
-        defineField({
-          name: 'support',
-          title: 'Support',
-          type: 'boolean',
-          initialValue: false,
-          description: 'Show the /support page.',
-        }),
+        defineField({name: 'news', title: 'News', type: 'boolean', initialValue: false, description: 'Show the /news page and all individual news articles.'}),
+        defineField({name: 'events', title: 'Events', type: 'boolean', initialValue: false, description: 'Show the /events page and event detail pages.'}),
+        defineField({name: 'faq', title: 'FAQ', type: 'boolean', initialValue: false, description: 'Show the /faq page.'}),
+        defineField({name: 'platform', title: 'About & Priorities', type: 'boolean', initialValue: false, description: 'Show the /platform page and priority detail pages.'}),
+        defineField({name: 'media', title: 'Media & Press', type: 'boolean', initialValue: false, description: 'Show the /media page.'}),
+        defineField({name: 'support', title: 'Support', type: 'boolean', initialValue: false, description: 'Show the /support page.'}),
       ],
     }),
     defineField({
@@ -247,433 +125,6 @@ export const siteSettings = defineType({
       validation: (Rule) => Rule.max(160),
     }),
     defineField({
-      name: 'candidatePortrait',
-      title: 'Candidate Portrait (Hero)',
-      type: 'image',
-      group: 'hero',
-      options: {hotspot: true},
-      description: 'Primary homepage portrait image. Recommended portrait orientation (4:5).',
-    }),
-    defineField({
-      name: 'candidatePortraitAlt',
-      title: 'Candidate Portrait Alt Text',
-      type: 'string',
-      group: 'hero',
-      validation: (Rule) => Rule.max(160),
-    }),
-    defineField({
-      name: 'candidatePortraitCaption',
-      title: 'Candidate Portrait Caption',
-      type: 'string',
-      group: 'hero',
-      validation: (Rule) => Rule.max(180),
-    }),
-    defineField({
-      name: 'homeHeroLayout',
-      title: 'Home Hero Layout',
-      type: 'string',
-      group: 'hero',
-      initialValue: 'clean-split',
-      options: {
-        list: [
-          {title: 'Clean Split (Text Left, Portrait Right)', value: 'clean-split'},
-          {title: 'Portrait Left (Text Right)', value: 'portrait-left'},
-          {title: 'Immersive Overlay (Text on Portrait)', value: 'immersive-overlay'},
-        ],
-        layout: 'radio',
-        direction: 'vertical',
-      },
-      description: 'Controls the visual composition of the homepage hero section.',
-      validation: (Rule) => Rule.required(),
-    }),
-    defineField({
-      name: 'homeDistrictLabel',
-      title: 'Home Hero District Label',
-      type: 'string',
-      group: 'hero',
-      initialValue: 'Indiana State Senate District 48',
-      validation: (Rule) => Rule.max(120),
-    }),
-    defineField({
-      name: 'homeHeroSummary',
-      title: 'Home Hero Summary',
-      type: 'text',
-      group: 'hero',
-      rows: 3,
-      description: 'Optional paragraph shown under the hero title/tagline.',
-      validation: (Rule) => Rule.max(280),
-    }),
-    defineField({
-      name: 'homeHeroActions',
-      title: 'Home Hero Actions',
-      type: 'array',
-      group: 'hero',
-      description: 'Buttons near the hero title/photo.',
-      of: [
-        {
-          type: 'object',
-          fields: [
-            defineField({
-              name: 'label',
-              title: 'Label',
-              type: 'string',
-              validation: (Rule) => Rule.required().max(40),
-            }),
-            defineField({
-              name: 'url',
-              title: 'URL',
-              type: 'string',
-              validation: (Rule) => Rule.required().custom((value) => {
-                if (!value) {
-                  return 'URL is required'
-                }
-
-                return value.startsWith('/') || value.startsWith('http')
-                  ? true
-                  : 'Use an internal path (/support) or full URL (https://...)'
-              }),
-            }),
-            defineField({
-              name: 'icon',
-              title: 'Icon',
-              type: 'string',
-              options: {
-                list: iconOptions,
-                layout: 'dropdown',
-              },
-              initialValue: 'vote-yea',
-            }),
-            defineField({
-              name: 'style',
-              title: 'Style',
-              type: 'string',
-              options: {
-                list: [
-                  {title: 'Primary', value: 'primary'},
-                  {title: 'Outline', value: 'outline'},
-                  {title: 'Accent', value: 'accent'},
-                ],
-                layout: 'radio',
-              },
-              initialValue: 'primary',
-            }),
-          ],
-          preview: {
-            select: {
-              title: 'label',
-              subtitle: 'url',
-            },
-          },
-        },
-      ],
-    }),
-    defineField({
-      name: 'homeHeroBadges',
-      title: 'Home Hero Bubbles',
-      type: 'array',
-      group: 'hero',
-      description: 'Badge-style items that can appear by text, near portrait, or in proof strip.',
-      of: [
-        {
-          type: 'object',
-          fields: [
-            defineField({
-              name: 'label',
-              title: 'Label',
-              type: 'string',
-              validation: (Rule) => Rule.required().max(80),
-            }),
-            defineField({
-              name: 'url',
-              title: 'Optional URL',
-              type: 'string',
-              validation: (Rule) => Rule.custom((value) => {
-                if (!value) {
-                  return true
-                }
-
-                return value.startsWith('/') || value.startsWith('http')
-                  ? true
-                  : 'Use an internal path (/support) or full URL (https://...)'
-              }),
-            }),
-            defineField({
-              name: 'icon',
-              title: 'Icon',
-              type: 'string',
-              options: {
-                list: iconOptions,
-                layout: 'dropdown',
-              },
-            }),
-            defineField({
-              name: 'placement',
-              title: 'Placement',
-              type: 'string',
-              options: {
-                list: [
-                  {title: 'Near Text', value: 'text'},
-                  {title: 'Near Portrait', value: 'media'},
-                  {title: 'Bottom Proof Strip', value: 'proof'},
-                ],
-                layout: 'radio',
-              },
-              initialValue: 'proof',
-            }),
-          ],
-        },
-      ],
-    }),
-    defineField({
-      name: 'homeFocusItems',
-      title: 'Home Hero Focus List',
-      type: 'array',
-      group: 'hero',
-      of: [{type: 'string'}],
-      description: 'Bullet list shown with the hero text.',
-      validation: (Rule) => Rule.max(8),
-    }),
-    // --- "Why I'm Running" section ---
-    defineField({
-      name: 'homeWhyRunningHeading',
-      title: '"Why I\'m Running" Heading',
-      type: 'string',
-      group: 'hero',
-      initialValue: "Why I'm Running",
-      validation: (Rule) => Rule.max(80),
-    }),
-    defineField({
-      name: 'homeWhyRunningBody',
-      title: '"Why I\'m Running" Body',
-      type: 'array',
-      group: 'hero',
-      description: 'Personal narrative section shown below hero. Supports rich text.',
-      of: [
-        {type: 'block'},
-        {type: 'image', options: {hotspot: true}},
-        {type: 'htmlEmbed'},
-        {type: 'videoEmbed'},
-        {type: 'ctaButton'},
-        {type: 'pullQuote'},
-        {type: 'infoBox'},
-      ],
-    }),
-    defineField({
-      name: 'homeWhyRunningImage',
-      title: '"Why I\'m Running" Image',
-      type: 'image',
-      group: 'hero',
-      options: {hotspot: true},
-      description: 'Optional photo for the Why I\'m Running section.',
-    }),
-    // --- "Proof / Credibility" section ---
-    defineField({
-      name: 'homeProofHeading',
-      title: 'Proof Section Heading',
-      type: 'string',
-      group: 'proof',
-      initialValue: "I didn't wait to run for office to start fighting for you.",
-      validation: (Rule) => Rule.max(160),
-    }),
-    defineField({
-      name: 'homeProofStats',
-      title: 'Proof Stats',
-      type: 'array',
-      group: 'proof',
-      description: 'Up to 4 stat callouts (e.g. "81%" / "of Dubois County voters oppose MSC").',
-      validation: (Rule) => Rule.max(4),
-      of: [
-        {
-          type: 'object',
-          fields: [
-            defineField({
-              name: 'value',
-              title: 'Value',
-              type: 'string',
-              validation: (Rule) => Rule.required().max(16),
-            }),
-            defineField({
-              name: 'label',
-              title: 'Label',
-              type: 'string',
-              validation: (Rule) => Rule.required().max(120),
-            }),
-          ],
-          preview: {
-            select: {title: 'value', subtitle: 'label'},
-          },
-        },
-      ],
-    }),
-    defineField({
-      name: 'homeProofBody',
-      title: 'Proof Supporting Paragraph',
-      type: 'text',
-      group: 'proof',
-      rows: 4,
-      description: 'Supporting paragraph below the stats.',
-      validation: (Rule) => Rule.max(500),
-    }),
-    // --- Mid-page CTA ---
-    defineField({
-      name: 'homeMidCtaHeading',
-      title: 'Mid-Page CTA Heading',
-      type: 'string',
-      group: 'homeCards',
-      initialValue: 'Ready to help?',
-      validation: (Rule) => Rule.max(80),
-    }),
-    defineField({
-      name: 'homeMidCtaCopy',
-      title: 'Mid-Page CTA Copy',
-      type: 'text',
-      group: 'homeCards',
-      rows: 2,
-      initialValue:
-        'This campaign runs on people, not PACs. Every dollar and every door knock makes a difference.',
-      validation: (Rule) => Rule.max(200),
-    }),
-    defineField({
-      name: 'homeSectionCards',
-      title: 'Home Section Cards',
-      type: 'array',
-      group: 'homeCards',
-      description: 'Large cards below the hero (title, copy, link, icon).',
-      of: [
-        {
-          type: 'object',
-          fields: [
-            defineField({
-              name: 'title',
-              title: 'Title',
-              type: 'string',
-              validation: (Rule) => Rule.required().max(80),
-            }),
-            defineField({
-              name: 'copy',
-              title: 'Copy',
-              type: 'text',
-              rows: 2,
-              validation: (Rule) => Rule.required().max(160),
-            }),
-            defineField({
-              name: 'href',
-              title: 'Href',
-              type: 'string',
-              validation: (Rule) => Rule.required().custom((value) => {
-                if (!value) {
-                  return 'Href is required'
-                }
-
-                return value.startsWith('/') || value.startsWith('http')
-                  ? true
-                  : 'Use an internal path (/news) or full URL (https://...)'
-              }),
-            }),
-            defineField({
-              name: 'ctaLabel',
-              title: 'CTA Label',
-              type: 'string',
-              initialValue: 'View',
-              validation: (Rule) => Rule.max(50),
-            }),
-            defineField({
-              name: 'icon',
-              title: 'Icon',
-              type: 'string',
-              options: {
-                list: iconOptions,
-              },
-              initialValue: 'newspaper',
-            }),
-          ],
-        },
-      ],
-    }),
-    // --- Election Countdown Timers ---
-    defineField({
-      name: 'countdownTimers',
-      title: 'Countdown Timers',
-      type: 'array',
-      group: 'countdown',
-      description:
-        'Add multiple countdown clocks. The timer with the nearest non-expired expire date displays by default. Expired timers show the "expired" message until their expire date passes.',
-      of: [
-        {
-          type: 'object',
-          title: 'Timer',
-          fields: [
-            defineField({
-              name: 'enabled',
-              title: 'Enabled',
-              type: 'boolean',
-              initialValue: true,
-              description: 'Disable to hide this timer without deleting it.',
-            }),
-            defineField({
-              name: 'heading',
-              title: 'Heading',
-              type: 'string',
-              validation: (Rule) => Rule.required().max(80),
-              description: 'Displayed above the clock (e.g. "Election Day", "Rally Countdown").',
-            }),
-            defineField({
-              name: 'targetDate',
-              title: 'Target Date',
-              type: 'datetime',
-              validation: (Rule) => Rule.required(),
-              description: 'The date/time to count down to.',
-            }),
-            defineField({
-              name: 'body',
-              title: 'Body',
-              type: 'array',
-              description: 'Rich text below the active clock. Supports links and HTML embeds.',
-              of: [
-                {type: 'block'},
-                {type: 'htmlEmbed'},
-                {type: 'videoEmbed'},
-                {type: 'ctaButton'},
-                {type: 'pullQuote'},
-                {type: 'infoBox'},
-              ],
-            }),
-            defineField({
-              name: 'expiredTitle',
-              title: 'All-Done Title',
-              type: 'string',
-              validation: (Rule) => Rule.max(80),
-              description:
-                'Heading shown (no clock) after ALL countdown timers have passed. Only set this on the last timer. E.g. "Thank You for Voting!"',
-            }),
-            defineField({
-              name: 'expiredBody',
-              title: 'All-Done Message',
-              type: 'array',
-              description:
-                'Rich text shown (no clock) after ALL countdown timers have passed. Only set this on the last timer.',
-              of: [
-                {type: 'block'},
-                {type: 'htmlEmbed'},
-                {type: 'videoEmbed'},
-                {type: 'ctaButton'},
-                {type: 'pullQuote'},
-                {type: 'infoBox'},
-              ],
-            }),
-          ],
-          preview: {
-            select: {title: 'heading', subtitle: 'targetDate', enabled: 'enabled'},
-            prepare({title, subtitle, enabled}) {
-              const prefix = enabled === false ? '🚫 ' : ''
-              const date = subtitle ? new Date(subtitle).toLocaleDateString() : 'No date'
-              return {title: `${prefix}${title || '(untitled)'}`, subtitle: date}
-            },
-          },
-        },
-      ],
-    }),
-    defineField({
       name: 'pressUpdatedAt',
       title: 'Press Resources Updated At',
       type: 'datetime',
@@ -684,13 +135,13 @@ export const siteSettings = defineType({
       name: 'donateUrl',
       title: 'Donate URL',
       type: 'url',
-      group: ['hero', 'campaignMeta', 'contact'],
+      group: ['campaignMeta', 'contact'],
     }),
     defineField({
       name: 'volunteerUrl',
       title: 'Volunteer URL',
       type: 'url',
-      group: ['hero', 'campaignMeta', 'contact'],
+      group: ['campaignMeta', 'contact'],
     }),
     defineField({
       name: 'contactEmail',
@@ -713,6 +164,5 @@ export const siteSettings = defineType({
         },
       ],
     }),
-
   ],
 })

@@ -1,32 +1,15 @@
 import {defineField, defineType} from 'sanity'
 
-export const pageVisualSettings = defineType({
-  name: 'pageVisualSettings',
-  title: 'Page Visual Settings',
-  type: 'document',
+/**
+ * Reusable object type containing all per-page visual controls.
+ * Embedded as a field in each page settings document (homePageSettings,
+ * newsPageSettings, etc.) rather than stored as a standalone document.
+ */
+export const pageVisuals = defineType({
+  name: 'pageVisuals',
+  title: 'Visual Settings',
+  type: 'object',
   fields: [
-    defineField({
-      name: 'pageKey',
-      title: 'Page',
-      type: 'string',
-      description: 'Select which route these visual settings apply to.',
-      options: {
-        list: [
-          {title: 'Home (/)', value: 'home'},
-          {title: 'News Listing (/news)', value: 'news'},
-          {title: 'News Detail (/news/[slug])', value: 'news-detail'},
-          {title: 'Events (/events)', value: 'events'},
-          {title: 'Event Detail (/events/[slug])', value: 'events-detail'},
-          {title: 'FAQ (/faq)', value: 'faq'},
-          {title: 'About & Priorities (/platform)', value: 'platform'},
-          {title: 'Priority Detail (/platform/[slug])', value: 'platform-detail'},
-          {title: 'Media & Press (/media)', value: 'media'},
-          {title: 'Press (/press)', value: 'press'},
-          {title: 'Support (/support)', value: 'support'},
-        ],
-      },
-      validation: (Rule) => Rule.required(),
-    }),
     defineField({
       name: 'backgroundVariant',
       title: 'Background Texture',
@@ -64,7 +47,7 @@ export const pageVisualSettings = defineType({
       title: 'Color Tone',
       type: 'string',
       description:
-        'Adds subtle accent color family for headings and labels. Choose based on page narrative to keep visual consistency without overpowering content.',
+        'Adds subtle accent color family for headings and labels.',
       options: {
         list: [
           {title: 'Civic Neutral', value: 'default'},
@@ -117,7 +100,7 @@ export const pageVisualSettings = defineType({
       title: 'Page Background Animation',
       type: 'string',
       description:
-        'Persistent page-level motion (not content containers). None: static. Drift: gentle atmospheric movement. Tracers: subtle moving signal lines. Drift + Tracers: both effects blended softly.',
+        'Persistent page-level motion. None: static. Drift: gentle atmospheric movement. Tracers: subtle moving signal lines. Drift + Tracers: both effects blended softly.',
       options: {
         list: [
           {title: 'None', value: 'none'},
@@ -135,7 +118,7 @@ export const pageVisualSettings = defineType({
       title: 'Scroll Progress Bar',
       type: 'boolean',
       description:
-        'Show a thin accent-colored progress bar at the top of the viewport that fills as the visitor scrolls down the page.',
+        'Show a thin accent-colored progress bar at the top of the viewport that fills as the visitor scrolls.',
       initialValue: false,
     }),
     defineField({
@@ -143,7 +126,7 @@ export const pageVisualSettings = defineType({
       title: 'Magnetic CTA Buttons',
       type: 'boolean',
       description:
-        'CTA buttons subtly pull toward the cursor on hover, creating a tactile, premium feel. Desktop only — ignored on touch devices.',
+        'CTA buttons subtly pull toward the cursor on hover. Desktop only — ignored on touch devices.',
       initialValue: false,
     }),
     defineField({
@@ -151,7 +134,7 @@ export const pageVisualSettings = defineType({
       title: 'Scroll Reveal Animation',
       type: 'string',
       description:
-        'Controls how sections enter while scrolling, especially on touch devices. None: immediate display. Soft: light fade/slide. Dynamic: stronger motion. Cascade: staggered progressive reveal.',
+        'Controls how sections enter while scrolling. None: immediate. Soft: light fade/slide. Dynamic: stronger motion. Cascade: staggered progressive reveal.',
       options: {
         list: [
           {title: 'None', value: 'none'},
@@ -164,19 +147,4 @@ export const pageVisualSettings = defineType({
       initialValue: 'soft',
     }),
   ],
-  preview: {
-    select: {
-      title: 'pageKey',
-      subtitle: 'backgroundVariant',
-      mediaTone: 'toneVariant',
-      container: 'containerVariant',
-    },
-    prepare(selection) {
-      const subtitleParts = [selection.subtitle, selection.mediaTone, selection.container].filter(Boolean)
-      return {
-        title: selection.title ?? 'Page Visual Settings',
-        subtitle: subtitleParts.join(' • '),
-      }
-    },
-  },
 })

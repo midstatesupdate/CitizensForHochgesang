@@ -129,62 +129,64 @@ export type CountdownTimer = {
 export type SiteSettings = {
   siteTitle: string
   tagline: string
-  homeDistrictLabel?: string
-  homeHeroSummary?: string
   homeLinkMarkup?: string
   campaignLogo?: SanityImageSource
   headerLogoSmall?: SanityImageSource
   campaignLogoUrl?: string
   headerLogoSmallUrl?: string
   campaignLogoAlt?: string
-  candidatePortraitUrl?: string
-  candidatePortraitAlt?: string
-  candidatePortraitCaption?: string
-  homeHeroLayout?: 'clean-split' | 'portrait-left' | 'immersive-overlay'
-  homeHeroActions: Array<{
-    label: string
-    url: string
-    icon?: IconName
-    style?: 'primary' | 'outline' | 'accent'
-  }>
-  homeHeroBadges: Array<{
-    label: string
-    url?: string
-    icon?: IconName
-    placement?: 'text' | 'media' | 'proof'
-  }>
-  homeFocusItems: string[]
-  homeSectionCards: Array<{
-    title: string
-    copy: string
-    href: string
-    icon?: IconName
-    ctaLabel?: string
-  }>
   headerNavItems: Array<{
     label: string
     href: string
     icon?: IconName
   }>
-  // "Why I'm Running" section
-  homeWhyRunningHeading?: string
-  homeWhyRunningBody?: PostBodyNode[]
-  homeWhyRunningImageUrl?: string
-  // "Proof / Credibility" section
-  homeProofHeading?: string
-  homeProofStats?: Array<{ value: string; label: string }>
-  homeProofBody?: string
-  // Mid-page CTA
-  homeMidCtaHeading?: string
-  homeMidCtaCopy?: string
-  // Election Countdown timers
-  countdownTimers: CountdownTimer[]
   pressUpdatedAt?: string
   donateUrl?: string
   volunteerUrl?: string
   contactEmail?: string
   socialLinks: SocialLink[]
   pageVisibility?: PageVisibility
+}
+
+/** Home page content — migrated from siteSettings. */
+export type HomePageSettings = {
+  heroLayout?: 'clean-split' | 'portrait-left' | 'immersive-overlay'
+  candidatePortraitUrl?: string
+  candidatePortraitAlt?: string
+  candidatePortraitCaption?: string
+  districtLabel?: string
+  heroSummary?: string
+  enableDistrictMap?: boolean
+  heroActions: Array<{
+    label: string
+    url: string
+    icon?: IconName
+    style?: 'primary' | 'outline' | 'accent'
+  }>
+  heroBadges: Array<{
+    label: string
+    url?: string
+    icon?: IconName
+    placement?: 'text' | 'media' | 'proof'
+  }>
+  focusItems: string[]
+  whyRunningHeading?: string
+  whyRunningBody?: PostBodyNode[]
+  whyRunningImageUrl?: string
+  proofHeading?: string
+  proofStats?: Array<{ value: string; label: string }>
+  proofBody?: string
+  midCtaHeading?: string
+  midCtaCopy?: string
+  sectionCards: Array<{
+    title: string
+    copy: string
+    href: string
+    icon?: IconName
+    ctaLabel?: string
+  }>
+  countdownTimers: CountdownTimer[]
+  visuals?: PageVisualSettings
 }
 
 export type MediaSettings = {
@@ -246,6 +248,8 @@ export type PageVisualSettings = {
   textLinkAnimation: 'none' | 'subtle' | 'sweep' | 'glint'
   pageBackgroundAnimation: 'none' | 'drift' | 'tracers' | 'drift-tracers' | 'pulse'
   scrollRevealAnimation: 'none' | 'soft' | 'dynamic' | 'cascade'
+  scrollProgressBar?: boolean
+  magneticButtons?: boolean
 }
 
 export type PostSummary = {

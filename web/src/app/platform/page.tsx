@@ -1,5 +1,6 @@
 import {CmsLink} from '@/components/cms-link'
 import {ArticleContent} from '@/components/article-content'
+import {PageEffects} from '@/components/page-effects'
 import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-visuals'
 import {assertPageEnabled, getAboutPriorities, getPageVisualSettings} from '@/lib/cms/repository'
 
@@ -15,6 +16,7 @@ export default async function PlatformPage() {
 
   return (
     <main className={getPageShellClasses(pageVisualSettings)} {...getPageShellDataAttributes(pageVisualSettings)}>
+      <PageEffects visuals={pageVisualSettings} />
       <section className="flex flex-col gap-4">
         <p className="eyebrow">{about.pageEyebrow}</p>
         <h1 className="section-title">{about.pageTitle}</h1>

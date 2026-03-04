@@ -1,4 +1,5 @@
 import {CmsLink} from '@/components/cms-link'
+import {PageEffects} from '@/components/page-effects'
 import {formatDate} from '@/lib/cms/format'
 import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-visuals'
 import {assertPageEnabled, getMediaLinks, getMediaSettings, getPageVisualSettings, getRecentPosts, getSiteSettings, getUpcomingEvents} from '@/lib/cms/repository'
@@ -37,6 +38,7 @@ export default async function MediaPage() {
 
   return (
     <main className={getPageShellClasses(pageVisualSettings)} {...getPageShellDataAttributes(pageVisualSettings)}>
+      <PageEffects visuals={pageVisualSettings} />
       <section className="flex flex-col gap-4">
         <p className="eyebrow">Media & Press</p>
         <h1 className="section-title">{pageHeading}</h1>

@@ -5,6 +5,7 @@ import Image from 'next/image'
 
 import {ArticleContent} from '@/components/article-content'
 import {ArticleSceneObserver} from '@/components/article-scene-observer'
+import {PageEffects} from '@/components/page-effects'
 import {formatDate} from '@/lib/cms/format'
 import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-visuals'
 import {assertPageEnabled, getAllPosts, getPageVisualSettings, getPostBySlug, getSiteSettings} from '@/lib/cms/repository'
@@ -57,6 +58,7 @@ export default async function PostPage({params}: PostPageProps) {
 
   return (
     <main className={getPageShellClasses(pageVisualSettings)} {...getPageShellDataAttributes(pageVisualSettings)}>
+      <PageEffects visuals={pageVisualSettings} />
       <article className="card mx-auto w-full max-w-4xl">
         <div className="flex flex-col gap-5">
           <Link className="text-sm font-semibold text-[color:var(--color-accent)] hover:underline" href="/news">

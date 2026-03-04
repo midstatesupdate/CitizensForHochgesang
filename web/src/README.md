@@ -36,6 +36,10 @@ Primary frontend source area for the public campaign site.
 - [`components/faq-accordion.tsx`](components/faq-accordion.tsx): Category-filtered searchable FAQ accordion.
 - [`components/voter-action-hub.tsx`](components/voter-action-hub.tsx): District map and localStorage-backed voter checklist.
 - [`components/scroll-dynamics.tsx`](components/scroll-dynamics.tsx): Client-side intersection observer for scroll reveal dynamics.
+- [`components/scroll-progress-bar.tsx`](components/scroll-progress-bar.tsx): Thin accent bar fixed at viewport top filling left→right on scroll. CMS toggle: `pageVisualSettings.scrollProgressBar`.
+- [`components/indiana-district-map.tsx`](components/indiana-district-map.tsx): Animated SVG of Indiana with District 48 highlight that draws itself on scroll. CMS toggle: `siteSettings.enableDistrictMap`.
+- [`components/magnetic-buttons.tsx`](components/magnetic-buttons.tsx): Desktop-only magnetic pull effect on `.btn`/`.sticky-action-btn` elements. CMS toggle: `pageVisualSettings.magneticButtons`.
+- [`components/page-effects.tsx`](components/page-effects.tsx): Wrapper that conditionally renders ScrollProgressBar and MagneticButtons based on `pageVisualSettings` flags.
 - [`components/article-content.tsx`](components/article-content.tsx): Portable Text renderer for long-form article scenes, stat callouts, and media blocks.
 - [`components/article-scene-observer.tsx`](components/article-scene-observer.tsx): Intersection observer for per-scene article animation reveal.
 - [`lib/site.ts`](lib/site.ts): Site URL/name metadata constants.
@@ -69,7 +73,7 @@ Primary frontend source area for the public campaign site.
 - Events list UX now supports drill-down links from event images/titles to `/events/details#slug` (with RSVP fallback when needed), compact inline `RSVP →` cues, mobile-friendly media insets for `16:9` and tall `9:16` cards, a compact tag search plus tag filtering in a responsive two-row capped rail sorted by event count (count labels shown only when a tag appears in 2+ events), top-right sorting (`Soonest`, `Latest`, `Title A-Z`), crop-aware image rendering, intersection-observer infinite scroll for efficient rendering, and automatic `Passed` badges when an event's `endDate` (or fallback `startDate`) is earlier than current Eastern time.
 - CMS visual setting queries use `no-store` in local dev/runtime, but switch to revalidated fetch during production static builds so published values are embedded correctly.
 - Hero variant CSS keeps portrait media/text reorder at `md+`, keeps split-layout proof badges full-width, and scopes immersive overlay positioning to the immersive frame.
-- `pageVisualSettings` now controls: background style, container width, tone accents, motion preset, text-link animation, page background animation, and scroll reveal behavior.
+- `pageVisualSettings` now controls: background style, container width, tone accents, motion preset, text-link animation, page background animation, scroll reveal behavior, scroll progress bar, and magnetic buttons.
 - Link interaction utilities are centralized in `app/globals.css`:
 	- `nav-link`: animated navigation pill behavior.
 	- `link-soft`: subtle underline sweep for inline links.

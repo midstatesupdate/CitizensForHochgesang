@@ -1,4 +1,5 @@
 import {NewsFeed} from '@/components/news-feed'
+import {PageEffects} from '@/components/page-effects'
 import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-visuals'
 import {assertPageEnabled, getAllPosts, getPageVisualSettings} from '@/lib/cms/repository'
 
@@ -13,6 +14,7 @@ export default async function NewsPage() {
 
   return (
     <main className={getPageShellClasses(pageVisualSettings)} {...getPageShellDataAttributes(pageVisualSettings)}>
+      <PageEffects visuals={pageVisualSettings} />
       <section className="flex flex-col gap-4">
         <p className="eyebrow">News</p>
         <h1 className="section-title">Campaign updates and articles</h1>

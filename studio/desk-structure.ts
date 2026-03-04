@@ -2,17 +2,39 @@ import type {StructureResolver} from 'sanity/structure'
 
 import {VisualQuickGuide} from './components/visual-quick-guide'
 
+/**
+ * Helper: singleton document list item — creates one document of `typeName`
+ * with a fixed documentId equal to the type name.
+ */
+function singletonItem(S: Parameters<StructureResolver>[0], typeName: string, title: string) {
+  return S.listItem()
+    .title(title)
+    .child(S.document().schemaType(typeName).documentId(typeName))
+}
+
 export const deskStructure: StructureResolver = (S) =>
   S.list()
     .title('Campaign Content')
     .items([
+      singletonItem(S, 'siteSettings', 'Site Settings'),
+      singletonItem(S, 'aboutPriorities', 'About & Priorities'),
+      S.divider(),
+      // ── Page Settings (per-page content & visuals) ──
       S.listItem()
-        .title('Site Settings')
-        .child(S.document().schemaType('siteSettings').documentId('siteSettings')),
-      S.listItem()
-        .title('About & Priorities')
-        .child(S.document().schemaType('aboutPriorities').documentId('aboutPriorities')),
-      S.listItem().title('Page Visual Settings').child(S.documentTypeList('pageVisualSettings')),
+        .title('Page Settings')
+        .child(
+          S.list()
+            .title('Page Settings')
+            .items([
+              singletonItem(S, 'homePageSettings', 'Home'),
+              singletonItem(S, 'newsPageSettings', 'News'),
+              singletonItem(S, 'eventsPageSettings', 'Events'),
+              singletonItem(S, 'platformPageSettings', 'Platform'),
+              singletonItem(S, 'mediaPageSettings', 'Media'),
+              singletonItem(S, 'supportPageSettings', 'Support'),
+              singletonItem(S, 'faqPageSettings', 'FAQ'),
+            ]),
+        ),
       S.divider(),
       S.listItem().title('Posts').child(S.documentTypeList('post')),
       S.listItem().title('Events').child(S.documentTypeList('event')),

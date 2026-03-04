@@ -4,7 +4,9 @@ import {FaBullhorn, FaCalendarAlt, FaHandsHelping, FaNewspaper, FaVideo, FaVoteY
 
 import {ElectionCountdown} from '@/components/election-countdown'
 import {CmsLink} from '@/components/cms-link'
+import {IndianaDistrictMap} from '@/components/indiana-district-map'
 import {MidPageCta} from '@/components/mid-page-cta'
+import {PageEffects} from '@/components/page-effects'
 import {ProofSection} from '@/components/proof-section'
 import {WhyRunningSection} from '@/components/why-running-section'
 import {formatDate, formatDateTime} from '@/lib/cms/format'
@@ -13,6 +15,7 @@ import {getPageShellClasses, getPageShellDataAttributes} from '@/lib/cms/page-vi
 import {isPageEnabled} from '@/lib/cms/types'
 import {
   getFundraisingLinks,
+  getHomePageSettings,
   getMediaLinks,
   getPageVisualSettings,
   getRecentPosts,
@@ -55,8 +58,9 @@ function resolveActionClass(style: 'primary' | 'outline' | 'accent' | undefined)
 }
 
 export default async function Home() {
-  const [settings, posts, events, mediaLinks, fundraisingLinks, pageVisualSettings] = await Promise.all([
+  const [settings, home, posts, events, mediaLinks, fundraisingLinks, pageVisualSettings] = await Promise.all([
     getSiteSettings(),
+    getHomePageSettings(),
     getRecentPosts(3),
     getUpcomingEvents(),
     getMediaLinks(3),
@@ -64,29 +68,33 @@ export default async function Home() {
     getPageVisualSettings('home'),
   ])
 
+  // Prefer visuals embedded in homePageSettings, fall back to standalone query
+  const visuals = home.visuals ?? pageVisualSettings
+
   const topFundraisingLink = fundraisingLinks[0] ?? null
-  const heroPortraitUrl = settings.candidatePortraitUrl ?? settings.campaignLogoUrl
+  const heroPortraitUrl = home.candidatePortraitUrl ?? settings.campaignLogoUrl
   const heroPortraitAlt =
-    settings.candidatePortraitAlt ??
+    home.candidatePortraitAlt ??
     settings.campaignLogoAlt ??
     `${settings.siteTitle} candidate portrait`
-  const heroPortraitCaption = settings.candidatePortraitCaption?.trim()
-  const homeHeroLayout = normalizeHomeHeroLayout(settings.homeHeroLayout)
-  const districtLabel = settings.homeDistrictLabel?.trim() || 'Indiana State Senate District 48'
-  const heroSummary = settings.homeHeroSummary?.trim() || settings.tagline
-  const campaignFocusItems = settings.homeFocusItems
-  const homeSectionCards = settings.homeSectionCards
-  const textBadges = settings.homeHeroBadges.filter((item) => item.placement === 'text')
-  const mediaBadges = settings.homeHeroBadges.filter((item) => item.placement === 'media')
-  const proofBadges = settings.homeHeroBadges.filter((item) => item.placement === 'proof')
-  const heroActions = settings.homeHeroActions
+  const heroPortraitCaption = home.candidatePortraitCaption?.trim()
+  const homeHeroLayout = normalizeHomeHeroLayout(home.heroLayout)
+  const districtLabel = home.districtLabel?.trim() || 'Indiana State Senate District 48'
+  const heroSummary = home.heroSummary?.trim() || settings.tagline
+  const campaignFocusItems = home.focusItems
+  const homeSectionCards = home.sectionCards
+  const textBadges = home.heroBadges.filter((item) => item.placement === 'text')
+  const mediaBadges = home.heroBadges.filter((item) => item.placement === 'media')
+  const proofBadges = home.heroBadges.filter((item) => item.placement === 'proof')
+  const heroActions = home.heroActions
 
   const showNews = isPageEnabled(settings.pageVisibility, 'news') && posts.length > 0
   const showEvents = isPageEnabled(settings.pageVisibility, 'events') && events.length > 0
   const showMedia = isPageEnabled(settings.pageVisibility, 'media') && mediaLinks.length > 0
 
   return (
-    <main className={getPageShellClasses(pageVisualSettings)} {...getPageShellDataAttributes(pageVisualSettings)}>
+    <main className={getPageShellClasses(visuals)} {...getPageShellDataAttributes(visuals)}>
+      <PageEffects visuals={visuals} />
       {/* ── 1. Hero Section ── */}
       <section className={`campaign-hero campaign-hero-${homeHeroLayout}`}>
         {homeHeroLayout === 'immersive-overlay' ? (
@@ -264,13 +272,15 @@ export default async function Home() {
             )
           })}
         </div>
+
+        {home.enableDistrictMap !== false ? <IndianaDistrictMap /> : null}
       </section>
 
       {/* ── 2. "Why I'm Running" Section ── */}
       <WhyRunningSection
-        heading={settings.homeWhyRunningHeading}
-        body={settings.homeWhyRunningBody}
-        imageUrl={settings.homeWhyRunningImageUrl}
+        heading={home.whyRunningHeading}
+        body={home.whyRunningBody}
+        imageUrl={home.whyRunningImageUrl}
       />
 
       {/* ── 3. Priority Cards ── */}
@@ -303,15 +313,15 @@ export default async function Home() {
 
       {/* ── 4. "Proof / Credibility" Section ── */}
       <ProofSection
-        heading={settings.homeProofHeading}
-        stats={settings.homeProofStats}
-        body={settings.homeProofBody}
+        heading={home.proofHeading}
+        stats={home.proofStats}
+        body={home.proofBody}
       />
 
       {/* ── 5. Mid-Page CTA ── */}
       <MidPageCta
-        heading={settings.homeMidCtaHeading}
-        copy={settings.homeMidCtaCopy}
+        heading={home.midCtaHeading}
+        copy={home.midCtaCopy}
         donateUrl={settings.donateUrl}
         volunteerUrl={settings.volunteerUrl}
       />
@@ -399,7 +409,7 @@ export default async function Home() {
         </section>
       ) : null}
       {/* ── 9. Election Countdown ── */}
-      <ElectionCountdown timers={settings.countdownTimers} />
+      <ElectionCountdown timers={home.countdownTimers} />
     </main>
   )
 }
