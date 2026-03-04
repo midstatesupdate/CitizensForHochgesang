@@ -5,7 +5,7 @@ import {usePathname} from 'next/navigation'
 import {FaBars, FaNewspaper, FaTimes} from 'react-icons/fa'
 
 import {CmsLink} from '@/components/cms-link'
-import {ThemeToggle} from '@/components/theme-toggle'
+import {ThemeToggleMenuItem} from '@/components/theme-toggle'
 import {resolveCmsIcon} from '@/lib/cms/icon-map'
 import type {IconName, PageVisibility} from '@/lib/cms/types'
 import {filterNavByVisibility} from '@/components/site-nav-visibility'
@@ -85,7 +85,6 @@ export function SiteNav({items, pageVisibility}: SiteNavProps) {
   return (
     <nav aria-label="Primary" className="site-nav z-[90] text-sm font-semibold">
       <div className="flex items-center gap-2">
-        <ThemeToggle />
         {hasItems && (
           <button
             type="button"
@@ -120,6 +119,10 @@ export function SiteNav({items, pageVisibility}: SiteNavProps) {
               </CmsLink>
             )
           })}
+
+          {/* Divider + theme toggle at the bottom of the menu */}
+          <hr className="my-1 border-[color:var(--color-border)]" />
+          <ThemeToggleMenuItem />
         </div>
       ) : null}
     </nav>
