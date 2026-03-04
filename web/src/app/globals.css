@@ -704,19 +704,19 @@
     width: 100%;
     max-width: 72rem;
     margin: 0 auto;
-    padding: 0.25rem 1rem;
+    padding: 0.375rem 1rem;
     align-items: center;
     justify-content: space-between;
     gap: 0.5rem;
   }
 
-  /* Logo: mobile = 56px, desktop = 40px to keep the top bar compact */
+  /* Logo: consistent 56px at all breakpoints */
   .site-header-logo {
     height: 3.5rem;
     width: 3.5rem;
   }
 
-  /* Controls cluster (Donate · Menu · Volunteer) */
+  /* Controls cluster (Donate · Menu · Join Us) */
   .site-header-controls {
     display: flex;
     align-items: center;
@@ -731,10 +731,11 @@
       left: 0;
       right: 0;
       z-index: 100;
-      justify-content: center;
-      gap: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-evenly;
       height: var(--bottom-bar-height, 56px);
-      padding: 0 1rem;
+      padding: 0;
       padding-bottom: env(safe-area-inset-bottom, 0px);
       background: color-mix(in srgb, var(--color-canvas) 92%, transparent);
       backdrop-filter: blur(16px);
@@ -742,10 +743,16 @@
       box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.12);
     }
 
-    /* Mobile order: Donate(1) · Menu(2) · Volunteer(3) */
-    .site-header-controls .sticky-action-btn-accent { order: 1; }
-    .site-header-controls .site-nav { order: 2; }
-    .site-header-controls .sticky-action-btn-primary { order: 3; }
+    /* Mobile order: Donate(1) · Menu(2) · Join Us(3) */
+    .site-header-controls .sticky-action-btn-accent  { order: 1; }
+    .site-header-controls .site-nav                   { order: 2; }
+    .site-header-controls .sticky-action-btn-primary  { order: 3; }
+
+    /* Equal-width pill buttons on mobile */
+    .site-header-controls .sticky-action-btn {
+      min-width: 6.5rem;
+      justify-content: center;
+    }
   }
 
   /* ── Desktop (md+): everything in one fixed top bar ── */
@@ -762,19 +769,14 @@
       padding: 0.375rem 1.5rem;
     }
 
-    .site-header-logo {
-      height: 2.5rem;
-      width: 2.5rem;
-    }
-
-    /* Desktop order: Donate(1) · Volunteer(2) · Menu(3) */
+    /* Desktop order: Donate(1) · Join Us(2) · Menu(3) */
     .site-header-controls .sticky-action-btn-accent { order: 1; }
     .site-header-controls .sticky-action-btn-primary { order: 2; }
     .site-header-controls .site-nav { order: 3; }
   }
 
   .sticky-action-btn {
-    @apply inline-flex items-center gap-1.5 rounded-full px-4 py-1 text-xs font-bold uppercase tracking-wider transition;
+    @apply inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold uppercase tracking-wider transition;
     text-decoration: none;
   }
 

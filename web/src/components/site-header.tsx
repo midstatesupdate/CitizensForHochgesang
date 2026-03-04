@@ -1,7 +1,7 @@
 import type {ReactNode} from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import {FaDonate, FaHandsHelping} from 'react-icons/fa'
+import {FaDonate, FaUsers} from 'react-icons/fa'
 
 import {CmsLink} from '@/components/cms-link'
 import {getSanityImageUrl} from '@/lib/cms/image-url'
@@ -24,8 +24,8 @@ function sanitizeHeaderMarkup(markup: string): string {
 /**
  * Unified site header.
  *
- * Desktop (md+): single fixed top bar — Logo | spacer | Donate | Volunteer | Menu.
- * Mobile (<md): brand row scrolls with page; Donate | Menu | Volunteer cluster is
+ * Desktop (md+): single fixed top bar — Logo | spacer | Donate | Join Us | Menu.
+ * Mobile (<md): brand row scrolls with page; Donate | Menu | Join Us cluster is
  * repositioned to a fixed bottom bar via `.site-header-controls` CSS.
  */
 export function SiteHeader({settings, children}: SiteHeaderProps) {
@@ -45,7 +45,7 @@ export function SiteHeader({settings, children}: SiteHeaderProps) {
       <div className="site-header-bar-inner">
         {/* Brand / logo — always visible at top */}
         <Link
-          className="home-link flex shrink-0 items-center gap-2 text-base font-semibold text-[color:var(--color-ink)] sm:gap-3 sm:text-lg"
+          className="home-link flex shrink-0 items-center gap-3 text-lg font-semibold text-[color:var(--color-ink)]"
           href="/"
         >
           {campaignLogoUrl ? (
@@ -82,8 +82,8 @@ export function SiteHeader({settings, children}: SiteHeaderProps) {
 
           {volunteerUrl ? (
             <CmsLink className="sticky-action-btn sticky-action-btn-primary" href={volunteerUrl}>
-              <FaHandsHelping aria-hidden className="text-xs" />
-              <span>Volunteer</span>
+              <FaUsers aria-hidden className="text-xs" />
+              <span>Join Us</span>
             </CmsLink>
           ) : null}
         </div>
