@@ -1,27 +1,24 @@
 'use client'
 
-import {useEffect, useRef, useState} from 'react'
+import {useEffect, useId, useRef, useState} from 'react'
 
 /**
- * Animated SVG of Indiana's state outline with Senate District 48 highlighted.
+ * 7-phase animated SVG map.
  *
- * GIS data sources:
- * - State outline: PublicaMundi/MappingAPI us-states.json (simplified Natural Earth)
- * - District 48: US Census Bureau TIGERweb 2024, Layer 56
- *   "2024 State Legislative Districts - Upper", GEOID 18048
+ * Phase 1 – Indiana outline draws (stroke-dashoffset)
+ * Phase 2 – Indiana fills with subtle color
+ * Phase 3 – District label types out; arrow draws toward district
+ * Phase 4 – (gap — arrow finishes)
+ * Phase 5 – District 48 outline draws
+ * Phase 6 – ViewBox zooms into district
+ * Phase 7 – Counties appear one by one with labels
  *
- * Projection: equirectangular with cos(38.96°) correction.
- * Douglas-Peucker simplification: state ε=0.8, district ε=1.0.
- *
- * The state outline draws itself stroke-by-stroke when scrolled into view
- * using the classic stroke-dasharray / stroke-dashoffset technique.
- * District 48 fills in with accent color after the outline completes.
- * Respects prefers-reduced-motion by showing the final state immediately.
+ * Triggers on scroll via IntersectionObserver.
+ * Respects prefers-reduced-motion by jumping to final state.
  */
 
-/* ── Real GIS-derived SVG paths ─────────────────────────────────────── */
+/* ── GIS paths ─────────────────────────────────────────────────────── */
 
-/** Indiana state outline — 45 pts, Natural Earth via PublicaMundi */
 const INDIANA_STATE_PATH =
   'M200.59 12.19 L309.5 12.19 L310 163.08 L308.49 330.36 L301.43 335.61 ' +
   'L308.99 368.41 L292.86 369.07 L275.71 380.22 L252.02 374.97 L253.03 398.59 ' +
@@ -33,10 +30,6 @@ const INDIANA_STATE_PATH =
   'L50.34 386.13 L61.93 369.07 L60.42 348.08 L48.82 322.49 L58.91 300.84 ' +
   'L59.41 18.1 L68.49 25.97 L96.72 25.97 L123.95 12.19 L200.59 12.19 Z'
 
-/**
- * Senate District 48 — 125 pts, Census TIGERweb 2024 SLDU (GEOID 18048).
- * Covers all of Dubois & Perry counties, parts of Spencer, Crawford & Orange.
- */
 const DISTRICT_48_PATH =
   'M16.65 431.81 L17.05 434.94 L34.04 435.15 L34 438.34 L44.26 438.45 ' +
   'L44.24 442.36 L64.6 442.72 L64.65 438.42 L78.43 438.36 L78.44 433.05 ' +
@@ -64,89 +57,430 @@ const DISTRICT_48_PATH =
   'L39.15 412.89 L31.81 421.09 L29.74 429.39 L28.16 428.97 L27.47 425.13 ' +
   'L23.83 430.41 L23.88 427.07 L21.55 427.18 L19.22 434.13 L16.65 431.81 Z'
 
-/** District 48 centroid from Census INTPTLAT/INTPTLON, projected to SVG */
+/** District 48 centroid (Census INTPTLAT/INTPTLON projected to SVG coords) */
 const DISTRICT_CENTER = {x: 97, y: 442}
 
-/* ── Component ──────────────────────────────────────────────────────── */
+/* ── Animation constants ───────────────────────────────────────────── */
 
-export function IndianaDistrictMap() {
+// Overestimates of path lengths — safe for stroke-dasharray
+const INDIANA_LEN = 2200
+const DISTRICT_LEN = 1600
+const ARROW_LEN = 460
+
+// Full Indiana view
+const VB_FULL = '0 0 320 500'
+// Zoomed district view — tightly frames the 4 counties with ~15px padding
+// x: 35–200 covers Spencer (51) → Crawford (188); y: 378–493 covers all rivers
+const VB_DISTRICT = [35, 378, 165, 115] as const
+
+// Arrow from label area down to district
+const ARROW_PATH = `M 160 52 C 150 200 120 320 ${DISTRICT_CENTER.x} ${DISTRICT_CENTER.y - 8}`
+
+/**
+ * County boundaries projected into SVG space using:
+ *   x = (lon + 88.097) × 90.47 + 10
+ *   y = (41.761 − lat) × 116.9 + 12.19
+ *
+ * Source: Census county boundaries (lat/lon) projected to match the
+ * equirectangular cos(38.96°) projection used by INDIANA_STATE_PATH.
+ *
+ * Orange County is excluded — District 48's northern boundary runs at
+ * ~38.47°N inside Crawford, which falls short of Orange's southern edge
+ * (~38.51°N).  Districts: Dubois (full), Perry (full), Spencer (full),
+ * Crawford (full minus a thin northern strip ~0.04°).
+ */
+const COUNTIES: {name: string; cx: number; cy: number; path: string}[] = [
+  {
+    name: 'Dubois',
+    cx: 121, cy: 412,
+    path: 'M104.4 392.3 L138.0 392.3 L138.0 428.3 L104.4 428.3 Z',
+  },
+  {
+    name: 'Perry',
+    cx: 136, cy: 456,
+    path:
+      'M104.5 428.3 L152.2 428.3 L156.3 434.4 L161.3 441.4 L165.3 447.8 ' +
+      'L168.9 453.6 L172.1 457.7 L173.5 461.2 L170.8 464.7 L163.5 468.2 ' +
+      'L156.3 472.9 L149.0 476.4 L141.8 478.5 L121.0 478.5 ' +
+      'L113.7 475.2 L108.3 470.6 L104.5 464.7 Z',
+  },
+  {
+    name: 'Spencer',
+    cx: 78, cy: 456,
+    path:
+      'M104.5 428.3 L104.5 478.5 L93.0 478.5 L83.9 478.5 L76.7 478.3 ' +
+      'L70.3 477.1 L64.0 475.2 L58.6 472.9 L54.1 470.6 L51.3 467.0 ' +
+      'L51.3 462.4 L54.1 457.7 L56.7 453.0 L60.4 447.2 L64.9 441.4 ' +
+      'L71.2 434.4 L76.7 428.3 Z',
+  },
+  {
+    name: 'Crawford',
+    cx: 163, cy: 420,
+    path:
+      'M138.0 392.3 L177.5 392.3 L188.4 419.1 L187.1 428.3 ' +
+      'L184.4 434.4 L177.1 439.0 L160.8 442.5 L152.2 440.2 ' +
+      'L152.2 428.3 L138.0 428.3 Z',
+  },
+]
+
+/* ── Helpers ───────────────────────────────────────────────────────── */
+
+function easeInOut(t: number): number {
+  return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t
+}
+
+/* ── Component ─────────────────────────────────────────────────────── */
+
+export function IndianaDistrictMap({
+  label = 'District 48',
+  arrowColor = '#E2AD33',
+  textColor = '#222',
+}: {
+  label?: string
+  arrowColor?: string
+  textColor?: string
+} = {}) {
+  const uid = useId().replace(/:/g, '-')
+  const markerId = `arrowhead${uid}`
+
   const svgRef = useRef<SVGSVGElement>(null)
-  const [isVisible, setIsVisible] = useState(false)
+  const rafRef = useRef(0)
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([])
+  const viewBoxRef = useRef(VB_FULL)
+  const dragRef = useRef<{x: number; y: number; vb: number[]} | null>(null)
+
+  const [phase, setPhase] = useState(0)
+  const [typedLabel, setTypedLabel] = useState('')
+  const [typingKey, setTypingKey] = useState(0)
+  const [countiesShown, setCountiesShown] = useState(0)
+  const [indiaOffset, setIndiaOffset] = useState(INDIANA_LEN)
+  const [districtOffset, setDistrictOffset] = useState(DISTRICT_LEN)
+  const [arrowOffset, setArrowOffset] = useState(ARROW_LEN)
+  const [viewBox, setViewBox] = useState(VB_FULL)
+  const [hoveredCounty, setHoveredCounty] = useState<string | null>(null)
+  const [isDragging, setIsDragging] = useState(false)
+
+  // ── Utilities ──────────────────────────────────────────────────────
+
+  function clear() {
+    timersRef.current.forEach(clearTimeout)
+    timersRef.current = []
+    cancelAnimationFrame(rafRef.current)
+  }
+
+  function after(ms: number, fn: () => void) {
+    const id = setTimeout(fn, ms)
+    timersRef.current.push(id)
+  }
+
+  /** Set viewBox in both state and ref so animations always read the live value. */
+  function applyViewBox(vb: string) {
+    viewBoxRef.current = vb
+    setViewBox(vb)
+  }
+
+  /** Smoothly interpolate the viewBox from its current value to `to`. */
+  function animateViewBox(to: number[], duration = 350) {
+    cancelAnimationFrame(rafRef.current)
+    const from = viewBoxRef.current.split(' ').map(Number)
+    const start = performance.now()
+    function tick(now: number) {
+      const t = easeInOut(Math.min((now - start) / duration, 1))
+      applyViewBox(from.map((v, i) => v + (to[i] - v) * t).join(' '))
+      if (t < 1) rafRef.current = requestAnimationFrame(tick)
+    }
+    rafRef.current = requestAnimationFrame(tick)
+  }
+
+  function zoomToDistrict() {
+    animateViewBox([...VB_DISTRICT], 900)
+  }
+
+  // ── Animation sequence ─────────────────────────────────────────────
+
+  function startAnimation() {
+    clear()
+    setPhase(1)
+    setIndiaOffset(0)
+
+    after(1700, () => setPhase(2))
+    after(2600, () => { setPhase(3); setArrowOffset(0); setTypingKey(k => k + 1) })
+    after(4900, () => { setPhase(5); setDistrictOffset(0) })
+    after(6300, () => { setPhase(6); zoomToDistrict() })
+    after(7300, () => {
+      setPhase(7)
+      let n = 0
+      ;(function next() {
+        if (n < COUNTIES.length) { setCountiesShown(++n); after(650, next) }
+      })()
+    })
+  }
+
+  // ── Typewriter effect ──────────────────────────────────────────────
 
   useEffect(() => {
-    const svg = svgRef.current
-    if (!svg) return
+    if (!typingKey) return
+    let i = 0
+    setTypedLabel('')
+    const iv = setInterval(() => {
+      setTypedLabel(label.slice(0, ++i))
+      if (i >= label.length) clearInterval(iv)
+    }, 52)
+    return () => clearInterval(iv)
+  }, [typingKey, label])
 
-    // Respect reduced motion preference
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (prefersReducedMotion) {
-      setIsVisible(true)
+  // ── Mount / IntersectionObserver ───────────────────────────────────
+
+  useEffect(() => {
+    clear()
+    setPhase(0)
+    setIndiaOffset(INDIANA_LEN)
+    setDistrictOffset(DISTRICT_LEN)
+    setArrowOffset(ARROW_LEN)
+    setCountiesShown(0)
+    setTypedLabel('')
+    applyViewBox(VB_FULL)
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setPhase(7)
+      setTypedLabel(label)
+      setCountiesShown(COUNTIES.length)
+      setIndiaOffset(0)
+      setDistrictOffset(0)
+      setArrowOffset(0)
+      applyViewBox(VB_DISTRICT.join(' '))
       return
     }
 
-    const observer = new IntersectionObserver(
+    const el = svgRef.current
+    if (!el) return
+    let fired = false
+    const obs = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true)
-          observer.disconnect()
+        if (entry.isIntersecting && !fired) {
+          fired = true
+          obs.disconnect()
+          startAnimation()
         }
       },
-      {threshold: 0.3, rootMargin: '-5%'},
+      {threshold: 0.2},
     )
+    obs.observe(el)
+    return () => { obs.disconnect(); clear() }
+  }, [label]) // eslint-disable-line react-hooks/exhaustive-deps
 
-    observer.observe(svg)
-    return () => observer.disconnect()
-  }, [])
+  // ── Zoom controls ──────────────────────────────────────────────────
+
+  function zoomIn() {
+    const [x, y, w, h] = viewBoxRef.current.split(' ').map(Number)
+    const nw = w * 0.7, nh = h * 0.7
+    animateViewBox([x + (w - nw) / 2, y + (h - nh) / 2, nw, nh])
+  }
+
+  function zoomOut() {
+    const [x, y, w, h] = viewBoxRef.current.split(' ').map(Number)
+    const nw = Math.min(w / 0.7, 320), nh = Math.min(h / 0.7, 500)
+    const nx = Math.max(0, x - (nw - w) / 2), ny = Math.max(0, y - (nh - h) / 2)
+    animateViewBox([nx, ny, nw, nh])
+  }
+
+  function resetZoom() {
+    animateViewBox([...VB_DISTRICT])
+  }
+
+  // ── Pan (click-drag) ───────────────────────────────────────────────
+
+  function handleMouseDown(e: React.MouseEvent<SVGSVGElement>) {
+    cancelAnimationFrame(rafRef.current)
+    const vb = viewBoxRef.current.split(' ').map(Number)
+    dragRef.current = {x: e.clientX, y: e.clientY, vb}
+    setIsDragging(true)
+    e.preventDefault()
+  }
+
+  function handleMouseMove(e: React.MouseEvent<SVGSVGElement>) {
+    if (!dragRef.current || !svgRef.current) return
+    const rect = svgRef.current.getBoundingClientRect()
+    const {x: sx, y: sy, vb} = dragRef.current
+    const scaleX = vb[2] / rect.width
+    const scaleY = vb[3] / rect.height
+    const dx = (e.clientX - sx) * scaleX
+    const dy = (e.clientY - sy) * scaleY
+    applyViewBox(`${vb[0] - dx} ${vb[1] - dy} ${vb[2]} ${vb[3]}`)
+  }
+
+  function handleMouseUp() {
+    dragRef.current = null
+    setIsDragging(false)
+  }
+
+  // ── Render ─────────────────────────────────────────────────────────
+
+  const showLabel = phase >= 3 && phase < 6
 
   return (
-    <div className="indiana-district-map" aria-label="Map of Indiana highlighting Senate District 48">
+    <div className="w-full overflow-hidden rounded-xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] shadow-sm">
       <svg
         ref={svgRef}
-        viewBox="0 0 320 500"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className={`indiana-svg ${isVisible ? 'indiana-svg-visible' : ''}`}
-        role="img"
+        viewBox={viewBox}
+        width="100%"
+        height="auto"
+        style={{display: 'block', cursor: isDragging ? 'grabbing' : 'grab'}}
+        aria-label={`Map of Indiana showing ${label}`}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
       >
-        <title>Indiana State Senate District 48</title>
+        <defs>
+          <marker id={markerId} markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+            <path d="M1,1 L7,4 L1,7 Z" fill={arrowColor} />
+          </marker>
+        </defs>
 
-        {/* State outline — Natural Earth via PublicaMundi (45 pts) */}
+        {/* ── Phase 1+: Indiana outline (draws via dashoffset) ── */}
         <path
-          className="indiana-outline"
           d={INDIANA_STATE_PATH}
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
+          fill={phase >= 2 ? 'rgba(180,200,225,0.22)' : 'rgba(180,200,225,0)'}
+          stroke="#aab"
+          strokeWidth={2.5}
+          strokeDasharray={INDIANA_LEN}
+          strokeDashoffset={indiaOffset}
+          style={{
+            transition: phase >= 1
+              ? 'stroke-dashoffset 1.5s ease-out, fill 0.9s ease-out'
+              : 'none',
+          }}
         />
 
-        {/* District 48 — Census TIGERweb 2024 SLDU boundary (125 pts) */}
+        {/* ── Phase 5+: District 48 outline (draws via dashoffset) ── */}
         <path
-          className="indiana-district-48"
           d={DISTRICT_48_PATH}
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
+          fill={phase >= 6 ? `${arrowColor}4d` : `${arrowColor}00`}
+          stroke={phase >= 5 ? arrowColor : 'none'}
+          strokeWidth={2.5}
+          strokeDasharray={DISTRICT_LEN}
+          strokeDashoffset={districtOffset}
+          style={{transition: 'stroke-dashoffset 1.2s ease-out, fill 0.8s ease-out 0.5s'}}
         />
 
-        {/* District label */}
-        <text
-          className="indiana-district-label"
-          x={DISTRICT_CENTER.x}
-          y={DISTRICT_CENTER.y}
-          textAnchor="middle"
-          dominantBaseline="middle"
-        >
-          48
-        </text>
+        {/* ── Phase 7: County shapes + direct labels (sequential) ── */}
+        {COUNTIES.slice(0, countiesShown).map((c) => {
+          const isHovered = hoveredCounty === c.name
+          return (
+            <g
+              key={c.name}
+              style={{cursor: isDragging ? 'grabbing' : 'pointer'}}
+              onMouseEnter={() => !isDragging && setHoveredCounty(c.name)}
+              onMouseLeave={() => setHoveredCounty(null)}
+            >
+              <path
+                d={c.path}
+                fill={isHovered ? `${arrowColor}55` : `${arrowColor}22`}
+                stroke={arrowColor}
+                strokeWidth={isHovered ? 2 : 1.5}
+                style={{transition: 'fill 0.15s, stroke-width 0.15s'}}
+              />
+              {/* County name inside shape */}
+              <text
+                x={c.cx}
+                y={c.cy + 2.5}
+                fontSize={7}
+                fontWeight="bold"
+                fill={textColor}
+                textAnchor="middle"
+                dominantBaseline="middle"
+                style={{fontFamily: 'inherit', pointerEvents: 'none', userSelect: 'none'}}
+              >
+                {c.name}
+              </text>
+              {/* Hover tooltip — floats above the county */}
+              {isHovered && (
+                <g>
+                  <rect
+                    x={c.cx - 22}
+                    y={c.cy - 22}
+                    rx={3}
+                    width={44}
+                    height={13}
+                    fill="white"
+                    stroke={arrowColor}
+                    strokeWidth={0.6}
+                    opacity={0.95}
+                  />
+                  <text
+                    x={c.cx}
+                    y={c.cy - 15.5}
+                    fontSize={7.5}
+                    fontWeight="bold"
+                    fill={textColor}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    style={{fontFamily: 'inherit', pointerEvents: 'none', userSelect: 'none'}}
+                  >
+                    {c.name} Co.
+                  </text>
+                </g>
+              )}
+            </g>
+          )
+        })}
 
-        {/* Marker at Census-designated interior point of district */}
-        <circle
-          className="indiana-district-marker"
-          cx={DISTRICT_CENTER.x}
-          cy={DISTRICT_CENTER.y - 5}
-          r="4"
-        />
+        {/* ── Phases 3–5: Typewriter label + animated arrow ── */}
+        {showLabel && (
+          <>
+            <rect x={6} y={16} rx={5} width={308} height={32} fill="rgba(255,255,255,0.88)" />
+            <text
+              x={14}
+              y={38}
+              fontSize={15}
+              fontWeight="bold"
+              fill={textColor}
+              style={{fontFamily: 'inherit', letterSpacing: 0.3}}
+            >
+              {typedLabel}
+            </text>
+            <path
+              d={ARROW_PATH}
+              stroke={arrowColor}
+              strokeWidth={3}
+              fill="none"
+              strokeDasharray={ARROW_LEN}
+              strokeDashoffset={arrowOffset}
+              markerEnd={`url(#${markerId})`}
+              style={{transition: 'stroke-dashoffset 1.9s ease-in-out'}}
+            />
+          </>
+        )}
       </svg>
+
+      {/* ── Zoom controls (shown once counties are visible) ── */}
+      {phase >= 7 && (
+        <div className="flex items-center justify-end gap-1 border-t border-[color:var(--color-border)] px-2 py-1">
+          <span className="mr-auto text-xs text-[color:var(--color-muted)]">District 48</span>
+          <button
+            onClick={zoomOut}
+            aria-label="Zoom out"
+            className="flex h-6 w-6 items-center justify-center rounded text-sm font-bold text-[color:var(--color-muted)] hover:bg-[color:var(--color-highlight)] hover:text-[color:var(--color-ink)]"
+          >
+            −
+          </button>
+          <button
+            onClick={resetZoom}
+            aria-label="Reset zoom"
+            className="flex h-6 items-center justify-center rounded px-1.5 text-xs text-[color:var(--color-muted)] hover:bg-[color:var(--color-highlight)] hover:text-[color:var(--color-ink)]"
+          >
+            ↺
+          </button>
+          <button
+            onClick={zoomIn}
+            aria-label="Zoom in"
+            className="flex h-6 w-6 items-center justify-center rounded text-sm font-bold text-[color:var(--color-muted)] hover:bg-[color:var(--color-highlight)] hover:text-[color:var(--color-ink)]"
+          >
+            +
+          </button>
+        </div>
+      )}
     </div>
   )
 }

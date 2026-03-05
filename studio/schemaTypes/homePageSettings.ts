@@ -81,7 +81,7 @@ export const homePageSettings = defineType({
       title: 'Show District Map Illustration',
       type: 'boolean',
       group: 'hero',
-      initialValue: true,
+      initialValue: false,
       description:
         'Show an animated SVG of Indiana with District 48 highlighted. The outline draws itself when scrolled into view.',
     }),

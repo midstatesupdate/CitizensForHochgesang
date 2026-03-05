@@ -172,6 +172,9 @@ export default async function Home() {
                   )
                 })}
               </div>
+              {home.enableDistrictMap !== false && (
+                <IndianaDistrictMap label={districtLabel} />
+              )}
               <div className="flex flex-wrap gap-4 text-sm text-[color:var(--color-muted)]">
                 {textBadges.map((badge) => {
                   const BadgeIcon = resolveCmsIcon(badge.icon, FaBullhorn)
@@ -273,7 +276,6 @@ export default async function Home() {
           })}
         </div>
 
-        {home.enableDistrictMap !== false ? <IndianaDistrictMap /> : null}
       </section>
 
       {/* ── 2. "Why I'm Running" Section ── */}
