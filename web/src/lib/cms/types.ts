@@ -156,7 +156,6 @@ export type HomePageSettings = {
   candidatePortraitCaption?: string
   districtLabel?: string
   heroSummary?: string
-  enableDistrictMap?: boolean
   heroActions: Array<{
     label: string
     url: string
@@ -381,4 +380,103 @@ export type FundraisingLink = {
   description?: string
   imageUrl?: string
   priority: number
+}
+
+// ── Interactive Map types ──
+
+export type MapProjection = {
+  originLon: number
+  originLat: number
+  scaleX: number
+  scaleY: number
+  offsetX: number
+  offsetY: number
+}
+
+export type MapViewport = {
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
+export type MapRegionData = {
+  _key?: string
+  name: string
+  regionKey?: string
+  coordinatesJson: string
+  centroid?: string
+  fillColor?: string
+  strokeColor?: string
+  strokeWidth?: number
+  strokeStyle?: 'solid' | 'dashed' | 'dotted'
+  popupTitle?: string
+  popupBody?: PostBodyNode[]
+  popupLinkLabel?: string
+  popupLinkUrl?: string
+}
+
+export type MapLayerData = {
+  _key?: string
+  label: string
+  layerId: string
+  visible?: boolean
+  minZoomWidth?: number
+  defaultFillColor?: string
+  defaultStrokeColor?: string
+  defaultStrokeWidth?: number
+  defaultStrokeStyle?: 'solid' | 'dashed' | 'dotted'
+  regions?: MapRegionData[]
+}
+
+export type MapOverlayData = {
+  _key?: string
+  label: string
+  coordinatesJson: string
+  strokeColor?: string
+  strokeWidth?: number
+  strokeStyle?: 'solid' | 'dashed' | 'dotted'
+  opacity?: number
+  popupTitle?: string
+  popupBody?: PostBodyNode[]
+  popupLinkLabel?: string
+  popupLinkUrl?: string
+}
+
+export type MapPinData = {
+  _key?: string
+  label: string
+  longitude: number
+  latitude: number
+  color?: string
+  size?: 'sm' | 'md' | 'lg'
+  popupTitle?: string
+  popupBody?: PostBodyNode[]
+  popupLinkLabel?: string
+  popupLinkUrl?: string
+}
+
+export type InteractiveMapData = {
+  _id: string
+  title: string
+  slug: string
+  description?: string
+  projection?: MapProjection
+  defaultViewport?: MapViewport
+  layers?: MapLayerData[]
+  overlays?: MapOverlayData[]
+  pins?: MapPinData[]
+  height?: number
+  accentColor?: string
+  enableZoom?: boolean
+  enableAnimation?: boolean
+  animationPreset?: 'none' | 'district48' | 'fadeIn' | 'drawOutline'
+}
+
+export type MapEmbedData = {
+  _key?: string
+  _type: 'mapEmbed'
+  map?: InteractiveMapData
+  caption?: string
+  heightOverride?: number
 }

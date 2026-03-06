@@ -54,6 +54,7 @@ export const deskStructure: StructureResolver = (S) =>
             ]),
         ),
       S.listItem().title('Fundraising Links').child(S.documentTypeList('fundraisingLink')),
+      S.listItem().title('Interactive Maps').child(S.documentTypeList('interactiveMap')),
       S.divider(),
       S.listItem()
         .title('Visual Preset Quick Guide')

@@ -3,6 +3,7 @@ import Image from 'next/image'
 import {PortableText, type PortableTextComponents} from '@portabletext/react'
 
 import {CmsLink} from '@/components/cms-link'
+import {mapEmbedBlockType} from '@/components/map-embed-block-type'
 import {sharedBlockTypes} from '@/components/portable-block-types'
 import type {PostBodyNode, StatCalloutItem, StorySceneAnimation, StorySceneLayout} from '@/lib/cms/types'
 
@@ -72,6 +73,7 @@ const sceneBodyComponents: PortableTextComponents = {
   },
   types: {
     ...sharedBlockTypes,
+    ...mapEmbedBlockType,
     htmlEmbed: ({value}: {value: {html?: string}}) => {
       if (!value?.html) return null
       return <div className="portable-html-embed" dangerouslySetInnerHTML={{__html: value.html}} />
@@ -102,6 +104,7 @@ const articleComponents: PortableTextComponents = {
   },
   types: {
     ...sharedBlockTypes,
+    ...mapEmbedBlockType,
     htmlEmbed: ({value}: {value: {html?: string}}) => {
       if (!value?.html) return null
       return <div className="portable-html-embed" dangerouslySetInnerHTML={{__html: value.html}} />

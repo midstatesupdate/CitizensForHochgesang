@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/hochg/OneDrive/Documents/Repos/Maps/**)",
+      "Bash(npx tsc --noEmit --pretty)",
+      "Bash(npx sanity exec scripts/seed-district48-map.ts --with-user-token)"
+    ]
+  }
+}

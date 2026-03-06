@@ -1,127 +1,122 @@
 'use client'
 
-import {useEffect, useId, useRef, useState} from 'react'
+import {useCallback, useEffect, useId, useMemo, useRef, useState} from 'react'
+
+import {district, counties as geoCounties, stateOutline} from './indiana-district-map-coordinates'
+import type {LonLat} from './indiana-district-map-coordinates'
+import {MapPin} from './map-pin'
 
 /**
- * 7-phase animated SVG map.
+ * Interactive animated SVG map of Indiana Senate District 48.
  *
- * Phase 1 – Indiana outline draws (stroke-dashoffset)
- * Phase 2 – Indiana fills with subtle color
- * Phase 3 – District label types out; arrow draws toward district
- * Phase 4 – (gap — arrow finishes)
- * Phase 5 – District 48 outline draws
- * Phase 6 – ViewBox zooms into district
- * Phase 7 – Counties appear one by one with labels
- *
- * Triggers on scroll via IntersectionObserver.
- * Respects prefers-reduced-motion by jumping to final state.
+ * Zoom is locked to 4 discrete levels: state → district → county → township.
+ * Clicking a region zooms in and centers, then shows an info popup.
+ * Popup content is passed in via props (editable in Sanity Studio).
  */
 
-/* ── GIS paths ─────────────────────────────────────────────────────── */
+/* ── Projection: WGS84 → SVG (equirectangular cos(38.96°)) ───────── */
 
-const INDIANA_STATE_PATH =
-  'M200.59 12.19 L309.5 12.19 L310 163.08 L308.49 330.36 L301.43 335.61 ' +
-  'L308.99 368.41 L292.86 369.07 L275.71 380.22 L252.02 374.97 L253.03 398.59 ' +
-  'L237.39 408.43 L231.34 423.52 L215.21 429.42 L206.64 459.6 L196.05 467.47 ' +
-  'L175.38 456.32 L171.85 442.54 L151.68 457.63 L153.19 470.75 L132.52 475.34 ' +
-  'L126.47 463.54 L103.28 475.34 L95.71 487.81 L72.52 470.1 L60.42 474.03 ' +
-  'L52.35 465.5 L44.79 474.03 L21.6 475.34 L13.03 486.5 L10 478.62 ' +
-  'L15.55 450.42 L22.61 444.51 L20.08 429.42 L30.67 427.45 L47.31 401.87 ' +
-  'L50.34 386.13 L61.93 369.07 L60.42 348.08 L48.82 322.49 L58.91 300.84 ' +
-  'L59.41 18.1 L68.49 25.97 L96.72 25.97 L123.95 12.19 L200.59 12.19 Z'
+function toSvgX(lon: number) { return (lon + 88.097) * 90.47 + 10 }
+function toSvgY(lat: number) { return (41.761 - lat) * 116.9 + 12.19 }
 
-const DISTRICT_48_PATH =
-  'M16.65 431.81 L17.05 434.94 L34.04 435.15 L34 438.34 L44.26 438.45 ' +
-  'L44.24 442.36 L64.6 442.72 L64.65 438.42 L78.43 438.36 L78.44 433.05 ' +
-  'L80.16 433.06 L80.14 434.78 L100.89 434.67 L100.88 438.12 L106 438.14 ' +
-  'L106.01 448.36 L100.96 448.36 L98.6 455.42 L99.47 456.58 L96.13 457.28 ' +
-  'L93.94 455.48 L92.3 458.93 L93.51 460.14 L90.77 461.26 L91.42 462.21 ' +
-  'L82.94 471.51 L82.85 477.14 L87.39 480.65 L92.73 481.72 L95.72 488.19 ' +
-  'L97.46 488.59 L101.62 485.52 L104.5 473.73 L109.81 470.78 L115.14 470.06 ' +
-  'L124.13 462.6 L126.49 463.82 L132.28 475.16 L137.04 472.7 L140.1 473.46 ' +
-  'L139.14 481.25 L143.98 479.54 L145.52 471.94 L150.46 472.46 L153.01 470.89 ' +
-  'L151.35 466.54 L151.35 458.97 L152.18 457.37 L157.13 456.84 L159.73 454.66 ' +
-  'L159.87 452.37 L156.9 450.26 L157.21 448.04 L159.87 447.4 L162.7 450.03 ' +
-  'L164.63 447.07 L169.74 446.2 L169.67 444.08 L165.3 442.69 L164.94 439.97 ' +
-  'L166.89 438.75 L170.66 441.24 L171.35 438.38 L173 438.33 L173.85 428.44 ' +
-  'L174.88 429.18 L176.41 427.33 L175.34 425.59 L174.11 426.43 L173.22 423.02 ' +
-  'L174.5 424.07 L174.72 419.27 L176.92 420.67 L175.63 416.9 L177.07 416.06 ' +
-  'L175.57 415.15 L176.19 411.9 L171.26 411.88 L171.24 415.33 L136.94 415.24 ' +
-  'L136.86 399.48 L122.58 399.47 L118.76 403.25 L113.78 402 L112.22 403.79 ' +
-  'L108.02 401.01 L101.85 402.51 L97.7 398.12 L93.67 400.74 L88.98 396.39 ' +
-  'L87.27 397.99 L84.82 397.42 L84.07 399.45 L79.88 401.41 L74.93 397.43 ' +
-  'L73.56 397.94 L73.58 401.18 L72.28 398.11 L70.24 397.78 L69.55 399.45 ' +
-  'L68.42 397.77 L67.67 399.18 L63.5 399.35 L64 401.11 L61.97 403.34 ' +
-  'L58.69 402.78 L58.83 400.91 L57.42 400.56 L57.89 403.5 L53.79 402.79 ' +
-  'L52.44 408.54 L49.13 409.56 L47.15 407.59 L45.61 409.05 L46.47 410.92 ' +
-  'L39.15 412.89 L31.81 421.09 L29.74 429.39 L28.16 428.97 L27.47 425.13 ' +
-  'L23.83 430.41 L23.88 427.07 L21.55 427.18 L19.22 434.13 L16.65 431.81 Z'
+function ringToSvgPath(coords: LonLat[]): string {
+  return coords
+    .map((c, i) => `${i === 0 ? 'M' : 'L'}${toSvgX(c[0]).toFixed(1)} ${toSvgY(c[1]).toFixed(1)}`)
+    .join(' ') + ' Z'
+}
 
-/** District 48 centroid (Census INTPTLAT/INTPTLON projected to SVG coords) */
-const DISTRICT_CENTER = {x: 97, y: 442}
+/* ── GIS paths (projected from coordinates file) ──────────────────── */
+
+const INDIANA_STATE_PATH = stateOutline.rings.map(r => ringToSvgPath(r.coordinates)).join(' ')
+
+const STATE_BOUNDS = {
+  minX: toSvgX(stateOutline.bbox.minLon),
+  maxX: toSvgX(stateOutline.bbox.maxLon),
+  minY: toSvgY(stateOutline.bbox.maxLat),
+  maxY: toSvgY(stateOutline.bbox.minLat),
+}
+
+const STATE_CENTER = {
+  x: (STATE_BOUNDS.minX + STATE_BOUNDS.maxX) / 2,
+  y: (STATE_BOUNDS.minY + STATE_BOUNDS.maxY) / 2,
+}
+
+const DISTRICT_48_PATH = district.rings.map(r => ringToSvgPath(r.coordinates)).join(' ')
+const DISTRICT_CENTER = {x: toSvgX(district.centroid[0]), y: toSvgY(district.centroid[1])}
+
+const COUNTY_COLORS: Record<string, string> = {
+  Dubois: '#c8dfc8',
+  Perry: '#c8d4e8',
+  Spencer: '#e8d4c8',
+  Crawford: '#e8e8c8',
+  Gibson: '#f0d8c0',
+  Pike: '#d8e0f0',
+}
+
+const COUNTIES = geoCounties.map(c => ({
+  name: c.name,
+  cx: toSvgX(c.centroid[0]),
+  cy: toSvgY(c.centroid[1]),
+  path: c.rings.map(r => ringToSvgPath(r.coordinates)).join(' '),
+  color: COUNTY_COLORS[c.name] ?? '#ddd',
+  bbox: c.bbox,
+  townships: c.townships.map(t => ({
+    name: t.name.replace(/\s*(Township|Twp)$/i, ''),
+    cx: toSvgX(t.centroid[0]),
+    cy: toSvgY(t.centroid[1]),
+    path: t.rings.map(r => ringToSvgPath(r.coordinates)).join(' '),
+  })),
+}))
 
 /* ── Animation constants ───────────────────────────────────────────── */
 
-// Overestimates of path lengths — safe for stroke-dasharray
-const INDIANA_LEN = 2200
-const DISTRICT_LEN = 1600
+const INDIANA_LEN = 8000
+const DISTRICT_LEN = 5000
 const ARROW_LEN = 460
 
-// Full Indiana view
-const VB_FULL = '0 0 320 500'
-// Zoomed district view — tightly frames the 4 counties with ~15px padding
-// x: 35–200 covers Spencer (51) → Crawford (188); y: 378–493 covers all rivers
-const VB_DISTRICT = [35, 378, 165, 115] as const
+/* ── Zoom levels ──────────────────────────────────────────────────── */
 
-// Arrow from label area down to district
-const ARROW_PATH = `M 160 52 C 150 200 120 320 ${DISTRICT_CENTER.x} ${DISTRICT_CENTER.y - 8}`
+type ZoomLevel = 'state' | 'district' | 'county' | 'township'
 
-/**
- * County boundaries projected into SVG space using:
- *   x = (lon + 88.097) × 90.47 + 10
- *   y = (41.761 − lat) × 116.9 + 12.19
- *
- * Source: Census county boundaries (lat/lon) projected to match the
- * equirectangular cos(38.96°) projection used by INDIANA_STATE_PATH.
- *
- * Orange County is excluded — District 48's northern boundary runs at
- * ~38.47°N inside Crawford, which falls short of Orange's southern edge
- * (~38.51°N).  Districts: Dubois (full), Perry (full), Spencer (full),
- * Crawford (full minus a thin northern strip ~0.04°).
- */
-const COUNTIES: {name: string; cx: number; cy: number; path: string}[] = [
-  {
-    name: 'Dubois',
-    cx: 121, cy: 412,
-    path: 'M104.4 392.3 L138.0 392.3 L138.0 428.3 L104.4 428.3 Z',
-  },
-  {
-    name: 'Perry',
-    cx: 136, cy: 456,
-    path:
-      'M104.5 428.3 L152.2 428.3 L156.3 434.4 L161.3 441.4 L165.3 447.8 ' +
-      'L168.9 453.6 L172.1 457.7 L173.5 461.2 L170.8 464.7 L163.5 468.2 ' +
-      'L156.3 472.9 L149.0 476.4 L141.8 478.5 L121.0 478.5 ' +
-      'L113.7 475.2 L108.3 470.6 L104.5 464.7 Z',
-  },
-  {
-    name: 'Spencer',
-    cx: 78, cy: 456,
-    path:
-      'M104.5 428.3 L104.5 478.5 L93.0 478.5 L83.9 478.5 L76.7 478.3 ' +
-      'L70.3 477.1 L64.0 475.2 L58.6 472.9 L54.1 470.6 L51.3 467.0 ' +
-      'L51.3 462.4 L54.1 457.7 L56.7 453.0 L60.4 447.2 L64.9 441.4 ' +
-      'L71.2 434.4 L76.7 428.3 Z',
-  },
-  {
-    name: 'Crawford',
-    cx: 163, cy: 420,
-    path:
-      'M138.0 392.3 L177.5 392.3 L188.4 419.1 L187.1 428.3 ' +
-      'L184.4 434.4 L177.1 439.0 L160.8 442.5 L152.2 440.2 ' +
-      'L152.2 428.3 L138.0 428.3 Z',
-  },
-]
+const PAD = 4
+
+function bboxToVB(minX: number, minY: number, maxX: number, maxY: number, pad: number): number[] {
+  return [minX - pad, minY - pad, maxX - minX + pad * 2, maxY - minY + pad * 2]
+}
+
+const VB_STATE = bboxToVB(STATE_BOUNDS.minX, STATE_BOUNDS.minY, STATE_BOUNDS.maxX, STATE_BOUNDS.maxY, PAD)
+const VB_FULL = VB_STATE.join(' ')
+
+const _dpad = 8
+const VB_DISTRICT = bboxToVB(
+  toSvgX(district.bbox.minLon), toSvgY(district.bbox.maxLat),
+  toSvgX(district.bbox.maxLon), toSvgY(district.bbox.minLat), _dpad,
+)
+
+function countyVB(name: string): number[] {
+  const c = geoCounties.find(gc => gc.name === name)
+  if (!c) return VB_DISTRICT
+  return bboxToVB(
+    toSvgX(c.bbox.minLon), toSvgY(c.bbox.maxLat),
+    toSvgX(c.bbox.maxLon), toSvgY(c.bbox.minLat), 4,
+  )
+}
+
+function zoomLevelForWidth(w: number): ZoomLevel {
+  const stateW = VB_STATE[2]
+  const districtW = VB_DISTRICT[2]
+  const avgCountyW = COUNTIES.reduce((s, c) => {
+    const vb = countyVB(c.name)
+    return s + vb[2]
+  }, 0) / COUNTIES.length
+
+  if (w > (stateW + districtW) / 2) return 'state'
+  if (w > (districtW + avgCountyW) / 2) return 'district'
+  if (w > avgCountyW * 0.5) return 'county'
+  return 'township'
+}
+
+const ARROW_PATH = `M ${STATE_CENTER.x.toFixed(0)} ${(STATE_BOUNDS.minY + 40).toFixed(0)} C ${(STATE_CENTER.x - 10).toFixed(0)} ${STATE_CENTER.y.toFixed(0)} ${(DISTRICT_CENTER.x + 30).toFixed(0)} ${(DISTRICT_CENTER.y - 60).toFixed(0)} ${DISTRICT_CENTER.x.toFixed(0)} ${(DISTRICT_CENTER.y - 8).toFixed(0)}`
 
 /* ── Helpers ───────────────────────────────────────────────────────── */
 
@@ -129,25 +124,66 @@ function easeInOut(t: number): number {
   return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t
 }
 
+function clampViewBox(vb: number[]): number[] {
+  let [x, y, w, h] = vb
+  if (w > VB_STATE[2]) { w = VB_STATE[2]; h = VB_STATE[3] }
+  const minW = VB_STATE[2] * 0.04
+  if (w < minW) { const ratio = h / w; w = minW; h = w * ratio }
+  const bx = STATE_BOUNDS.minX - PAD
+  const by = STATE_BOUNDS.minY - PAD
+  const bw = STATE_BOUNDS.maxX - STATE_BOUNDS.minX + PAD * 2
+  const bh = STATE_BOUNDS.maxY - STATE_BOUNDS.minY + PAD * 2
+  if (x < bx) x = bx
+  if (y < by) y = by
+  if (x + w > bx + bw) x = bx + bw - w
+  if (y + h > by + bh) y = by + bh - h
+  return [x, y, w, h]
+}
+
+/* ── Popup content types ──────────────────────────────────────────── */
+
+export type MapRegion =
+  | {type: 'state'; name: 'Indiana'}
+  | {type: 'district'; name: string; number: number}
+  | {type: 'county'; name: string}
+  | {type: 'township'; name: string; county: string}
+
+export interface MapRegionPopup {
+  key: string
+  title: string
+  body?: unknown[]
+  linkLabel?: string
+  linkUrl?: string
+}
+
 /* ── Component ─────────────────────────────────────────────────────── */
 
 export function IndianaDistrictMap({
   label = 'District 48',
-  arrowColor = '#E2AD33',
-  textColor = '#222',
+  accentColor = '#8b1a1a',
+  textColor = '#1a1a2e',
+  width = '100%',
+  height = 600,
+  popups,
+  renderPopupBody,
 }: {
   label?: string
-  arrowColor?: string
+  accentColor?: string
   textColor?: string
+  width?: string | number
+  height?: number
+  popups?: MapRegionPopup[]
+  renderPopupBody?: (body: unknown[]) => React.ReactNode
 } = {}) {
   const uid = useId().replace(/:/g, '-')
   const markerId = `arrowhead${uid}`
+  const shadowId = `sh${uid}`
 
   const svgRef = useRef<SVGSVGElement>(null)
   const rafRef = useRef(0)
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([])
   const viewBoxRef = useRef(VB_FULL)
-  const dragRef = useRef<{x: number; y: number; vb: number[]} | null>(null)
+  const dragRef = useRef<{x: number; y: number; vb: number[]; moved: boolean} | null>(null)
 
   const [phase, setPhase] = useState(0)
   const [typedLabel, setTypedLabel] = useState('')
@@ -157,8 +193,108 @@ export function IndianaDistrictMap({
   const [districtOffset, setDistrictOffset] = useState(DISTRICT_LEN)
   const [arrowOffset, setArrowOffset] = useState(ARROW_LEN)
   const [viewBox, setViewBox] = useState(VB_FULL)
-  const [hoveredCounty, setHoveredCounty] = useState<string | null>(null)
+  const [hoveredRegion, setHoveredRegion] = useState<string | null>(null)
   const [isDragging, setIsDragging] = useState(false)
+  const [activePopup, setActivePopup] = useState<MapRegionPopup | null>(null)
+  const [popupPosition, setPopupPosition] = useState<{x: number; y: number} | null>(null)
+
+  const currentWidth = useMemo(() => viewBox.split(' ').map(Number)[2], [viewBox])
+  const currentZoom = useMemo(() => zoomLevelForWidth(currentWidth), [currentWidth])
+
+  const showCountyFills = phase >= 7 && (currentZoom === 'district' || currentZoom === 'county' || currentZoom === 'township')
+  const showTownships = phase >= 7 && (currentZoom === 'county' || currentZoom === 'township')
+  const showTownshipLabels = phase >= 7 && currentZoom === 'township'
+  const showCountyLabels = phase >= 7 && (currentZoom === 'district' || currentZoom === 'county' || currentZoom === 'township')
+  const showIndianaLabel = phase >= 2 && currentZoom === 'state'
+  const showDistrictLabel = phase >= 7
+  // Show pins at district and county levels
+  const showCountyPins = phase >= 7 && (currentZoom === 'district' || currentZoom === 'county')
+  const showDistrictPin = phase >= 7 && currentZoom === 'state'
+  const showTownshipPins = phase >= 7 && currentZoom === 'township'
+
+  const popupMap = useMemo(() => {
+    const map = new Map<string, MapRegionPopup>()
+    popups?.forEach(p => map.set(p.key, p))
+    return map
+  }, [popups])
+
+  // ── Pin size based on zoom ────────────────────────────────────────
+
+  const pinSize = Math.max(3, Math.min(12, currentWidth * 0.035))
+
+  // ── Popup helpers ──────────────────────────────────────────────────
+
+  function regionKey(region: MapRegion): string {
+    if (region.type === 'township') return `township:${region.county}:${region.name}`
+    return `${region.type}:${region.name}`
+  }
+
+  function showPopupForRegion(region: MapRegion, svgX: number, svgY: number) {
+    const key = regionKey(region)
+    const popup = popupMap.get(key)
+    if (!popup) {
+      const title = region.type === 'township'
+        ? `${region.name} Township — ${region.county} County`
+        : region.type === 'county'
+          ? `${region.name} County`
+          : region.type === 'district'
+            ? `Senate ${region.name}`
+            : region.name
+      setActivePopup({key, title})
+    } else {
+      setActivePopup(popup)
+    }
+    if (svgRef.current) {
+      const rect = svgRef.current.getBoundingClientRect()
+      const vb = viewBoxRef.current.split(' ').map(Number)
+      const screenX = rect.left + ((svgX - vb[0]) / vb[2]) * rect.width
+      const screenY = rect.top + ((svgY - vb[1]) / vb[3]) * rect.height
+      setPopupPosition({x: screenX, y: screenY})
+    }
+  }
+
+  function closePopup() {
+    setActivePopup(null)
+    setPopupPosition(null)
+  }
+
+  // ── Click handling — zoom to region + show popup ──────────────────
+
+  const handleRegionClick = useCallback((region: MapRegion, svgX: number, svgY: number, e?: React.MouseEvent) => {
+    e?.stopPropagation()
+    closePopup()
+    // No popup for Indiana — just zoom
+    if (region.type === 'state') {
+      animateViewBox([...VB_STATE], 700)
+      return
+    }
+    if (region.type === 'district') {
+      animateViewBox([...VB_DISTRICT], 700)
+      setTimeout(() => showPopupForRegion(region, DISTRICT_CENTER.x, DISTRICT_CENTER.y), 750)
+    } else if (region.type === 'county') {
+      const vb = countyVB(region.name)
+      animateViewBox(vb, 700)
+      const c = COUNTIES.find(c => c.name === region.name)
+      setTimeout(() => showPopupForRegion(region, c?.cx ?? svgX, c?.cy ?? svgY), 750)
+    } else if (region.type === 'township') {
+      const c = COUNTIES.find(c => c.name === region.county)
+      const t = c?.townships.find(t => t.name === region.name)
+      if (t) {
+        const twpVb = clampViewBox([t.cx - 15, t.cy - 15, 30, 30])
+        animateViewBox(twpVb, 700)
+        setTimeout(() => showPopupForRegion(region, t.cx, t.cy), 750)
+      }
+    }
+  }, [popupMap]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Background click to dismiss popup ──────────────────────────────
+
+  function handleSvgClick() {
+    // Only close if we didn't just finish dragging
+    if (activePopup && !isDragging) {
+      closePopup()
+    }
+  }
 
   // ── Utilities ──────────────────────────────────────────────────────
 
@@ -173,27 +309,71 @@ export function IndianaDistrictMap({
     timersRef.current.push(id)
   }
 
-  /** Set viewBox in both state and ref so animations always read the live value. */
   function applyViewBox(vb: string) {
     viewBoxRef.current = vb
     setViewBox(vb)
   }
 
-  /** Smoothly interpolate the viewBox from its current value to `to`. */
   function animateViewBox(to: number[], duration = 350) {
     cancelAnimationFrame(rafRef.current)
     const from = viewBoxRef.current.split(' ').map(Number)
     const start = performance.now()
     function tick(now: number) {
       const t = easeInOut(Math.min((now - start) / duration, 1))
-      applyViewBox(from.map((v, i) => v + (to[i] - v) * t).join(' '))
+      const interp = from.map((v, i) => v + (to[i] - v) * t)
+      applyViewBox(clampViewBox(interp).join(' '))
       if (t < 1) rafRef.current = requestAnimationFrame(tick)
     }
     rafRef.current = requestAnimationFrame(tick)
   }
 
-  function zoomToDistrict() {
-    animateViewBox([...VB_DISTRICT], 900)
+  function zoomToDistrict() { animateViewBox([...VB_DISTRICT], 900) }
+
+  // ── Discrete zoom step functions ───────────────────────────────────
+
+  function zoomInStep() {
+    closePopup()
+    if (currentZoom === 'state') {
+      animateViewBox([...VB_DISTRICT], 600)
+    } else if (currentZoom === 'district') {
+      const vb = viewBoxRef.current.split(' ').map(Number)
+      const cx = vb[0] + vb[2] / 2, cy = vb[1] + vb[3] / 2
+      let nearest = COUNTIES[0]
+      let minDist = Infinity
+      for (const c of COUNTIES) {
+        const d = Math.hypot(c.cx - cx, c.cy - cy)
+        if (d < minDist) { minDist = d; nearest = c }
+      }
+      animateViewBox(countyVB(nearest.name), 600)
+    } else if (currentZoom === 'county') {
+      const vb = viewBoxRef.current.split(' ').map(Number)
+      const nw = vb[2] * 0.4, nh = vb[3] * 0.4
+      animateViewBox(clampViewBox([vb[0] + (vb[2] - nw) / 2, vb[1] + (vb[3] - nh) / 2, nw, nh]), 600)
+    }
+  }
+
+  function zoomOutStep() {
+    closePopup()
+    if (currentZoom === 'township') {
+      const vb = viewBoxRef.current.split(' ').map(Number)
+      const cx = vb[0] + vb[2] / 2, cy = vb[1] + vb[3] / 2
+      let nearest = COUNTIES[0]
+      let minDist = Infinity
+      for (const c of COUNTIES) {
+        const d = Math.hypot(c.cx - cx, c.cy - cy)
+        if (d < minDist) { minDist = d; nearest = c }
+      }
+      animateViewBox(countyVB(nearest.name), 600)
+    } else if (currentZoom === 'county') {
+      animateViewBox([...VB_DISTRICT], 600)
+    } else if (currentZoom === 'district') {
+      animateViewBox([...VB_STATE], 600)
+    }
+  }
+
+  function resetZoom() {
+    closePopup()
+    animateViewBox([...VB_DISTRICT], 600)
   }
 
   // ── Animation sequence ─────────────────────────────────────────────
@@ -212,6 +392,7 @@ export function IndianaDistrictMap({
       let n = 0
       ;(function next() {
         if (n < COUNTIES.length) { setCountiesShown(++n); after(650, next) }
+        else { after(300, () => setPhase(8)) }
       })()
     })
   }
@@ -233,6 +414,7 @@ export function IndianaDistrictMap({
 
   useEffect(() => {
     clear()
+    closePopup()
     setPhase(0)
     setIndiaOffset(INDIANA_LEN)
     setDistrictOffset(DISTRICT_LEN)
@@ -242,7 +424,7 @@ export function IndianaDistrictMap({
     applyViewBox(VB_FULL)
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setPhase(7)
+      setPhase(8)
       setTypedLabel(label)
       setCountiesShown(COUNTIES.length)
       setIndiaOffset(0)
@@ -269,31 +451,31 @@ export function IndianaDistrictMap({
     return () => { obs.disconnect(); clear() }
   }, [label]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Zoom controls ──────────────────────────────────────────────────
+  // ── Wheel zoom (snaps to discrete levels) ──────────────────────────
 
-  function zoomIn() {
-    const [x, y, w, h] = viewBoxRef.current.split(' ').map(Number)
-    const nw = w * 0.7, nh = h * 0.7
-    animateViewBox([x + (w - nw) / 2, y + (h - nh) / 2, nw, nh])
-  }
-
-  function zoomOut() {
-    const [x, y, w, h] = viewBoxRef.current.split(' ').map(Number)
-    const nw = Math.min(w / 0.7, 320), nh = Math.min(h / 0.7, 500)
-    const nx = Math.max(0, x - (nw - w) / 2), ny = Math.max(0, y - (nh - h) / 2)
-    animateViewBox([nx, ny, nw, nh])
-  }
-
-  function resetZoom() {
-    animateViewBox([...VB_DISTRICT])
-  }
+  useEffect(() => {
+    const el = svgRef.current
+    if (!el || phase < 7) return
+    let cooldown = false
+    function onWheel(e: WheelEvent) {
+      e.preventDefault()
+      if (cooldown) return
+      cooldown = true
+      setTimeout(() => { cooldown = false }, 400)
+      if (e.deltaY > 0) zoomOutStep()
+      else zoomInStep()
+    }
+    el.addEventListener('wheel', onWheel, {passive: false})
+    return () => el.removeEventListener('wheel', onWheel)
+  }, [phase, currentZoom]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Pan (click-drag) ───────────────────────────────────────────────
 
   function handleMouseDown(e: React.MouseEvent<SVGSVGElement>) {
+    if (phase < 7) return
     cancelAnimationFrame(rafRef.current)
     const vb = viewBoxRef.current.split(' ').map(Number)
-    dragRef.current = {x: e.clientX, y: e.clientY, vb}
+    dragRef.current = {x: e.clientX, y: e.clientY, vb, moved: false}
     setIsDragging(true)
     e.preventDefault()
   }
@@ -302,166 +484,439 @@ export function IndianaDistrictMap({
     if (!dragRef.current || !svgRef.current) return
     const rect = svgRef.current.getBoundingClientRect()
     const {x: sx, y: sy, vb} = dragRef.current
+    const dx = e.clientX - sx
+    const dy = e.clientY - sy
+    // Track if user actually moved (to distinguish click from drag)
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) dragRef.current.moved = true
     const scaleX = vb[2] / rect.width
     const scaleY = vb[3] / rect.height
-    const dx = (e.clientX - sx) * scaleX
-    const dy = (e.clientY - sy) * scaleY
-    applyViewBox(`${vb[0] - dx} ${vb[1] - dy} ${vb[2]} ${vb[3]}`)
+    const clamped = clampViewBox([vb[0] - dx * scaleX, vb[1] - dy * scaleY, vb[2], vb[3]])
+    applyViewBox(clamped.join(' '))
   }
 
   function handleMouseUp() {
+    const wasDrag = dragRef.current?.moved ?? false
     dragRef.current = null
     setIsDragging(false)
+    // If it was just a click (no drag movement), dismiss popup
+    if (!wasDrag && activePopup) {
+      closePopup()
+    }
   }
+
+  // ── Label font sizes based on zoom ─────────────────────────────────
+
+  const countyFontSize = Math.max(5, Math.min(10, currentWidth * 0.04))
+  const townshipFontSize = Math.max(3.5, Math.min(6, currentWidth * 0.025))
 
   // ── Render ─────────────────────────────────────────────────────────
 
-  const showLabel = phase >= 3 && phase < 6
+  const showArrow = phase >= 3 && phase < 6
+  const zoomLabel = currentZoom === 'state' ? 'State'
+    : currentZoom === 'district' ? 'District'
+    : currentZoom === 'county' ? 'County'
+    : 'Township'
 
   return (
-    <div className="w-full overflow-hidden rounded-xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] shadow-sm">
+    <div
+      className="relative w-full overflow-hidden rounded-xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] shadow-sm"
+      style={{width, maxWidth: '100%'}}
+    >
       <svg
         ref={svgRef}
         viewBox={viewBox}
         width="100%"
-        height="auto"
-        style={{display: 'block', cursor: isDragging ? 'grabbing' : 'grab'}}
+        height={height}
+        style={{display: 'block', cursor: phase < 7 ? 'default' : isDragging ? 'grabbing' : 'grab'}}
         aria-label={`Map of Indiana showing ${label}`}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
+        onClick={handleSvgClick}
       >
         <defs>
           <marker id={markerId} markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
-            <path d="M1,1 L7,4 L1,7 Z" fill={arrowColor} />
+            <path d="M1,1 L7,4 L1,7 Z" fill={accentColor} />
           </marker>
+          <filter id={shadowId}>
+            <feDropShadow dx="0.5" dy="0.5" stdDeviation="1" floodColor="#00000018" />
+          </filter>
         </defs>
 
-        {/* ── Phase 1+: Indiana outline (draws via dashoffset) ── */}
+        {/* ── Phase 1+: Indiana outline ── */}
         <path
           d={INDIANA_STATE_PATH}
-          fill={phase >= 2 ? 'rgba(180,200,225,0.22)' : 'rgba(180,200,225,0)'}
-          stroke="#aab"
-          strokeWidth={2.5}
+          fill={phase >= 2 ? 'rgba(235,232,225,0.4)' : 'rgba(235,232,225,0)'}
+          stroke="#1a1a2e"
+          strokeWidth={1.8}
+          strokeLinejoin="round"
+          strokeLinecap="round"
           strokeDasharray={INDIANA_LEN}
           strokeDashoffset={indiaOffset}
           style={{
             transition: phase >= 1
               ? 'stroke-dashoffset 1.5s ease-out, fill 0.9s ease-out'
               : 'none',
+            pointerEvents: 'none',
           }}
         />
 
-        {/* ── Phase 5+: District 48 outline (draws via dashoffset) ── */}
-        <path
-          d={DISTRICT_48_PATH}
-          fill={phase >= 6 ? `${arrowColor}4d` : `${arrowColor}00`}
-          stroke={phase >= 5 ? arrowColor : 'none'}
-          strokeWidth={2.5}
-          strokeDasharray={DISTRICT_LEN}
-          strokeDashoffset={districtOffset}
-          style={{transition: 'stroke-dashoffset 1.2s ease-out, fill 0.8s ease-out 0.5s'}}
-        />
+        {/* ── Phase 2+: Indiana label at centroid (at state zoom) ── */}
+        {showIndianaLabel && (
+          <text
+            x={STATE_CENTER.x}
+            y={STATE_CENTER.y}
+            fontSize={18}
+            fontWeight="bold"
+            fill={textColor}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            letterSpacing="0.15em"
+            style={{
+              fontFamily: 'inherit',
+              pointerEvents: 'none',
+              userSelect: 'none',
+              opacity: 0.6,
+              textTransform: 'uppercase',
+            }}
+          >
+            Indiana
+          </text>
+        )}
 
-        {/* ── Phase 7: County shapes + direct labels (sequential) ── */}
-        {COUNTIES.slice(0, countiesShown).map((c) => {
-          const isHovered = hoveredCounty === c.name
+        {/* ── Phase 7+: County shapes ── */}
+        {phase >= 7 && COUNTIES.slice(0, countiesShown).map((c) => {
+          const isHovered = hoveredRegion === `county:${c.name}`
           return (
-            <g
-              key={c.name}
-              style={{cursor: isDragging ? 'grabbing' : 'pointer'}}
-              onMouseEnter={() => !isDragging && setHoveredCounty(c.name)}
-              onMouseLeave={() => setHoveredCounty(null)}
-            >
+            <g key={c.name}>
               <path
                 d={c.path}
-                fill={isHovered ? `${arrowColor}55` : `${arrowColor}22`}
-                stroke={arrowColor}
-                strokeWidth={isHovered ? 2 : 1.5}
-                style={{transition: 'fill 0.15s, stroke-width 0.15s'}}
+                fill={showCountyFills ? (isHovered ? adjustAlpha(c.color, 0.9) : c.color) : 'transparent'}
+                stroke={showCountyFills ? textColor : 'transparent'}
+                strokeWidth={isHovered ? 1.5 : 1.0}
+                strokeLinejoin="round"
+                filter={showCountyFills ? `url(#${shadowId})` : undefined}
+                style={{
+                  transition: 'fill 0.3s, stroke 0.3s, stroke-width 0.15s',
+                  cursor: isDragging ? 'grabbing' : 'pointer',
+                }}
+                onMouseEnter={() => !isDragging && setHoveredRegion(`county:${c.name}`)}
+                onMouseLeave={() => setHoveredRegion(null)}
+                onClick={(e) => handleRegionClick({type: 'county', name: c.name}, c.cx, c.cy, e)}
               />
-              {/* County name inside shape */}
-              <text
-                x={c.cx}
-                y={c.cy + 2.5}
-                fontSize={7}
-                fontWeight="bold"
-                fill={textColor}
-                textAnchor="middle"
-                dominantBaseline="middle"
-                style={{fontFamily: 'inherit', pointerEvents: 'none', userSelect: 'none'}}
-              >
-                {c.name}
-              </text>
-              {/* Hover tooltip — floats above the county */}
-              {isHovered && (
-                <g>
-                  <rect
-                    x={c.cx - 22}
-                    y={c.cy - 22}
-                    rx={3}
-                    width={44}
-                    height={13}
-                    fill="white"
-                    stroke={arrowColor}
-                    strokeWidth={0.6}
-                    opacity={0.95}
+
+              {/* Township shapes (zoom-dependent) */}
+              {showTownships && c.townships.map((t) => {
+                const isHoveredTwp = hoveredRegion === `twp:${c.name}:${t.name}`
+                return (
+                  <path
+                    key={t.name}
+                    d={t.path}
+                    fill={isHoveredTwp ? `${accentColor}18` : 'transparent'}
+                    stroke="#556"
+                    strokeWidth={0.45}
+                    strokeLinejoin="round"
+                    strokeDasharray="3,2.5"
+                    style={{
+                      transition: 'fill 0.15s, opacity 0.5s',
+                      cursor: isDragging ? 'grabbing' : 'pointer',
+                      opacity: 0.8,
+                    }}
+                    onMouseEnter={() => !isDragging && setHoveredRegion(`twp:${c.name}:${t.name}`)}
+                    onMouseLeave={() => setHoveredRegion(null)}
+                    onClick={(e) => handleRegionClick({type: 'township', name: t.name, county: c.name}, t.cx, t.cy, e)}
                   />
-                  <text
-                    x={c.cx}
-                    y={c.cy - 15.5}
-                    fontSize={7.5}
-                    fontWeight="bold"
-                    fill={textColor}
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                    style={{fontFamily: 'inherit', pointerEvents: 'none', userSelect: 'none'}}
-                  >
-                    {c.name} Co.
-                  </text>
-                </g>
-              )}
+                )
+              })}
             </g>
           )
         })}
 
-        {/* ── Phases 3–5: Typewriter label + animated arrow ── */}
-        {showLabel && (
-          <>
-            <rect x={6} y={16} rx={5} width={308} height={32} fill="rgba(255,255,255,0.88)" />
+        {/* ── Phase 5+: District 48 outline (pointer-events: none so clicks reach counties) ── */}
+        <path
+          d={DISTRICT_48_PATH}
+          fill={phase >= 6 ? `${accentColor}1a` : `${accentColor}00`}
+          stroke={phase >= 5 ? accentColor : 'none'}
+          strokeWidth={1.5}
+          strokeLinejoin="round"
+          strokeLinecap="round"
+          strokeDasharray={DISTRICT_LEN}
+          strokeDashoffset={districtOffset}
+          style={{
+            transition: 'stroke-dashoffset 1.2s ease-out, fill 0.8s ease-out 0.5s',
+            filter: phase >= 5 ? `drop-shadow(0 0 2px ${accentColor}44)` : 'none',
+            pointerEvents: 'none',
+          }}
+        />
+
+        {/* ── County labels at centroids ── */}
+        {showCountyLabels && COUNTIES.slice(0, countiesShown).map((c) => (
+          <text
+            key={`label-${c.name}`}
+            x={c.cx}
+            y={c.cy}
+            fontSize={countyFontSize}
+            fontWeight="bold"
+            fill={textColor}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            letterSpacing="0.06em"
+            style={{
+              fontFamily: 'inherit',
+              pointerEvents: 'none',
+              userSelect: 'none',
+              textTransform: 'uppercase',
+              opacity: 0.9,
+            }}
+          >
+            {c.name}
+          </text>
+        ))}
+
+        {/* ── Township labels at centroids ── */}
+        {showTownshipLabels && COUNTIES.slice(0, countiesShown).map((c) =>
+          c.townships.map((t) => (
             <text
-              x={14}
-              y={38}
-              fontSize={15}
-              fontWeight="bold"
-              fill={textColor}
-              style={{fontFamily: 'inherit', letterSpacing: 0.3}}
+              key={`twp-label-${c.name}-${t.name}`}
+              x={t.cx}
+              y={t.cy}
+              fontSize={townshipFontSize}
+              fill="#444"
+              textAnchor="middle"
+              dominantBaseline="middle"
+              style={{
+                fontFamily: 'inherit',
+                fontStyle: 'italic',
+                pointerEvents: 'none',
+                userSelect: 'none',
+                opacity: 0.85,
+              }}
             >
-              {typedLabel}
+              {t.name}
             </text>
-            <path
-              d={ARROW_PATH}
-              stroke={arrowColor}
-              strokeWidth={3}
-              fill="none"
-              strokeDasharray={ARROW_LEN}
-              strokeDashoffset={arrowOffset}
-              markerEnd={`url(#${markerId})`}
-              style={{transition: 'stroke-dashoffset 1.9s ease-in-out'}}
-            />
-          </>
+          ))
         )}
+
+        {/* ── District label at centroid ── */}
+        {showDistrictLabel && (
+          <text
+            x={DISTRICT_CENTER.x}
+            y={DISTRICT_CENTER.y + countyFontSize * 3}
+            fontSize={countyFontSize * 0.85}
+            fontWeight="bold"
+            fill={accentColor}
+            textAnchor="middle"
+            letterSpacing="0.1em"
+            style={{
+              fontFamily: 'inherit',
+              pointerEvents: 'none',
+              userSelect: 'none',
+              textTransform: 'uppercase',
+            }}
+          >
+            Senate District 48
+          </text>
+        )}
+
+        {/* ── Pins: District pin (at state zoom) ── */}
+        {showDistrictPin && (
+          <MapPin
+            cx={DISTRICT_CENTER.x}
+            cy={DISTRICT_CENTER.y}
+            size={pinSize * 1.5}
+            color={accentColor}
+            hovered={hoveredRegion === 'pin:district'}
+            onMouseEnter={() => setHoveredRegion('pin:district')}
+            onMouseLeave={() => setHoveredRegion(null)}
+            onClick={(e) => handleRegionClick({type: 'district', name: label, number: 48}, DISTRICT_CENTER.x, DISTRICT_CENTER.y, e)}
+          />
+        )}
+
+        {/* ── Pins: County pins (at district/county zoom) ── */}
+        {showCountyPins && COUNTIES.slice(0, countiesShown).map((c) => (
+          <MapPin
+            key={`pin-${c.name}`}
+            cx={c.cx}
+            cy={c.cy}
+            size={pinSize}
+            color={accentColor}
+            hovered={hoveredRegion === `pin:county:${c.name}`}
+            onMouseEnter={() => setHoveredRegion(`pin:county:${c.name}`)}
+            onMouseLeave={() => setHoveredRegion(null)}
+            onClick={(e) => handleRegionClick({type: 'county', name: c.name}, c.cx, c.cy, e)}
+          />
+        ))}
+
+        {/* ── Pins: Township pins (at township zoom) ── */}
+        {showTownshipPins && COUNTIES.slice(0, countiesShown).map((c) =>
+          c.townships.map((t) => (
+            <MapPin
+              key={`pin-twp-${c.name}-${t.name}`}
+              cx={t.cx}
+              cy={t.cy}
+              size={pinSize * 0.7}
+              color="#556"
+              hovered={hoveredRegion === `pin:twp:${c.name}:${t.name}`}
+              onMouseEnter={() => setHoveredRegion(`pin:twp:${c.name}:${t.name}`)}
+              onMouseLeave={() => setHoveredRegion(null)}
+              onClick={(e) => handleRegionClick({type: 'township', name: t.name, county: c.name}, t.cx, t.cy, e)}
+            />
+          ))
+        )}
+
+        {/* ── Hover tooltip ── */}
+        {hoveredRegion && !isDragging && (() => {
+          const parts = hoveredRegion.replace(/^pin:/, '').split(':')
+          let cx = 0, cy = 0, tooltipLabel = ''
+          if (parts[0] === 'district') {
+            cx = DISTRICT_CENTER.x; cy = DISTRICT_CENTER.y - pinSize * 2
+            tooltipLabel = `Senate ${label}`
+          } else if (parts[0] === 'county') {
+            const c = COUNTIES.find(c => c.name === parts[1])
+            if (!c) return null
+            cx = c.cx; cy = c.cy - pinSize * 2
+            tooltipLabel = `${c.name} County`
+          } else if (parts[0] === 'twp') {
+            const c = COUNTIES.find(c => c.name === parts[1])
+            const t = c?.townships.find(t => t.name === parts[2])
+            if (!t) return null
+            cx = t.cx; cy = t.cy - pinSize * 1.5
+            tooltipLabel = `${t.name} Twp — ${parts[1]} Co.`
+          }
+          if (!tooltipLabel) return null
+          const fontSize = Math.max(4, currentWidth * 0.02)
+          const padX = fontSize * 0.8
+          const padY = fontSize * 0.5
+          const estWidth = tooltipLabel.length * fontSize * 0.55
+          return (
+            <g style={{pointerEvents: 'none'}}>
+              <rect
+                x={cx - estWidth / 2 - padX}
+                y={cy - fontSize / 2 - padY}
+                rx={2}
+                width={estWidth + padX * 2}
+                height={fontSize + padY * 2}
+                fill={textColor}
+                opacity={0.9}
+              />
+              <text
+                x={cx}
+                y={cy + fontSize * 0.1}
+                fontSize={fontSize}
+                fontWeight="bold"
+                fill="#f4f0e8"
+                textAnchor="middle"
+                dominantBaseline="middle"
+                style={{fontFamily: 'inherit', userSelect: 'none'}}
+              >
+                {tooltipLabel}
+              </text>
+            </g>
+          )
+        })()}
+
+        {/* ── Phases 3–5: Typewriter label + animated arrow ── */}
+        {showArrow && (() => {
+          const vb = viewBox.split(' ').map(Number)
+          const labelX = vb[0] + vb[2] * 0.05
+          const labelY = vb[1] + vb[2] * 0.07
+          const labelFontSize = vb[2] * 0.045
+          const bgW = vb[2] * 0.92
+          const bgH = labelFontSize * 2.2
+          return (
+            <>
+              <rect
+                x={labelX - labelFontSize * 0.3}
+                y={labelY - labelFontSize * 1.1}
+                rx={3}
+                width={bgW}
+                height={bgH}
+                fill="rgba(255,255,255,0.88)"
+              />
+              <text
+                x={labelX}
+                y={labelY}
+                fontSize={labelFontSize}
+                fontWeight="bold"
+                fill={textColor}
+                style={{fontFamily: 'inherit', letterSpacing: '0.03em'}}
+              >
+                {typedLabel}
+              </text>
+              <path
+                d={ARROW_PATH}
+                stroke={accentColor}
+                strokeWidth={3}
+                fill="none"
+                strokeDasharray={ARROW_LEN}
+                strokeDashoffset={arrowOffset}
+                markerEnd={`url(#${markerId})`}
+                style={{transition: 'stroke-dashoffset 1.9s ease-in-out'}}
+              />
+            </>
+          )
+        })()}
       </svg>
 
-      {/* ── Zoom controls (shown once counties are visible) ── */}
+      {/* ── Info popup (Google Maps style — overlays the map) ── */}
+      {activePopup && popupPosition && (
+        <div
+          className="absolute z-10 w-72 rounded-lg border border-[color:var(--color-border)] bg-[color:var(--color-surface)] shadow-xl"
+          style={{
+            left: Math.min(
+              Math.max(8, popupPosition.x - (svgRef.current?.getBoundingClientRect().left ?? 0) - 144),
+              (svgRef.current?.getBoundingClientRect().width ?? 300) - 296,
+            ),
+            top: Math.min(
+              Math.max(8, popupPosition.y - (svgRef.current?.getBoundingClientRect().top ?? 0) - 20),
+              height - 80,
+            ),
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            onClick={closePopup}
+            className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full text-xs text-[color:var(--color-muted)] hover:bg-[color:var(--color-highlight)] hover:text-[color:var(--color-ink)]"
+            aria-label="Close popup"
+          >
+            ×
+          </button>
+
+          <div className="p-4">
+            <h3 className="mb-2 pr-6 text-sm font-bold text-[color:var(--color-ink)]">
+              {activePopup.title}
+            </h3>
+
+            {activePopup.body && renderPopupBody && (
+              <div className="mb-3 text-xs leading-relaxed text-[color:var(--color-muted)]">
+                {renderPopupBody(activePopup.body)}
+              </div>
+            )}
+
+            {activePopup.linkUrl && (
+              <a
+                href={activePopup.linkUrl}
+                className="inline-block rounded bg-[color:var(--color-accent)] px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90"
+              >
+                {activePopup.linkLabel ?? 'Learn more'}
+              </a>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Zoom controls ── */}
       {phase >= 7 && (
         <div className="flex items-center justify-end gap-1 border-t border-[color:var(--color-border)] px-2 py-1">
-          <span className="mr-auto text-xs text-[color:var(--color-muted)]">District 48</span>
+          <span className="mr-auto text-xs text-[color:var(--color-muted)]">
+            {zoomLabel} view — click regions to explore
+          </span>
           <button
-            onClick={zoomOut}
+            onClick={zoomOutStep}
+            disabled={currentZoom === 'state'}
             aria-label="Zoom out"
-            className="flex h-6 w-6 items-center justify-center rounded text-sm font-bold text-[color:var(--color-muted)] hover:bg-[color:var(--color-highlight)] hover:text-[color:var(--color-ink)]"
+            className="flex h-6 w-6 items-center justify-center rounded text-sm font-bold text-[color:var(--color-muted)] hover:bg-[color:var(--color-highlight)] hover:text-[color:var(--color-ink)] disabled:opacity-30"
           >
             −
           </button>
@@ -473,9 +928,10 @@ export function IndianaDistrictMap({
             ↺
           </button>
           <button
-            onClick={zoomIn}
+            onClick={zoomInStep}
+            disabled={currentZoom === 'township'}
             aria-label="Zoom in"
-            className="flex h-6 w-6 items-center justify-center rounded text-sm font-bold text-[color:var(--color-muted)] hover:bg-[color:var(--color-highlight)] hover:text-[color:var(--color-ink)]"
+            className="flex h-6 w-6 items-center justify-center rounded text-sm font-bold text-[color:var(--color-muted)] hover:bg-[color:var(--color-highlight)] hover:text-[color:var(--color-ink)] disabled:opacity-30"
           >
             +
           </button>
@@ -483,4 +939,11 @@ export function IndianaDistrictMap({
       )}
     </div>
   )
+}
+
+function adjustAlpha(hex: string, alpha: number): string {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return `rgba(${r},${g},${b},${alpha})`
 }

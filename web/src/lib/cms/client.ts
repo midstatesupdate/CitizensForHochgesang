@@ -9,6 +9,7 @@ type QueryOptions = {
 }
 
 const IS_PRODUCTION_BUILD = process.env.NEXT_PHASE === 'phase-production-build'
+const USE_DRAFTS = process.env.SANITY_PREVIEW_DRAFTS === 'true'
 
 type SanityResponse<T> = {
   result: T
@@ -20,7 +21,7 @@ function buildQueryUrl(query: string, params?: Record<string, QueryParam>): stri
   )
 
   url.searchParams.set('query', query)
-  url.searchParams.set('perspective', 'published')
+  url.searchParams.set('perspective', USE_DRAFTS ? 'previewDrafts' : 'published')
 
   if (params) {
     for (const [key, value] of Object.entries(params)) {

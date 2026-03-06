@@ -7,6 +7,9 @@ import {fundraisingLink} from './fundraisingLink'
 import {homePageSettings} from './homePageSettings'
 import {htmlEmbed} from './htmlEmbed'
 import {infoBox} from './infoBox'
+import {interactiveMap} from './interactiveMap'
+import {mapEmbed} from './mapEmbed'
+import {mapRegionPopup} from './mapRegionPopup'
 import {mediaLink} from './mediaLink'
 import {mediaPageSettings} from './mediaPageSettings'
 import {mediaSettings} from './mediaSettings'
@@ -38,10 +41,13 @@ export const schemaTypes = [
   // Document types
   post,
   event,
+  interactiveMap,
+  mapRegionPopup,
   mediaLink,
   mediaSettings,
   fundraisingLink,
   // Portable Text types
+  mapEmbed,
   htmlEmbed,
   videoEmbed,
   ctaButton,

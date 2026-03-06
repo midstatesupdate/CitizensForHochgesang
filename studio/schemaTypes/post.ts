@@ -176,6 +176,7 @@ export const post = defineType({
         defineArrayMember({type: 'ctaButton'}),
         defineArrayMember({type: 'pullQuote'}),
         defineArrayMember({type: 'infoBox'}),
+        defineArrayMember({type: 'mapEmbed'}),
       ],
       validation: (Rule) => Rule.required(),
     }),

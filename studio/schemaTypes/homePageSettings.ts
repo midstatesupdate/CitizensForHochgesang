@@ -77,15 +77,6 @@ export const homePageSettings = defineType({
       validation: (Rule) => Rule.max(280),
     }),
     defineField({
-      name: 'enableDistrictMap',
-      title: 'Show District Map Illustration',
-      type: 'boolean',
-      group: 'hero',
-      initialValue: false,
-      description:
-        'Show an animated SVG of Indiana with District 48 highlighted. The outline draws itself when scrolled into view.',
-    }),
-    defineField({
       name: 'heroActions',
       title: 'Hero Action Buttons',
       type: 'array',
@@ -224,6 +215,7 @@ export const homePageSettings = defineType({
         {type: 'ctaButton'},
         {type: 'pullQuote'},
         {type: 'infoBox'},
+        {type: 'mapEmbed'},
       ],
     }),
     defineField({

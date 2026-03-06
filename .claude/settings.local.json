@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(xargs grep -l \"enableDistrictMap\\\\|homePage\\\\|homePageSettings\")"
+      "Bash(xargs grep -l \"enableDistrictMap\\\\|homePage\\\\|homePageSettings\")",
+      "Bash(npx tsc --noEmit)"
     ]
   }
 }

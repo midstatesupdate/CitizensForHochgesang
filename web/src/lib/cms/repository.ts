@@ -13,6 +13,7 @@ import type {
   CampaignEvent,
   FundraisingLink,
   HomePageSettings,
+  InteractiveMapData,
   MediaLink,
   MediaSettings,
   PageVisibilityKey,
@@ -175,14 +176,14 @@ export async function getHomePageSettings(): Promise<HomePageSettings> {
     candidatePortraitCaption,
     "districtLabel": coalesce(districtLabel, "Indiana State Senate District 48"),
     heroSummary,
-    "enableDistrictMap": coalesce(enableDistrictMap, true),
     "heroActions": coalesce(heroActions[]{ label, url, icon, style }, []),
     "heroBadges": coalesce(heroBadges[]{ label, url, icon, placement }, []),
     "focusItems": coalesce(focusItems, []),
     whyRunningHeading,
     "whyRunningBody": coalesce(whyRunningBody[]{
       ...,
-      _type == "image" => { ..., "asset": { "url": asset->url } }
+      _type == "image" => { ..., "asset": { "url": asset->url } },
+      _type == "mapEmbed" => { ..., "map": map->${INTERACTIVE_MAP_PROJECTION} }
     }, []),
     "whyRunningImageUrl": whyRunningImage.asset->url,
     proofHeading,
@@ -313,6 +314,10 @@ export async function getPostBySlug(slug: string): Promise<PostDetail | null> {
       _type == "storyScene" => {
         ...,
         "mediaUrl": media.asset->url
+      },
+      _type == "mapEmbed" => {
+        ...,
+        "map": map->${INTERACTIVE_MAP_PROJECTION}
       }
     }, [])
     ,"storyTimeline": coalesce(storyTimeline[]{
@@ -430,6 +435,103 @@ export async function getFundraisingLinks(): Promise<FundraisingLink[]> {
   return links
     .map(({_id, ...link}) => ({id: _id, ...link}))
     .sort((a, b) => b.priority - a.priority)
+}
+
+export interface MapRegionPopupData {
+  key: string
+  title: string
+  body?: unknown[]
+  linkLabel?: string
+  linkUrl?: string
+}
+
+/** GROQ projection for dereferencing an interactiveMap reference (used by mapEmbed in portable text). */
+export const INTERACTIVE_MAP_PROJECTION = `{
+  "_id": _id,
+  title,
+  "slug": slug.current,
+  description,
+  projection,
+  defaultViewport,
+  "layers": coalesce(layers[]{
+    _key,
+    label,
+    layerId,
+    visible,
+    minZoomWidth,
+    defaultFillColor,
+    defaultStrokeColor,
+    defaultStrokeWidth,
+    defaultStrokeStyle,
+    "regions": coalesce(regions[]{
+      _key,
+      name,
+      regionKey,
+      coordinatesJson,
+      centroid,
+      fillColor,
+      strokeColor,
+      strokeWidth,
+      strokeStyle,
+      popupTitle,
+      "popupBody": popupBody[]{ ... },
+      popupLinkLabel,
+      popupLinkUrl
+    }, [])
+  }, []),
+  "overlays": coalesce(overlays[]{
+    _key,
+    label,
+    coordinatesJson,
+    strokeColor,
+    strokeWidth,
+    strokeStyle,
+    opacity,
+    popupTitle,
+    "popupBody": popupBody[]{ ... },
+    popupLinkLabel,
+    popupLinkUrl
+  }, []),
+  "pins": coalesce(pins[]{
+    _key,
+    label,
+    longitude,
+    latitude,
+    color,
+    size,
+    popupTitle,
+    "popupBody": popupBody[]{ ... },
+    popupLinkLabel,
+    popupLinkUrl
+  }, []),
+  height,
+  accentColor,
+  enableZoom,
+  enableAnimation,
+  animationPreset
+}`
+
+export async function getInteractiveMapBySlug(slug: string): Promise<InteractiveMapData | null> {
+  const query = `*[_type=="interactiveMap" && slug.current==$slug][0]${INTERACTIVE_MAP_PROJECTION}`
+  return sanityQuery<InteractiveMapData>(query, {slug})
+}
+
+export async function getInteractiveMapById(id: string): Promise<InteractiveMapData | null> {
+  const query = `*[_type=="interactiveMap" && _id==$id][0]${INTERACTIVE_MAP_PROJECTION}`
+  return sanityQuery<InteractiveMapData>(query, {id})
+}
+
+export async function getMapRegionPopups(): Promise<MapRegionPopupData[]> {
+  const query = `*[_type=="mapRegionPopup"]{
+    "key": regionKey,
+    title,
+    "body": body[]{ ... },
+    linkLabel,
+    linkUrl
+  }`
+
+  const result = await sanityQuery<MapRegionPopupData[]>(query)
+  return result ?? []
 }
 
 /**

@@ -4,7 +4,6 @@ import {FaBullhorn, FaCalendarAlt, FaHandsHelping, FaNewspaper, FaVideo, FaVoteY
 
 import {ElectionCountdown} from '@/components/election-countdown'
 import {CmsLink} from '@/components/cms-link'
-import {IndianaDistrictMap} from '@/components/indiana-district-map'
 import {MidPageCta} from '@/components/mid-page-cta'
 import {PageEffects} from '@/components/page-effects'
 import {ProofSection} from '@/components/proof-section'
@@ -172,9 +171,6 @@ export default async function Home() {
                   )
                 })}
               </div>
-              {home.enableDistrictMap !== false && (
-                <IndianaDistrictMap label={districtLabel} />
-              )}
               <div className="flex flex-wrap gap-4 text-sm text-[color:var(--color-muted)]">
                 {textBadges.map((badge) => {
                   const BadgeIcon = resolveCmsIcon(badge.icon, FaBullhorn)
