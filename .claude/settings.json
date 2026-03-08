@@ -3,7 +3,22 @@
     "allow": [
       "Read(//c/Users/hochg/OneDrive/Documents/Repos/Maps/**)",
       "Bash(npx tsc --noEmit --pretty)",
-      "Bash(npx sanity exec scripts/seed-district48-map.ts --with-user-token)"
+      "Bash(npx sanity exec scripts/seed-district48-map.ts --with-user-token)",
+      "Bash(curl -s \"https://n2oyijjv.api.sanity.io/v2025-02-19/data/query/production?query=*%5B_type%3D%3D%22homePageSettings%22%5D%5B0%5D.whyRunningBody%5B_type%3D%3D%22mapEmbed%22%5D\")",
+      "Bash(curl -s \"https://n2oyijjv.api.sanity.io/v2025-02-19/data/query/production\" -G --data-urlencode 'query=*[_type==\"\"homePageSettings\"\"][0].whyRunningBody[_type==\"\"mapEmbed\"\"]{..., \"\"map\"\": map->{_id, title, \"\"slug\"\": slug.current, layers}}')",
+      "Bash(python3 -m json.tool)",
+      "Bash(npx next build)",
+      "Bash(curl -s \"https://n2oyijjv.api.sanity.io/v2025-02-19/data/query/production\" -G --data-urlencode 'query=*[_type==\"\"homePageSettings\"\"][0].whyRunningBody[_type==\"\"mapEmbed\"\"]{..., \"\"map\"\": map->{\"\"_id\"\": _id, title, \"\"slug\"\": slug.current}}')",
+      "Bash(curl -s \"https://n2oyijjv.api.sanity.io/v2025-02-19/data/query/production\" -G --data-urlencode 'query=*[_type==\"\"homePageSettings\"\"][0].whyRunningBody[]._type')",
+      "Bash(timeout 20 npx next dev --turbopack)",
+      "Bash(curl -s http://localhost:3000)",
+      "Bash(grep -o 'mapEmbed[^\\\\\\\\]*\\\\\\\\[^\\\\\\\\]*\\\\\\\\[^\\\\\\\\]*\\\\\\\\[^\\\\\\\\]*\\\\\\\\[^\\\\\\\\]*')",
+      "Read(//tmp/**)",
+      "Bash(curl -s \"https://n2oyijjv.api.sanity.io/v2025-02-19/data/query/production?query=*%5B_type%3D%3D%22interactiveMap%22%5D%7B_id%2Ctitle%2CanimationPreset%7D&perspective=published\")",
+      "Bash(curl -s \"https://n2oyijjv.api.sanity.io/v2025-02-19/data/query/production\" --data-urlencode 'query=*[_type==\"\"homePageSettings\"\"][0].whyRunningBody[_type==\"\"mapEmbed\"\"][0]{..., \"\"map\"\": map->{_id, title, animationPreset, \"\"layerCount\"\": count\\(layers\\)}}' --data-urlencode 'perspective=published')",
+      "Bash(dd if=/tmp/page.html bs=1 skip=193000 count=200)",
+      "Bash(dd if=/tmp/page.html bs=1 skip=197500 count=300)",
+      "Bash(node -e \":*)"
     ]
   }
 }

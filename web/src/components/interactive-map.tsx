@@ -208,6 +208,7 @@ export function InteractiveMap({
   const rafRef = useRef(0)
   const viewBoxRef = useRef(initialVB)
   const dragRef = useRef<{x: number; y: number; vb: number[]; moved: boolean} | null>(null)
+  const justDraggedRef = useRef(false)
 
   const [viewBox, setViewBox] = useState(initialVB)
   const [hoveredKey, setHoveredKey] = useState<string | null>(null)
@@ -430,9 +431,10 @@ export function InteractiveMap({
   }
 
   function handleSvgClick() {
-    if (activePopup && !isDragging) {
+    if (activePopup && !justDraggedRef.current) {
       closePopup()
     }
+    justDraggedRef.current = false
   }
 
   // ── Wheel zoom ────────────────────────────────────────────────────
@@ -479,12 +481,14 @@ export function InteractiveMap({
   }
 
   function handleMouseUp() {
-    const wasDrag = dragRef.current?.moved ?? false
+    justDraggedRef.current = dragRef.current?.moved ?? false
     dragRef.current = null
     setIsDragging(false)
-    if (!wasDrag && activePopup) {
-      closePopup()
-    }
+  }
+
+  function handleMouseLeave() {
+    dragRef.current = null
+    setIsDragging(false)
   }
 
   // ── Zoom controls ─────────────────────────────────────────────────
@@ -529,7 +533,7 @@ export function InteractiveMap({
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
         onClick={handleSvgClick}
       >
         <defs>

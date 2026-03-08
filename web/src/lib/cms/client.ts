@@ -9,7 +9,8 @@ type QueryOptions = {
 }
 
 const IS_PRODUCTION_BUILD = process.env.NEXT_PHASE === 'phase-production-build'
-const USE_DRAFTS = process.env.SANITY_PREVIEW_DRAFTS === 'true'
+const SANITY_READ_TOKEN = process.env.SANITY_API_READ_TOKEN ?? ''
+const USE_DRAFTS = process.env.SANITY_PREVIEW_DRAFTS === 'true' && SANITY_READ_TOKEN.length > 0
 
 type SanityResponse<T> = {
   result: T
@@ -46,7 +47,11 @@ export async function sanityQuery<T>(
           : {cache: 'no-store' as const}
         : ({next: {revalidate: revalidateSeconds}} as const)
 
-    const response = await fetch(buildQueryUrl(query, params), fetchOptions)
+    const headers: Record<string, string> = {}
+    if (SANITY_READ_TOKEN) {
+      headers['Authorization'] = `Bearer ${SANITY_READ_TOKEN}`
+    }
+    const response = await fetch(buildQueryUrl(query, params), {...fetchOptions, headers})
 
     if (!response.ok) {
       return null

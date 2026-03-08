@@ -184,6 +184,7 @@ export function IndianaDistrictMap({
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([])
   const viewBoxRef = useRef(VB_FULL)
   const dragRef = useRef<{x: number; y: number; vb: number[]; moved: boolean} | null>(null)
+  const justDraggedRef = useRef(false)
 
   const [phase, setPhase] = useState(0)
   const [typedLabel, setTypedLabel] = useState('')
@@ -290,10 +291,11 @@ export function IndianaDistrictMap({
   // ── Background click to dismiss popup ──────────────────────────────
 
   function handleSvgClick() {
-    // Only close if we didn't just finish dragging
-    if (activePopup && !isDragging) {
+    // Close popup on background click (not after a drag)
+    if (activePopup && !justDraggedRef.current) {
       closePopup()
     }
+    justDraggedRef.current = false
   }
 
   // ── Utilities ──────────────────────────────────────────────────────
@@ -495,13 +497,14 @@ export function IndianaDistrictMap({
   }
 
   function handleMouseUp() {
-    const wasDrag = dragRef.current?.moved ?? false
+    justDraggedRef.current = dragRef.current?.moved ?? false
     dragRef.current = null
     setIsDragging(false)
-    // If it was just a click (no drag movement), dismiss popup
-    if (!wasDrag && activePopup) {
-      closePopup()
-    }
+  }
+
+  function handleMouseLeave() {
+    dragRef.current = null
+    setIsDragging(false)
   }
 
   // ── Label font sizes based on zoom ─────────────────────────────────
@@ -532,7 +535,7 @@ export function IndianaDistrictMap({
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
         onClick={handleSvgClick}
       >
         <defs>

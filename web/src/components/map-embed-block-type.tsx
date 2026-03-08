@@ -1,10 +1,13 @@
-'use client'
-
 /**
  * PortableText block-type renderer for `mapEmbed`.
  *
  * Exported separately from sharedBlockTypes to avoid a circular dependency
  * (InteractiveMapEmbed imports sharedBlockTypes for popup rendering).
+ *
+ * NOT marked 'use client' — this is a server component that renders the
+ * client-side InteractiveMapEmbed. If marked 'use client', the exported
+ * object becomes a client module reference that can't be spread into the
+ * PortableText types object in server components.
  *
  * Usage:
  * ```
